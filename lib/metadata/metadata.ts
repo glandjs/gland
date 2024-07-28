@@ -7,7 +7,7 @@ namespace Reflect {
 
     const metadataStorage: MetadataStorage = new Map();
 
-    export function define(metadataKey: MetadataKey, metadataValue: MetadataValue, target: MetadataTarget, propertyKey?: MetadataKey): void {
+    export function init(metadataKey: MetadataKey, metadataValue: MetadataValue, target: MetadataTarget, propertyKey?: MetadataKey): void {
         let targetMetadata = metadataStorage.get(target);
         if (!targetMetadata) {
             targetMetadata = new Map();
