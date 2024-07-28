@@ -1,17 +1,16 @@
 {
     "compilerOptions": {
+      "target": "es6",
       "module": "commonjs",
-      "noImplicitAny": false,
-      "noUnusedLocals": false,
-      "removeComments": true,
-      "noLib": false,
-      "emitDecoratorMetadata": true,
+      "strict": true,
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
       "experimentalDecorators": true,
-      "useUnknownInCatchVariables": false,
-      "target": "ES2021",
-      "sourceMap": true,
-      "allowJs": false,
-      "outDir": "dist",
+      "emitDecoratorMetadata": true,
+      "skipLibCheck": true
     },
-    "exclude": ["node_modules"]
+    "include": [
+        "./lib/**/*.ts"
+    ]
   }
+  
