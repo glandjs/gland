@@ -7,10 +7,13 @@
       "forceConsistentCasingInFileNames": true,
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
-      "skipLibCheck": true
+      "skipLibCheck": true,
+      "moduleResolution": "node",
+      "typeRoots": [
+        "node_modules/@types",
+        "lib/types"
+      ]
     },
-    "include": [
-        "./lib/**/*.ts"
-    ]
+    "include": ["lib/**/*.ts", "lib/types/gland.d.ts"]
   }
   
