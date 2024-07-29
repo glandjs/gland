@@ -33,12 +33,28 @@ const logColors: Record<LogLevel, string> = {
 
 const resetColor = '\x1b[0m';
 
+const categoryHeaders: Record<string, string> = {
+    server: '==========================\n\tSERVER:',
+    app: '==========================\n\tAPP:',
+    middleware: '==========================\n\tMIDDLEWARE:',
+    database: '=========================\n\tDATABASE:',
+    default: '==========================\n\tINFO:',
+};
+
+const getFormattedTimestamp = (format: 'iso' | 'locale'): string => {
+    const now = new Date();
+    return format === 'locale'
+        ? `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`
+        : now.toISOString().replace('T', ' ').replace('Z', '');
+};
+
 export class Logger {
     private static instance: Logger;
     private level: LogLevel;
     private fileStream?: fs.WriteStream;
     private jsonFormat: boolean;
     private timestampFormat: 'iso' | 'locale';
+    private lastCategory?: string;
 
     private constructor(options: LoggerOptions = defaultOpts) {
         this.level = options.level || defaultOpts.level!;
@@ -46,7 +62,7 @@ export class Logger {
         this.timestampFormat = options.timestampFormat ?? defaultOpts.timestampFormat!;
 
         if (options.file) {
-            this.fileStream = fs.createWriteStream(path.resolve(options.file), { flags: 'a' });
+            this.fileStream = fs.createWriteStream(path.join(process.cwd(), options.file), { flags: 'a' });
             this.fileStream.on('error', (err) => {
                 console.error(`Failed to write to log file: ${err.message}`);
                 this.fileStream = undefined;
@@ -62,16 +78,15 @@ export class Logger {
     }
 
     private getTimestamp(): string {
-        const now = new Date();
-        return this.timestampFormat === 'locale' ? now.toLocaleString() : now.toISOString();
+        return getFormattedTimestamp(this.timestampFormat);
     }
 
-    private formatMessage(message: string, level: LogLevel): string {
+    private formatMessage(message: string, level: LogLevel, category?: string): string {
         const timestamp = this.getTimestamp();
         if (this.jsonFormat) {
-            return JSON.stringify({ timestamp, level, message });
+            return JSON.stringify({ timestamp, level, category, message });
         } else {
-            return `[${timestamp}] [${level.toUpperCase()}]: ${message}`;
+            return `[${timestamp}] [${level.toUpperCase()}] ${category ? `[${category.toUpperCase()}]` : ''}: ${message}`;
         }
     }
 
@@ -79,41 +94,49 @@ export class Logger {
         return logLevels[level] >= logLevels[this.level];
     }
 
-    private logToConsole(message: string, level: LogLevel): void {
-        console.log(`${logColors[level]}${message}${resetColor}`);
+    private logToConsole(message: string, level: LogLevel, category?: string): void {
+        if (category && category !== this.lastCategory) {
+            console.log(`${logColors[level]}${categoryHeaders[category] || categoryHeaders['default']}${resetColor}`);
+            this.lastCategory = category;
+        }
+        console.log(`${logColors[level]}${message}${resetColor}\n`);
     }
 
-    private logToFile(message: string): void {
+    private logToFile(message: string, category?: string): void {
         if (this.fileStream) {
+            if (category && category !== this.lastCategory) {
+                this.fileStream.write(`${categoryHeaders[category] || categoryHeaders['default']}\n`);
+                this.lastCategory = category;
+            }
             this.fileStream.write(`${message}\n`);
         }
     }
 
-    private log(message: string, level: LogLevel): void {
+    private log(message: string, level: LogLevel, category?: string): void {
         if (this.shouldLog(level)) {
-            const formattedMessage = this.formatMessage(message, level);
-            this.logToConsole(formattedMessage, level);
-            this.logToFile(formattedMessage);
+            const formattedMessage = this.formatMessage(message, level, category);
+            this.logToConsole(formattedMessage, level, category);
+            this.logToFile(formattedMessage, category);
         }
     }
 
-    public info(message: string): void {
-        this.log(message, 'info');
+    public info(message: string, category?: string): void {
+        this.log(message, 'info', category);
     }
 
-    public warn(message: string): void {
-        this.log(message, 'warn');
+    public warn(message: string, category?: string): void {
+        this.log(message, 'warn', category);
     }
 
-    public error(message: string, error?: Error): void {
+    public error(message: string, error?: Error, category?: string): void {
         const errorMessage = error
             ? `${message}\nStack Trace: ${util.inspect(error.stack)}`
             : message;
-        this.log(errorMessage, 'error');
+        this.log(errorMessage, 'error', category);
     }
 
-    public debug(message: string): void {
-        this.log(message, 'debug');
+    public debug(message: string, category?: string): void {
+        this.log(message, 'debug', category);
     }
 
     public setLevel(level: LogLevel): void {
@@ -134,4 +157,6 @@ export class Logger {
         }
     }
 }
+
+// Create a singleton instance with default options
 export const logger = Logger.getInstance();
