@@ -1,10 +1,6 @@
-namespace Reflect {
-    export type MetadataKey = string | symbol;
-    export type MetadataValue = any;
-    export type MetadataMap = Map<MetadataKey, MetadataValue>;
-    export type MetadataTarget = object;
-    export type MetadataStorage = WeakMap<MetadataTarget, Map<MetadataKey, MetadataValue>>;
+import { MetadataKey, MetadataStorage, MetadataTarget, MetadataValue } from "../types/types";
 
+namespace Reflect {
     const metadataStorage: MetadataStorage = new Map();
 
     export function init(metadataKey: MetadataKey, metadataValue: MetadataValue, target: MetadataTarget, propertyKey?: MetadataKey): void {
