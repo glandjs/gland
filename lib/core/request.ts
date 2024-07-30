@@ -1,4 +1,4 @@
-import { IncomingMessage } from 'http';
+import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { URL } from 'url';
 import { URLParams } from '../types/types';
 
@@ -73,13 +73,10 @@ class Request<T extends Record<string, string>> extends IncomingMessage {
     return (this.socket as any).encrypted ? 'https' : 'http';
   }
 
-  get(name: string) {
-    switch (name.toLowerCase()) {
-      case 'referer':
-      case 'referrer':
-        return this.headers.referrer || this.headers.referer;
-      default:
-        return this.headers[name.toLowerCase()];
-    }
+  public getHeader(name: string){
+    const lowerCaseName = name.toLowerCase();
+    return this.headers[lowerCaseName as keyof IncomingMessage['headers']] ?? 
+      (lowerCaseName === 'referer' || lowerCaseName === 'referrer' ? 
+      this.headers.referrer ?? this.headers.referer : undefined);
   }
 }
