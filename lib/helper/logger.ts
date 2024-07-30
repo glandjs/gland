@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as util from 'util';
+const LINE = "==========================\n\t";
+const BOX_BORDER = "─".repeat(50);
 
 type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 
@@ -9,6 +11,15 @@ interface LoggerOptions {
     file?: string;
     jsonFormat?: boolean;
     timestampFormat?: 'iso' | 'locale';
+    rotation?: {
+        enabled: boolean;
+        maxSize: number; // Maximum file size in bytes
+        maxFiles: number; // Maximum number of backup files
+    };
+    errorHandling?: {
+        file: string;
+        console: boolean;
+    };
 }
 
 const logLevels: Record<LogLevel, number> = {
@@ -22,6 +33,15 @@ const defaultOpts: LoggerOptions = {
     level: 'info',
     jsonFormat: false,
     timestampFormat: 'iso',
+    rotation: {
+        enabled: false,
+        maxSize: 10485760, // 10 MB
+        maxFiles: 5,
+    },
+    errorHandling: {
+        file: 'error.log',
+        console: true,
+    },
 };
 
 const logColors: Record<LogLevel, string> = {
@@ -34,11 +54,11 @@ const logColors: Record<LogLevel, string> = {
 const resetColor = '\x1b[0m';
 
 const categoryHeaders: Record<string, string> = {
-    server: '==========================\n\tSERVER:',
-    app: '==========================\n\tAPP:',
-    middleware: '==========================\n\tMIDDLEWARE:',
-    database: '=========================\n\tDATABASE:',
-    default: '==========================\n\tINFO:',
+    server: LINE + 'SERVER:',
+    app: LINE + 'APP:',
+    middleware: LINE + 'MIDDLEWARE:',
+    database: LINE + 'DATABASE:',
+    default: LINE + 'INFO:',
 };
 
 const getFormattedTimestamp = (format: 'iso' | 'locale'): string => {
@@ -53,18 +73,38 @@ export class Logger {
     private level: LogLevel;
     private fileStream?: fs.WriteStream;
     private jsonFormat: boolean;
+    private logFilePath:string='/'
     private timestampFormat: 'iso' | 'locale';
     private lastCategory?: string;
+    private category: Record<string, string> = { ...categoryHeaders };
+    private rotation: { enabled: boolean, maxSize: number, maxFiles: number };
+    private errorHandling: { file: string, console: boolean };
 
     private constructor(options: LoggerOptions = defaultOpts) {
         this.level = options.level || defaultOpts.level!;
         this.jsonFormat = options.jsonFormat ?? defaultOpts.jsonFormat!;
         this.timestampFormat = options.timestampFormat ?? defaultOpts.timestampFormat!;
+        this.rotation = options.rotation ?? defaultOpts.rotation!;
+        this.errorHandling = options.errorHandling ?? defaultOpts.errorHandling!;
 
         if (options.file) {
-            this.fileStream = fs.createWriteStream(path.join(process.cwd(), options.file), { flags: 'a' });
+            // Ensure the 'logs' directory exists
+            const logsDir = path.join(process.cwd(), 'logs');
+            if (!fs.existsSync(logsDir)) {
+                fs.mkdirSync(logsDir);
+            }
+
+            // Create the full path to the log file
+            this.logFilePath = path.join(logsDir, options.file);
+            
+            this.fileStream = fs.createWriteStream(this.logFilePath, { flags: 'a' });
             this.fileStream.on('error', (err) => {
-                console.error(`Failed to write to log file: ${err.message}`);
+                if (this.errorHandling.console) {
+                    console.error(`Failed to write to log file: ${err.message}`);
+                }
+                if (this.errorHandling.file) {
+                    fs.appendFileSync(path.join(logsDir, this.errorHandling.file), `Failed to write to log file: ${err.message}\n`);
+                }
                 this.fileStream = undefined;
             });
         }
@@ -77,17 +117,18 @@ export class Logger {
         return Logger.instance;
     }
 
+    public addCategory(category: string, header: string): void {
+        this.category[category] = LINE + header;
+    }
+
     private getTimestamp(): string {
         return getFormattedTimestamp(this.timestampFormat);
     }
 
     private formatMessage(message: string, level: LogLevel, category?: string): string {
         const timestamp = this.getTimestamp();
-        if (this.jsonFormat) {
-            return JSON.stringify({ timestamp, level, category, message });
-        } else {
-            return `[${timestamp}] [${level.toUpperCase()}] ${category ? `[${category.toUpperCase()}]` : ''}: ${message}`;
-        }
+        const formattedCategory = category ? `[${category.toUpperCase()}]` : '';
+        return `[${timestamp}] [${level.toUpperCase()}] ${formattedCategory}: ${message}`;
     }
 
     private shouldLog(level: LogLevel): boolean {
@@ -96,27 +137,62 @@ export class Logger {
 
     private logToConsole(message: string, level: LogLevel, category?: string): void {
         if (category && category !== this.lastCategory) {
-            console.log(`${logColors[level]}${categoryHeaders[category] || categoryHeaders['default']}${resetColor}`);
+            console.log(`${logColors[level]}${this.category[category] || this.category['default']}${resetColor}`);
             this.lastCategory = category;
         }
         console.log(`${logColors[level]}${message}${resetColor}\n`);
     }
 
-    private logToFile(message: string, category?: string): void {
+    private logToFile(message: string, level: LogLevel, category?: string): void {
         if (this.fileStream) {
             if (category && category !== this.lastCategory) {
-                this.fileStream.write(`${categoryHeaders[category] || categoryHeaders['default']}\n`);
+                this.fileStream.write(`${LINE}${this.category[category] || this.category['default']}\n`);
                 this.lastCategory = category;
             }
+            this.fileStream.write(`${BOX_BORDER}\n`);
             this.fileStream.write(`${message}\n`);
+            this.fileStream.write(`${BOX_BORDER}\n\n`);
+
+            if (this.rotation?.enabled) {
+                this.rotateFileIfNeeded();
+            }
+        }
+    }
+    private rotateFileIfNeeded(): void {
+        if (this.fileStream && this.logFilePath) {
+            const stats = fs.statSync(this.logFilePath);
+            if (stats.size >= this.rotation!.maxSize) {
+                this.fileStream.end();
+                this.rotateFiles();
+                this.fileStream = fs.createWriteStream(this.logFilePath, { flags: 'a' });
+                this.fileStream.on('error', (err) => {
+                    console.error(`Failed to write to log file: ${err.message}`);
+                    this.fileStream = undefined;
+                });
+            }
         }
     }
 
+    private rotateFiles(): void {
+        const logFileBase = path.basename(this.logFilePath!);
+        const logFileDir = path.dirname(this.logFilePath!);
+
+        for (let i = this.rotation!.maxFiles - 1; i > 0; i--) {
+            const oldFile = path.join(logFileDir, `${logFileBase}.${i}`);
+            const newFile = path.join(logFileDir, `${logFileBase}.${i + 1}`);
+            if (fs.existsSync(oldFile)) {
+                fs.renameSync(oldFile, newFile);
+            }
+        }
+
+        const firstBackup = path.join(logFileDir, `${logFileBase}.1`);
+        fs.renameSync(this.logFilePath!, firstBackup);
+    }
     private log(message: string, level: LogLevel, category?: string): void {
         if (this.shouldLog(level)) {
             const formattedMessage = this.formatMessage(message, level, category);
             this.logToConsole(formattedMessage, level, category);
-            this.logToFile(formattedMessage, category);
+            this.logToFile(formattedMessage, level, category);
         }
     }
 
