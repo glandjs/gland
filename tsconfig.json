@@ -9,11 +9,13 @@
       "emitDecoratorMetadata": true,
       "skipLibCheck": true,
       "moduleResolution": "node",
+      "rootDir": "lib",
+      "outDir": "dist",
       "typeRoots": [
         "node_modules/@types",
         "lib/types"
       ]
     },
-    "include": ["lib/**/*.ts", "lib/types/gland.d.ts"]
+    "include": ["lib/**/*.ts"]
   }
   
