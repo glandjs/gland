@@ -1,63 +1,17 @@
-import { createServer, IncomingMessage, ServerResponse } from 'http';
-import { URL } from 'url';
-import { URLParams } from '../types/types';
-
-class URLParser<T extends Record<string, string>> {
-  private url: URL;
-  private pattern: string;
-  private params: URLParams<T> = {} as URLParams<T>;
-  private queries: Record<string, string> = {};
-
-  constructor(urlString: string, host: string, pattern: string) {
-    this.url = new URL(urlString, `http://${host}`);
-    this.pattern = pattern;
-    this.extractParams();
-    this.extractQueries();
-  }
-
-  private extractParams() {
-    const pathParts = this.url.pathname.split('/').filter(Boolean);
-    const patternParts = this.pattern.split('/').filter(Boolean);
-
-    patternParts.forEach((part, index) => {
-      if (part.startsWith(':')) {
-        const key = part.substring(1) as keyof URLParams<T>;
-        if (pathParts[index]) {
-          this.params[key] = pathParts[index] as URLParams<T>[typeof key];
-        }
-      }
-    });
-  }
-
-  private extractQueries() {
-    this.url.searchParams.forEach((value, key) => {
-      this.queries[key] = value;
-    });
-  }
-
-  getParams(): URLParams<T> {
-    return this.params;
-  }
-
-  getQueries(): Record<string, string> {
-    return this.queries;
-  }
-}
+import { IncomingMessage } from 'http';
+import { URLParser } from '../helper';
 
 class Request<T extends Record<string, string>> extends IncomingMessage {
   private urlParser: URLParser<T>;
-
-  constructor(req: IncomingMessage, pattern: string) {
-    // Initialize the parent class
+  constructor(req: IncomingMessage,) {
     super(req.socket);
-    // Ensure the instance properties are correctly set
     this.url = req.url;
     this.method = req.method;
     this.headers = req.headers;
-    this.urlParser = new URLParser<T>(this.url!, this.headers.host || '', pattern);
+    this.urlParser = new URLParser<T>(this.url!);
   }
 
-  get params(): URLParams<T> {
+  get params(): T {
     return this.urlParser.getParams();
   }
 
@@ -73,10 +27,13 @@ class Request<T extends Record<string, string>> extends IncomingMessage {
     return (this.socket as any).encrypted ? 'https' : 'http';
   }
 
-  public getHeader(name: string){
+  public getHeader(name: string) {
     const lowerCaseName = name.toLowerCase();
-    return this.headers[lowerCaseName as keyof IncomingMessage['headers']] ?? 
-      (lowerCaseName === 'referer' || lowerCaseName === 'referrer' ? 
-      this.headers.referrer ?? this.headers.referer : undefined);
+    return (
+      this.headers[lowerCaseName as keyof IncomingMessage['headers']] ??
+      (lowerCaseName === 'referer' || lowerCaseName === 'referrer'
+        ? this.headers.referrer ?? this.headers.referer
+        : undefined)
+    );
   }
 }
