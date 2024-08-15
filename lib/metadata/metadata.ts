@@ -1,18 +1,18 @@
 import { MetadataKey, MetadataStorage, MetadataTarget, MetadataValue } from "../types/types";
 
 namespace Reflect {
-    const metadataStorage: MetadataStorage = new Map();
+  const metadataStorage: MetadataStorage = new Map<MetadataTarget, Map<MetadataKey, MetadataValue>>();
 
-    export function init(metadataKey: MetadataKey, metadataValue: MetadataValue, target: MetadataTarget, propertyKey?: MetadataKey): void {
-        let targetMetadata = metadataStorage.get(target);
-        if (!targetMetadata) {
-            targetMetadata = new Map();
-            metadataStorage.set(target, targetMetadata);
-        }
-
-        const key = propertyKey !== undefined ? `${propertyKey.toString()}:${String(metadataKey)}` : metadataKey;
-        targetMetadata.set(key, metadataValue);
+     export function init(metadataKey: MetadataKey, metadataValue: MetadataValue, target: MetadataTarget, propertyKey?: MetadataKey): void {
+    let targetMetadata = metadataStorage.get(target);
+    if (!targetMetadata) {
+      targetMetadata = new Map<MetadataKey, MetadataValue>();
+      metadataStorage.set(target, targetMetadata);
     }
+
+    const key = propertyKey !== undefined ? `${String(propertyKey)}:${String(metadataKey)}` : metadataKey;
+    targetMetadata.set(key, metadataValue);
+  }
 
     export function has(metadataKey: MetadataKey, target: MetadataTarget, propertyKey?: MetadataKey): boolean {
         return get(metadataKey, target, propertyKey) !== undefined;
