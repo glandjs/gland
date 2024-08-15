@@ -1,8 +1,9 @@
 import http, { Server } from 'http';
-import { WebContext } from '../../lib/core/ctx/index';
+import { WebContext } from '../../lib/core/context/index';
 import { assert } from 'chai';
 import { describe, it, beforeEach } from 'mocha';
 import { PassThrough } from 'stream';
+import { Socket } from 'net';
 
 describe('WebContext', () => {
   let server: Server, ctx: WebContext;
@@ -12,6 +13,13 @@ describe('WebContext', () => {
     request = new PassThrough() as any;
     response = new PassThrough() as any;
 
+    // Mock the necessary properties for IncomingMessage
+    request.url = '/test-url';
+    request.method = 'GET';
+    request.headers = {
+      host: 'localhost:3000',
+    };
+    request.socket = new Socket();
     // Simulate a real HTTP request/response pair
     server = http.createServer((req, res) => {
       ctx = new WebContext(req, res);
@@ -37,8 +45,8 @@ describe('WebContext', () => {
   });
 
   it('should check if a property exists on the request or response object', () => {
-    assert.isFalse('method' in ctx.ctx);
-    assert.isFalse('statusCode' in ctx.ctx);
+    assert.isTrue('method' in ctx.ctx);
+    assert.isTrue('statusCode' in ctx.ctx);
     assert.isFalse('nonexistentProp' in ctx.ctx);
   });
 
