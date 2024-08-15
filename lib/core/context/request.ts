@@ -1,14 +1,17 @@
 import { IncomingMessage } from 'http';
-import { URLParser } from '../helper';
-
-class Request<T extends Record<string, string>> extends IncomingMessage {
+import { URLParser } from '../../helper';
+import tls from 'tls';
+export class Request<T extends Record<string, string>> extends IncomingMessage {
   private urlParser: URLParser<T>;
-  constructor(req: IncomingMessage,) {
+  constructor(req: IncomingMessage) {
     super(req.socket);
-    this.url = req.url;
-    this.method = req.method;
-    this.headers = req.headers;
-    this.urlParser = new URLParser<T>(this.url!);
+    this.url = req.url || '/';
+    this.method = req.method || 'GET';
+    this.headers = req.headers || {};
+    const protocol = req.socket instanceof tls.TLSSocket ? 'https' : 'http';
+    const host = req.headers.host || 'localhost';
+
+    this.urlParser = new URLParser<T>(this.url!, `${protocol}://${host}`);
   }
 
   get params(): T {
