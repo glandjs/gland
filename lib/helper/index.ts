@@ -12,14 +12,9 @@ export function getMethod(): Array<string> {
 }
 export class ServerTools {
   private static logMsg(opts: Gland.ListenOptions): string {
-    return opts.path
-      ? `Server is running at ${opts.path}`
-      : `Server is running at http://${opts.host}:${opts.port}`;
+    return opts.path ? `Server is running at ${opts.path}` : `Server is running at http://${opts.host}:${opts.port}`;
   }
-  static listener(
-    opts: Gland.ListenOptions,
-    listeningListener?: (info: Gland.ListenOptions) => void,
-  ) {
+  static listener(opts: Gland.ListenOptions, listeningListener?: (info: Gland.ListenOptions) => void) {
     return () => {
       if (listeningListener) {
         listeningListener(opts);
@@ -30,26 +25,39 @@ export class ServerTools {
     logger.info(ServerTools.logMsg(opts));
   }
 }
-export class URLParser<T extends object> {
+type ExtractRouteParams<T extends string> = string extends T
+  ? {}
+  : T extends `${infer _Start}:${infer Param}/${infer Rest}`
+  ? { [k in Param | keyof ExtractRouteParams<Rest>]: string }
+  : T extends `${infer _Start}:${infer Param}`
+  ? { [k in Param]: string }
+  : {};
+export class URLParser<T extends string> {
   private url: URL;
-  private params: T;
-  private queries: Record<string, string>;
+  private param: Record<string, string>;
+  private query: Record<string, string>;
+  private pattern: string;
 
-  constructor(urlString: string, base: string) {
+  constructor(urlString: string, base: string, pattern: T) {
     this.url = new URL(urlString, base);
-    this.params = this.extractParams();
-    this.queries = this.extractQueries();
+    this.pattern = pattern;
+    this.param = this.extractParams();
+    this.query = this.extractQueries();
   }
 
-  private extractParams(): T {
+  private extractParams(): Record<string, string> {
     const pathParts = this.url.pathname.split('/').filter(Boolean);
-    const params: Partial<T> = {};
+    const patternParts = this.pattern.split('/').filter(Boolean);
+    const params: Record<string, string> = {};
 
-    pathParts.forEach((part, index) => {
-      params[`param${index + 1}` as keyof T] = part as unknown as T[keyof T];
+    patternParts.forEach((patternPart, index) => {
+      if (patternPart.startsWith(':')) {
+        const paramName = patternPart.slice(1);
+        params[paramName] = pathParts[index];
+      }
     });
 
-    return params as T;
+    return params;
   }
 
   private extractQueries(): Record<string, string> {
@@ -60,11 +68,11 @@ export class URLParser<T extends object> {
     return queries;
   }
 
-  getParams(): T {
-    return this.params;
+  get params(): Record<string, string> {
+    return this.param;
   }
 
-  getQueries(): Record<string, string> {
-    return this.queries;
+  get queries(): Record<string, string> {
+    return this.query;
   }
 }
