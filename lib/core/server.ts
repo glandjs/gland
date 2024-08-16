@@ -1,10 +1,11 @@
 import { IncomingMessage, Server, ServerResponse } from 'http';
 import { Gland } from '../types/gland';
-import { ServerTools } from '../helper';
+import { ServerTools, URLParser } from '../helper';
 import { WebContext } from './context';
 import Reflect from '../metadata/metadata';
 import { routes } from './router';
 import { SafeExecution } from './decorators/SafeExecution';
+import { TLSSocket } from 'tls';
 export class WebServer extends Server implements Gland.Listener {
   constructor() {
     super();
@@ -15,22 +16,25 @@ export class WebServer extends Server implements Gland.Listener {
 
     const path = req.url!;
     const method = req.method!;
-    console.log('path:', path);
-    console.log('method:', method);
-
+    // Determine if the connection is secure (HTTPS) or not (HTTP)
+    const protocol = req.socket instanceof TLSSocket ? 'https' : 'http';
+    const host = req.headers.host!;
+    const base = `${protocol}://${host}`;
     // Iterate over registered routes
     for (const [routePath, controller] of routes.entries()) {
       if (path.startsWith(routePath)) {
         const routeInstance = new controller();
         const keys = Object.getOwnPropertyNames(Object.getPrototypeOf(routeInstance)).filter((key) => key !== 'constructor');
-        console.log('keys:', keys);
         for (const key of keys) {
           const handlerMethod = Reflect.get('method', controller.prototype, key);
           const handlerPath = Reflect.get('path', controller.prototype, key);
-          const fullRoutePath = handlerPath ? routePath + handlerPath : routePath;
-          console.log('handlerMethod:', handlerMethod);
-          console.log('handlerPath:', handlerPath);
-          console.log('fullRoutePath:', fullRoutePath);
+          let fullRoutePath = handlerPath ? `${routePath}${handlerPath}` : routePath;
+          if (handlerPath && handlerPath.startsWith('/:')) {
+            const paramName = handlerPath.split(':')[1];
+            const parsedURL = new URLParser(path, base, fullRoutePath);
+            fullRoutePath = `${routePath}/${parsedURL.params[paramName]}`;
+            ctx.params = parsedURL.params;
+          }
           if (handlerMethod === method && fullRoutePath === path) {
             const handler = routeInstance[key].bind(routeInstance);
             const mid = Reflect.get('middlewares', controller.prototype, key) || [];
@@ -48,7 +52,7 @@ export class WebServer extends Server implements Gland.Listener {
       }
     }
   }
-  init(opts: Gland.ListenOptions, listeningListener?: (info: Gland.ListenOptions) => void): void {
+  init(opts: Gland.ListenOptions, listeningListener?: (info: Gland.ListenOptions) => void): Server {
     this.on('request', this.lifecycle.bind(this));
 
     const listener = ServerTools.listener(opts, listeningListener);
@@ -60,6 +64,7 @@ export class WebServer extends Server implements Gland.Listener {
     } else {
       this.listen(opts.port, opts.host, opts.backlog, listener);
     }
+    return this;
   }
 }
 export const g = new WebServer();
