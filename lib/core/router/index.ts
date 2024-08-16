@@ -1,23 +1,25 @@
 import Reflect from '../../metadata/metadata';
-
-export const routes = new Map<string, any>();
+import { METHODS } from 'http';
+type RouteHandler = new (...args: any[]) => any;
+export const routes: Map<string, RouteHandler> = new Map();
 
 export function Route(path: string): ClassDecorator {
-  return (target: any) => {
-    routes.set(path, target);
+  return (target: Function): void => {
+    routes.set(path, target as RouteHandler);
   };
 }
 
-export function Get(path: string): MethodDecorator {
-  return (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
-    Reflect.init('method', 'GET', target, propertyKey);
-    Reflect.init('path', path, target, propertyKey);
+const methods = METHODS.reduce((acc: Record<string, Function>, method: string) => {
+  const decoratorName = method.charAt(0).toUpperCase() + method.slice(1).toLowerCase();
+  acc[decoratorName] = generator(method);
+  return acc;
+}, {});
+function generator(method: string) {
+  return (path: string): MethodDecorator => {
+    return (target: Object, propertyKey: string | symbol): void => {
+      Reflect.init('method', method, target, propertyKey);
+      Reflect.init('path', path, target, propertyKey);
+    };
   };
 }
-
-export function Post(path: string): MethodDecorator {
-  return (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
-    Reflect.init('method', 'POST', target, propertyKey);
-    Reflect.init('path', path, target, propertyKey);
-  };
-}
+export const { Get, Post, Put, Delete, Patch, Options, Head } = methods;
