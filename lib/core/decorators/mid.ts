@@ -1,16 +1,22 @@
 import Reflect from '../../metadata/metadata';
 import { MidsFn } from '../../types/types';
 
-export function mid(fn: MidsFn): MethodDecorator | any {
+function normalize(middleware: MidsFn | MidsFn[]): MidsFn[] {
+  return Array.isArray(middleware) ? middleware : [middleware];
+}
+
+export function mid(middleware: MidsFn | MidsFn[]): MethodDecorator | any {
   return (target: object, propertyKey: string | symbol, descriptor: PropertyDescriptor): void | PropertyDescriptor => {
     const existingMids = Reflect.get('middlewares', target, propertyKey) || [];
-    Reflect.init('middlewares', [...existingMids, fn], target, propertyKey);
+    const newMids = normalize(middleware);
+    Reflect.init('middlewares', [...existingMids, ...newMids], target, propertyKey);
     return descriptor;
   };
 }
 
-export function mids(...fns: MidsFn[]): ClassDecorator {
+export function mids(middlewareArray: MidsFn[] | MidsFn): ClassDecorator {
   return (target: any) => {
-    Reflect.init('classMiddlewares', fns, target.prototype);
+    const newMids = normalize(middlewareArray);
+    Reflect.init('classMiddlewares', newMids, target.prototype);
   };
 }

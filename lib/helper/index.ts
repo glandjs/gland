@@ -25,13 +25,6 @@ export class ServerTools {
     logger.info(ServerTools.logMsg(opts));
   }
 }
-type ExtractRouteParams<T extends string> = string extends T
-  ? {}
-  : T extends `${infer _Start}:${infer Param}/${infer Rest}`
-  ? { [k in Param | keyof ExtractRouteParams<Rest>]: string }
-  : T extends `${infer _Start}:${infer Param}`
-  ? { [k in Param]: string }
-  : {};
 export class URLParser<T extends string> {
   private url: URL;
   private param: Record<string, string>;

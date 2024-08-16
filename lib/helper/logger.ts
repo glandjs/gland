@@ -84,7 +84,7 @@ export class Logger {
   private errorHandling: { file: string; console: boolean };
   private transports: Array<'console' | 'file'>;
 
-  private constructor(options: LoggerOptions = defaultOpts) {
+  constructor(options: LoggerOptions = defaultOpts) {
     this.level = options.level || defaultOpts.level!;
     this.jsonFormat = options.jsonFormat ?? defaultOpts.jsonFormat!;
     this.timestampFormat = options.timestampFormat ?? defaultOpts.timestampFormat!;

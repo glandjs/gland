@@ -10,16 +10,16 @@ export class WebServer extends Server implements Gland.Listener {
   constructor() {
     super();
   }
-  @SafeExecution()
-  lifecycle(req: IncomingMessage, res: ServerResponse) {
+  // @SafeExecution()
+  async lifecycle(req: IncomingMessage, res: ServerResponse) {
     const { ctx } = new WebContext(req, res);
-
-    const path = req.url!;
-    const method = req.method!;
-    // Determine if the connection is secure (HTTPS) or not (HTTP)
-    const protocol = req.socket instanceof TLSSocket ? 'https' : 'http';
+    // Use URL class to parse the request URL
     const host = req.headers.host!;
+    const protocol = req.socket instanceof TLSSocket ? 'https' : 'http';
     const base = `${protocol}://${host}`;
+    const url = new URL(req.url!, base);
+    const path = url.pathname;
+    const method = req.method!;
     // Iterate over registered routes
     for (const [routePath, controller] of routes.entries()) {
       if (path.startsWith(routePath)) {
@@ -29,22 +29,29 @@ export class WebServer extends Server implements Gland.Listener {
           const handlerMethod = Reflect.get('method', controller.prototype, key);
           const handlerPath = Reflect.get('path', controller.prototype, key);
           let fullRoutePath = handlerPath ? `${routePath}${handlerPath}` : routePath;
+          const parsedURL = new URLParser(path, base, fullRoutePath);
           if (handlerPath && handlerPath.startsWith('/:')) {
             const paramName = handlerPath.split(':')[1];
-            const parsedURL = new URLParser(path, base, fullRoutePath);
             fullRoutePath = `${routePath}/${parsedURL.params[paramName]}`;
-            ctx.params = parsedURL.params;
           }
+          ctx.params = parsedURL.params;
+          ctx.query = Object.fromEntries(url.searchParams.entries());
           if (handlerMethod === method && fullRoutePath === path) {
             const handler = routeInstance[key].bind(routeInstance);
             const mid = Reflect.get('middlewares', controller.prototype, key) || [];
             const classMids = Reflect.get('classMiddlewares', controller.prototype) || [];
-
-            // Execute middlewares
-            [...classMids, ...mid].forEach((middleware: Function) => middleware(ctx));
-
-            // Execute the route handler
-            handler(ctx);
+            // Parse JSON body if the method is POST, PUT, or PATCH
+            if (['POST', 'PUT', 'PATCH'].includes(method)) {
+              ctx.body = await ctx.json();
+            }
+            // Execute middlewares with early exit on failure
+            for (const middleware of [...classMids, ...mid]) {
+              const result = await Promise.resolve(middleware(ctx));
+              if (result === false) {
+                return;
+              }
+            }
+            await handler(ctx);
             console.log('Response should be sent now.');
             return;
           }

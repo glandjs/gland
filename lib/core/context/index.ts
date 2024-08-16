@@ -4,9 +4,15 @@ export class WebContext {
   public rq: RQ;
   public rs: RS;
   public ctx: Context;
+  public body: any;
+  public params: any;
+  public query: any;
   constructor(request: IncomingMessage, response: ServerResponse) {
     this.rq = request;
     this.rs = response;
+    this.body = null;
+    this.params = {};
+    this.query = {};
     this.ctx = new Proxy(this, this.opts()) as WebContext & Context;
   }
   private opts() {
@@ -46,5 +52,21 @@ export class WebContext {
         return false;
       },
     };
+  }
+  async json(): Promise<object> {
+    return new Promise((resolve, reject) => {
+      let body = '';
+      this.ctx.rq.on('data', (chunk) => {
+        body += chunk;
+      });
+      this.ctx.rq.on('end', () => {
+        try {
+          this.body = JSON.parse(body);
+          resolve(this.body);
+        } catch (err) {
+          reject(new Error('Invalid JSON'));
+        }
+      });
+    });
   }
 }
