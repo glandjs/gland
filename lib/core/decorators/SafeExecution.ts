@@ -1,11 +1,7 @@
 import { Logger } from '../../helper/logger';
 const logger = Logger.getInstance({ timestampFormat: 'locale', level: 'error' });
 export function SafeExecution(): MethodDecorator {
-  return function (
-    target: Object,
-    propertyKey: string | symbol,
-    descriptor: TypedPropertyDescriptor<any>,
-  ): TypedPropertyDescriptor<any> | void {
+  return function (target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<any>): TypedPropertyDescriptor<any> | void {
     const originalMethod = descriptor.value;
 
     descriptor.value = async function (...args: any[]) {
