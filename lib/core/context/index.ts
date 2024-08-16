@@ -1,42 +1,50 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { Context, RQ, RS } from '../../types/types';
-import { Request } from '../request';
-import { Response } from '../response';
 export class WebContext {
-  private rq: RQ;
-  private rs: RS;
+  public rq: RQ;
+  public rs: RS;
   public ctx: Context;
   constructor(request: IncomingMessage, response: ServerResponse) {
-    this.rq = new Request(request);
-    this.rs = new Response(response, request);
-    this.ctx = new Proxy(this, {
+    this.rq = request;
+    this.rs = response;
+    this.ctx = new Proxy(this, this.opts()) as WebContext & Context;
+  }
+  private opts() {
+    return {
       get: (t: WebContext, p: string | symbol) => {
+        // Explicitly handle `on` method
+        if (p === 'on' || p === 'once') {
+          // Check if this method is being used in the request or response context
+          if (typeof t.rq[p as keyof RQ] === 'function') {
+            return t.rq[p as keyof RQ].bind(t.rq);
+          }
+          if (typeof t.rs[p as keyof RS] === 'function') {
+            return t.rs[p as keyof RS].bind(t.rs);
+          }
+        }
         if (p in t) return t[p as keyof WebContext];
-        if (p in t.rs)
-          return typeof t.rs[p as keyof RS] === 'function'
-            ? t.rs[p as keyof RS].bind(t.rs)
-            : t.rs[p as keyof RS];
+        if (p in t.rs) return typeof t.rs[p as keyof RS] === 'function' ? t.rs[p as keyof RS].bind(t.rs) : t.rs[p as keyof RS];
         if (p in t.rq) return t.rq[p as keyof RQ];
       },
-      set: (target: WebContext, prop: string | symbol, value: any) => {
-        if (prop in target.rs) {
-          target.rs[prop as keyof RS] = value;
-        } else if (prop in target.rq) {
-          target.rq[prop as keyof RQ] = value;
+      set: (t: WebContext, p: string | symbol, v: any) => {
+        if (p in t.rs) {
+          t.rs[p as keyof RS] = v;
+        } else if (p in t.rq) {
+          t.rq[p as keyof RQ] = v;
         } else {
-          target[prop as keyof WebContext] = value;
+          t[p as keyof WebContext] = v;
         }
         return true;
       },
-      has: (target: WebContext, prop: string | symbol) => {
-        return prop in target.rs || prop in target.rq;
+      has: (t: WebContext, p: string | symbol) => {
+        return p in t.rs || p in t.rq;
       },
-      deleteProperty: (target: any, prop: string | symbol) => {
-        if (prop in (target || target.rq)) {
-          return delete (target || target.rq)[prop as keyof WebContext];
+      deleteperty: (t: any, p: string | symbol) => {
+        if (p in (t || t.rq)) {
+          return delete (t || t.rq)[p as keyof WebContext];
         }
         return false;
       },
-    }) as WebContext & Context;
+    };
   }
 }
