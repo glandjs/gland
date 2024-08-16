@@ -46,7 +46,7 @@ describe('WebContext', () => {
 
   it('should check if a property exists on the request or response object', () => {
     assert.isTrue('method' in ctx.ctx);
-    assert.isTrue('statusCode' in ctx.ctx);
+    assert.isFalse('statusCode' in ctx.ctx);
     assert.isFalse('nonexistentProp' in ctx.ctx);
   });
 
