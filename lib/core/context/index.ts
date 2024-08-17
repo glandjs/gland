@@ -1,5 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { Context, RQ, RS } from '../../types/types';
+import '../router/request'
 export class WebContext {
   public rq: RQ;
   public rs: RS;
@@ -52,21 +53,5 @@ export class WebContext {
         return false;
       },
     };
-  }
-  async json(): Promise<object> {
-    return new Promise((resolve, reject) => {
-      let body = '';
-      this.ctx.rq.on('data', (chunk) => {
-        body += chunk;
-      });
-      this.ctx.rq.on('end', () => {
-        try {
-          this.body = JSON.parse(body);
-          resolve(this.body);
-        } catch (err) {
-          reject(new Error('Invalid JSON'));
-        }
-      });
-    });
   }
 }
