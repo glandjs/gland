@@ -16,4 +16,5 @@ export type URLPrams<T extends Record<string, string | undefined>> = {
   [K in keyof T]: T[K] extends string ? string : never;
 };
 export type Context = WebContext & RQ & RS;
-export type MidsFn = (ctx: Context) => void;
+export type MidsFn = (ctx: Context, next: Function) => any;
+export type RouteHandler = new (...args: any[]) => any;

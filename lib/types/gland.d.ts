@@ -17,5 +17,7 @@ export namespace Gland {
     set(setting: string, value: any): this;
     all(path: string, ...handlers: RouteHandler[]): this;
     cors(options?: any): this;
+    use(path: string | Middleware, ...handlers: Middleware[]): this;
   }
+  export type Middleware = (ctx: Context, next: () => Promise<void>) => void;
 }
