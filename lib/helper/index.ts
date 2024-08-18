@@ -1,6 +1,7 @@
 import { METHODS } from 'http';
 import { Gland } from '../types/gland';
 import { Logger } from './logger';
+import { MidsFn } from '../types/types';
 export namespace ServerUtils {
   const logger = Logger.getInstance({ timestampFormat: 'locale', level: 'info' });
   export function getMethod(): Array<string> {
@@ -26,5 +27,8 @@ export namespace ServerUtils {
     static log(opts: Gland.ListenOptions) {
       logger.info(Tools.logMsg(opts));
     }
+  }
+  export function normalize(middleware: MidsFn | MidsFn[]): MidsFn[] {
+    return Array.isArray(middleware) ? middleware : [middleware];
   }
 }
