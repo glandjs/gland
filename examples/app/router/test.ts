@@ -1,5 +1,5 @@
+import { exposed } from '../../../lib/core/decorators/exposed';
 import { Get, Route } from '../../../lib/core/router';
-import { exposed } from '../../../lib/helper/exposed';
 import { Context } from '../../../lib/types/types';
 @exposed
 @Route('/users')

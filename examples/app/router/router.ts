@@ -1,7 +1,7 @@
 import { mid, mids } from '../../../lib/core/decorators/mid';
 import { Gmid } from '../../../lib/core/middleware';
 import { Get, Post, Route } from '../../../lib/core/router';
-import { exposed } from '../../../lib/helper/exposed';
+import { exposed } from '../../../lib/core/decorators/exposed';
 import { Context } from '../../../lib/types/types';
 import { authenticate, logMiddleware, logs, users, validateUser } from '../controller';
 Gmid.set(logs);
@@ -29,5 +29,3 @@ class UserController {
     ctx.end(JSON.stringify(result));
   }
 }
-
-
