@@ -1,12 +1,14 @@
 import { Parser } from '../../helper/parser';
 import Reflect from '../../metadata/metadata';
 import { METHODS } from 'http';
-import { Context } from '../../types/types';
-type RouteHandler = new (...args: any[]) => any;
+import { Context, RouteHandler } from '../../types/types';
+import { Gland } from '../../types/gland';
+import { Gmid } from '../middleware';
 export const routes: Map<string, RouteHandler> = new Map();
 
 export function Route(path: string): ClassDecorator {
   return (target: Function): void => {
+    Reflect.init('route', path, target.prototype);
     routes.set(path, target as RouteHandler);
   };
 }
@@ -52,23 +54,42 @@ export namespace Router {
     }
     return null;
   }
-  export async function run(ctx: Context, routeInstance: any, method: string, handlerKey: string): Promise<void> {
+  export async function run(ctx: Context, routeInstance: any, method: string, handlerKey: string, GlMid: Gland.Middleware[]): Promise<void> {
     const handler = routeInstance[handlerKey].bind(routeInstance);
-    const mid = Reflect.get('middlewares', routeInstance, handlerKey) || [];
-    const classMids = Reflect.get('classMiddlewares', routeInstance) || [];
+    const methodMids = Reflect.get('middlewares', routeInstance.constructor.prototype, handlerKey) || [];
+    const classMids = Reflect.get('classMiddlewares', routeInstance.constructor.prototype) || [];
+    const globalMids = Gmid.get();
+
+    const allMids = [...globalMids, ...classMids, ...methodMids];
     // Parse JSON body if the method is POST, PUT, or PATCHif (['POST', 'PUT', 'PATCH'].includes(method)) {
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
       ctx.body = await ctx.json();
     }
+    // Execute global middlewares first
+    await execute(ctx, GlMid);
+    // Execute class and method middlewares with the handler
+    await execute(ctx, allMids, handler);
+  }
+  async function execute(ctx: Context, middlewares: Function[], finalHandler: Function | null = null) {
+    let index = -1;
 
-    // Execute middlewares with early exit on failurefor (const middleware of [...classMiddlewares, ...middlewares]) {
-    for (const middleware of [...classMids, ...mid]) {
-      const result = await Promise.resolve(middleware(ctx));
-      if (result === false) {
-        return;
+    const next = async () => {
+      index++;
+      if (index < middlewares.length) {
+        await middlewares[index](ctx, next);
+      } else if (finalHandler) {
+        await finalHandler(ctx);
+      }
+    };
+
+    await next();
+  }
+  export function init(exposedClasses: any[]) {
+    for (const controllerClass of exposedClasses) {
+      const routePath = Reflect.get('route', controllerClass.prototype);
+      if (routePath) {
+        routes.set(routePath, controllerClass);
       }
     }
-    await handler(ctx);
-    console.log('Response should be sent now.');
   }
 }
