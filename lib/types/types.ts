@@ -17,4 +17,4 @@ export type URLPrams<T extends Record<string, string | undefined>> = {
 };
 export type Context = WebContext & RQ & RS;
 export type MidsFn = (ctx: Context, next: Function) => any;
-export type RouteHandler = new (...args: any[]) => any;
+export type RouteHandler = new (...args: any[]) => any | ((...args: any[]) => any);

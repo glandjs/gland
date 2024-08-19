@@ -29,26 +29,52 @@ function generator(method: string) {
 export const { Get, Post, Put, Delete, Patch, Options, Head } = methods;
 
 export namespace Router {
+  export function set(controllerClassOrFunction: RouteHandler, routePath?: string): void {
+    if (typeof controllerClassOrFunction === 'function') {
+      if (routePath) {
+        Reflect.init('route', routePath, controllerClassOrFunction.prototype);
+        routes.set(routePath, controllerClassOrFunction);
+      } else {
+        // Handle the case where the routePath isn't directly provided
+        const existingRoutePath = Reflect.get('route', controllerClassOrFunction.prototype);
+        if (existingRoutePath) {
+          routes.set(existingRoutePath, controllerClassOrFunction);
+        }
+      }
+    }
+  }
+  function isClass(func: Function): boolean {
+    return typeof func === 'function' && /^class\s/.test(Function.prototype.toString.call(func));
+  }
   export function findMatch(path: string, method: string, base: string): { controller: any; handlerKey: string; fullRoutePath: string; params: Record<string, string> } | null {
     for (const [routePath, controller] of routes.entries()) {
       if (path.startsWith(routePath)) {
-        const routeInstance = new controller();
-        const keys = Object.getOwnPropertyNames(Object.getPrototypeOf(routeInstance)).filter((key) => key !== 'constructor');
+        if (isClass(controller)) {
+          const routeInstance = new controller();
+          const keys = Object.getOwnPropertyNames(Object.getPrototypeOf(routeInstance)).filter((key) => key !== 'constructor');
+          for (const key of keys) {
+            const handlerMethod = Reflect.get('method', controller.prototype, key);
+            const handlerPath = Reflect.get('path', controller.prototype, key);
+            let fullRoutePath = handlerPath ? `${routePath}${handlerPath}` : routePath;
+            const parsedURL = new Parser.URI(path, base, fullRoutePath);
 
-        for (const key of keys) {
-          const handlerMethod = Reflect.get('method', controller.prototype, key);
-          const handlerPath = Reflect.get('path', controller.prototype, key);
-          let fullRoutePath = handlerPath ? `${routePath}${handlerPath}` : routePath;
-          const parsedURL = new Parser.URI(path, base, fullRoutePath);
+            if (handlerPath && handlerPath.startsWith('/:')) {
+              const paramName = handlerPath.split(':')[1];
+              fullRoutePath = `${routePath}/${parsedURL.params[paramName]}`;
+            }
 
-          if (handlerPath && handlerPath.startsWith('/:')) {
-            const paramName = handlerPath.split(':')[1];
-            fullRoutePath = `${routePath}/${parsedURL.params[paramName]}`;
+            if (handlerMethod === method && fullRoutePath === path) {
+              return { controller, handlerKey: key, fullRoutePath, params: parsedURL.params };
+            }
           }
-
-          if (handlerMethod === method && fullRoutePath === path) {
-            return { controller, handlerKey: key, fullRoutePath, params: parsedURL.params };
-          }
+        } else if (typeof controller === 'function') {
+          const parsedURL = new Parser.URI(path, base, routePath);
+          return {
+            controller,
+            handlerKey: '',
+            fullRoutePath: routePath,
+            params: parsedURL.params,
+          };
         }
       }
     }
@@ -70,7 +96,7 @@ export namespace Router {
     // Execute class and method middlewares with the handler
     await execute(ctx, allMids, handler);
   }
-  async function execute(ctx: Context, middlewares: Function[], finalHandler: Function | null = null) {
+  export async function execute(ctx: Context, middlewares: Function[], finalHandler: Function | null = null) {
     let index = -1;
 
     const next = async () => {
@@ -86,10 +112,7 @@ export namespace Router {
   }
   export function init(exposedClasses: any[]) {
     for (const controllerClass of exposedClasses) {
-      const routePath = Reflect.get('route', controllerClass.prototype);
-      if (routePath) {
-        routes.set(routePath, controllerClass);
-      }
+      set(controllerClass);
     }
   }
 }
