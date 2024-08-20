@@ -5,6 +5,7 @@ import { ServerUtils } from '../helper';
 import { WebContext } from './context';
 import { Router } from './router';
 import { LoadModules } from '../helper/load';
+import { Context } from '../types/types';
 export class WebServer extends Server implements Gland.Listener, Gland.APP {
   private middlewares: Gland.Middleware[] = [];
   private settings: Record<string, any> = {};
@@ -19,14 +20,32 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
         // Register the handler with a set method in Router
         Router.set(handler as any, path);
 
-        // Add the middleware to the stack
-        this.middlewares.push(async (ctx, next) => {
-          if (ctx.url.startsWith(path)) {
-            await handler(ctx, next);
-          } else {
-            await next();
-          }
-        });
+        // Add the middleware directly to the stack without unnecessary wrapping
+        if (handler.length === 2 || handler.length === 3) {
+          this.middlewares.push(async (ctx: Context, next: () => Promise<void>) => {
+            if (ctx.url!.startsWith(path)) {
+              if (handler.length === 2) {
+                await (handler as Gland.GlandMiddleware)(ctx, next);
+              } else if (handler.length === 3) {
+                await new Promise<void>((resolve, reject) => {
+                  (handler as Gland.ExpressMiddleware)(ctx.req, ctx.res, (err?: any) => {
+                    if (err) reject(err);
+                    else resolve();
+                  });
+                });
+              } else {
+                throw new Error('Invalid middleware/handler function signature');
+              }
+            } else {
+              await next();
+            }
+          });
+        } else if (handler.length === 1) {
+          this.middlewares.push(handler as Gland.GlandMiddleware);
+        } else {
+          throw new Error('Invalid middleware/handler function signature');
+        }
+        console.log('middlewares', this.middlewares);
       });
     } else {
       // If the first argument is not a string, treat it as a middleware
@@ -51,23 +70,6 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
     });
     return this;
   }
-
-  // CORS method to handle Cross-Origin Resource Sharing
-  cors(options: Gland.CorsOptions = {}): this {
-    const corsMiddleware: Gland.Middleware = (ctx, next) => {
-      ctx.res.setHeader('Access-Control-Allow-Origin', options.origin || '*');
-      ctx.res.setHeader('Access-Control-Allow-Methods', options.methods || 'GET, POST, PUT, DELETE, OPTIONS');
-      ctx.res.setHeader('Access-Control-Allow-Headers', options.headers || 'Content-Type, Authorization');
-      if (ctx.req.method === 'OPTIONS') {
-        ctx.res.writeHead(204);
-        ctx.res.end();
-      } else {
-        return next();
-      }
-    };
-    this.use(corsMiddleware);
-    return this;
-  }
   private async lifecycle(req: IncomingMessage, res: ServerResponse) {
     const { ctx } = new WebContext(req, res);
     const { method, path, url, base } = await Parser.Request(req);
@@ -78,8 +80,14 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
       ctx.params = params;
       // Check if the controller is a class or a function
       if (typeof controller === 'function' && !handlerKey) {
-        // Handle function-based middleware or controller directly
-        const middlewareStack = [...this.middlewares, controller];
+        this.middlewares.forEach((fn, index) => {
+          console.log(`Middleware ${index + 1}:`, fn.name || fn.toString());
+        });
+        const middlewareStack = Array.from(new Set([...this.middlewares, controller]));
+        // Logging the function names or sources to help identify duplication
+        // middlewareStack.forEach((fn, index) => {
+        //   console.log(`Middleware ${index + 1}:`, fn.name || fn.toString());
+        // });
         await Router.execute(ctx, middlewareStack);
       } else {
         const routeInstance = new controller();
