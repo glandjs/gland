@@ -45,7 +45,6 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
         } else {
           throw new Error('Invalid middleware/handler function signature');
         }
-        console.log('middlewares', this.middlewares);
       });
     } else {
       // If the first argument is not a string, treat it as a middleware
@@ -80,14 +79,8 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
       ctx.params = params;
       // Check if the controller is a class or a function
       if (typeof controller === 'function' && !handlerKey) {
-        this.middlewares.forEach((fn, index) => {
-          console.log(`Middleware ${index + 1}:`, fn.name || fn.toString());
-        });
         const middlewareStack = Array.from(new Set([...this.middlewares, controller]));
         // Logging the function names or sources to help identify duplication
-        // middlewareStack.forEach((fn, index) => {
-        //   console.log(`Middleware ${index + 1}:`, fn.name || fn.toString());
-        // });
         await Router.execute(ctx, middlewareStack);
       } else {
         const routeInstance = new controller();

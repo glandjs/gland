@@ -2,7 +2,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 
 declare module 'http' {
   interface IncomingMessage {
-    json(): Promise<object>;
+    json(): Promise<object | undefined>;
     get(header: string): string | undefined;
     path(): string;
     hostname(): string;
