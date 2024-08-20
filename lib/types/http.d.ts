@@ -3,10 +3,6 @@ import { IncomingMessage, ServerResponse } from 'http';
 declare module 'http' {
   interface IncomingMessage {
     json(): Promise<object | undefined>;
-    get(header: string): string | undefined;
-    path(): string;
-    hostname(): string;
-    protocol(): 'http' | 'https';
   }
 
   interface ServerResponse {
@@ -16,14 +12,13 @@ declare module 'http' {
     redirect(url: string, statusCode?: number): void;
     render(view: string, options?: object): void;
   }
-}
-
-interface CookieOptions {
-  expires?: Date;
-  maxAge?: number;
-  domain?: string;
-  path?: string;
-  secure?: boolean;
-  httpOnly?: boolean;
-  sameSite?: 'strict' | 'lax' | 'none';
+  interface CookieOptions {
+    expires?: Date;
+    maxAge?: number;
+    domain?: string;
+    path?: string;
+    secure?: boolean;
+    httpOnly?: boolean;
+    sameSite?: 'strict' | 'lax' | 'none';
+  }
 }
