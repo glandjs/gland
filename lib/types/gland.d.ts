@@ -16,17 +16,16 @@ export namespace Gland {
     engine(ext: string, callback: ViewEngineCallback): this;
     set(setting: string, value: any): this;
     all(path: string, ...handlers: RouteHandler[]): this;
-    cors(options?: CorsOptions): this;
     use(path: string | Middleware, ...handlers: Middleware[]): this;
   }
   export type ViewEngineCallback = (path: string, options: object, callback: (err: Error | null, rendered?: string) => void) => void;
-  export type Middleware = (ctx: Context, next: () => Promise<void>) => void;
-  export type RouteHandler = (ctx: Context) => void;
-  export interface CorsOptions {
-    origin?: string | string[];
-    methods?: string | string[];
-    headers?: string | string[];
-    credentials?: boolean;
-    maxAge?: number;
-  }
+  // Gland-style Middleware (ctx, next)
+  export type GlandMiddleware = (ctx: Context, next: () => Promise<void>) => void | Promise<void>;
+
+  // Express-style Middleware (req, res, next)
+  export type ExpressMiddleware = (req: Context['req'], res: Context['res'], next: (err?: any) => void) => void | Promise<void>;
+
+  // Combined Middleware type, allows both Gland and Express-style
+  export type Middleware = GlandMiddleware | ExpressMiddleware;
+  export type RouteHandler = (ctx: Context) => void | Promise<void>;
 }
