@@ -17,8 +17,6 @@ export namespace LoadModules {
     const baseDir = isPattern ? path.dirname(pt) : path.resolve(pt);
     const pattern = isPattern ? path.basename(pt) : '*';
     const files = await find(baseDir, pattern);
-    console.log('files:', files);
-
     const importPromises = files.map(async (file) => {
       const resolvedPath = path.resolve(file);
       if (!moduleCache[resolvedPath]) {
