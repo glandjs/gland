@@ -98,13 +98,40 @@ export namespace Router {
   }
   export async function execute(ctx: Context, middlewares: Function[], finalHandler: Function | null = null) {
     let index = -1;
-
     const next = async () => {
       index++;
       if (index < middlewares.length) {
-        await middlewares[index](ctx, next);
+        const current = middlewares[index];
+        if (current.length === 3) {
+          await new Promise<void>((resolve, reject) => {
+            (current as any)(ctx.rq, ctx.rs, (err: any) => {
+              if (err) reject(err);
+              else resolve();
+            });
+          });
+        } else if (current.length === 2) {
+          // Execute Gland.Middleware (ctx, next)
+          await current(ctx, next);
+        } else if (current.length === 1) {
+          // Execute handler with a single argument (ctx)
+          await current(ctx);
+        }
       } else if (finalHandler) {
-        await finalHandler(ctx);
+        if (finalHandler.length === 3) {
+          // If finalHandler expects (req, res, next), convert it to Gland.Middleware
+          await new Promise<void>((resolve, reject) => {
+            (finalHandler as any)(ctx.req, ctx.res, (err: any) => {
+              if (err) reject(err);
+              else resolve();
+            });
+          });
+        } else if (finalHandler.length === 2) {
+          // Execute Gland.Middleware (ctx, next)
+          await finalHandler(ctx, next);
+        } else if (finalHandler.length === 1) {
+          // Execute handler with a single argument (ctx)
+          await finalHandler(ctx);
+        }
       }
     };
 
