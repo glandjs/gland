@@ -11,14 +11,27 @@ export namespace Gland {
   export interface Listener {
     init(opts: ListenOptions): void;
   }
-
+  export interface StaticOptions {
+    dotfiles?: 'allow' | 'deny' | 'ignore';
+    etag?: boolean;
+    index?: string | boolean;
+    maxAge?: number;
+    redirect?: boolean;
+    setHeaders?: (res: ServerResponse, path: string, stat: any) => void;
+  }
   export interface APP {
-    engine(ext: string, callback: ViewEngineCallback): this;
-    set(setting: string, value: any): this;
+    engine(ext: string, callback: Engine): this;
     all(path: string, ...handlers: RouteHandler[]): this;
     use(path: string | Middleware, ...handlers: Middleware[]): this;
+    engine(ext: string, callback: Function): this;
+    set(name: string, value?: any): this;
+    get(name: string): any;
+    static(root: string, options?: Gland.StaticOptions): this;
   }
-  export type ViewEngineCallback = (path: string, options: object, callback: (err: Error | null, rendered?: string) => void) => void;
+  export interface Engine {
+    (path: string, options: object, callback: (err: Error | null, rendered?: string) => void): void;
+  }
+
   // Gland-style Middleware (ctx, next)
   export type GlandMiddleware = (ctx: Context, next: () => Promise<void>) => void | Promise<void>;
 
