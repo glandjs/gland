@@ -5,14 +5,87 @@ import { ServerUtils } from '../helper';
 import { WebContext } from './context';
 import { Router } from './router';
 import { LoadModules } from '../helper/load';
-import { Context } from '../types/types';
+import { Context, StaticOptions } from '../types/types';
+import { METHODS } from 'http';
+import { stat } from 'fs/promises';
+import { createReadStream } from 'fs';
+import { join } from 'path';
+
 export class WebServer extends Server implements Gland.Listener, Gland.APP {
   private middlewares: Gland.Middleware[] = [];
-  private settings: Record<string, any> = {};
-  private viewEngines: Record<string, Gland.ViewEngineCallback> = {};
+  private engines: { [ext: string]: Gland.Engine } = {};
+  private settings: { [key: string]: any } = {};
   constructor() {
     super();
   }
+  static(root: string, options: StaticOptions = {}): this {
+    const defaultOptions: StaticOptions = {
+      index: 'index.html',
+      etag: true,
+      lastModified: true,
+      maxAge: 0,
+      cacheControl: true,
+      dotfiles: 'ignore',
+    };
+
+    const opts = { ...defaultOptions, ...options };
+
+    this.middlewares.push(async (req: IncomingMessage & { url: string }, res: ServerResponse, next: Function) => {
+      let filePath = join(root, req.url!);
+
+      try {
+        const fileStat = await stat(filePath);
+
+        if (fileStat.isDirectory()) {
+          if (opts.index === false) return next();
+
+          filePath = join(filePath, opts.index as string);
+          try {
+            await stat(filePath);
+          } catch {
+            return next();
+          }
+        }
+
+        if (opts.dotfiles === 'deny' && filePath.includes('/.')) {
+          res.statusCode = 403;
+          return res.end('Forbidden');
+        } else if (opts.dotfiles === 'ignore' && filePath.includes('/.')) {
+          return next();
+        }
+
+        // Set headers
+        if (opts.lastModified) {
+          res.setHeader('Last-Modified', fileStat.mtime.toUTCString());
+        }
+
+        if (opts.cacheControl) {
+          res.setHeader('Cache-Control', `public, max-age=${Math.floor(opts.maxAge! / 1000)}`);
+        }
+
+        if (opts.etag) {
+          const etag = ServerUtils.generateETag(fileStat);
+          res.setHeader('ETag', etag);
+
+          if (req.headers['if-none-match'] === etag) {
+            res.statusCode = 304;
+            return res.end();
+          }
+        }
+
+        // Serve the file
+        const fileStream = createReadStream(filePath);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', ServerUtils.getContentType(filePath));
+        fileStream.pipe(res);
+      } catch (err) {
+        next();
+      }
+    });
+
+    return this;
+  }
+
   use(path: string | Gland.Middleware, ...handlers: (Gland.Middleware | Gland.Middleware[])[]): this {
     // If the first argument is a string, treat it as a path
     if (typeof path === 'string') {
@@ -28,7 +101,7 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
                 await (handler as Gland.GlandMiddleware)(ctx, next);
               } else if (handler.length === 3) {
                 await new Promise<void>((resolve, reject) => {
-                  (handler as Gland.ExpressMiddleware)(ctx.req, ctx.res, (err?: any) => {
+                  (handler as Gland.ExpressMiddleware)(ctx.rq, ctx.rs, (err?: any) => {
                     if (err) reject(err);
                     else resolve();
                   });
@@ -53,23 +126,43 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
     }
     return this;
   }
-  set(setting: string, value: any): this {
-    this.settings[setting] = value;
+  engine(ext: string, callback: Gland.Engine): this {
+    // Ensure extension starts with a dot
+    ext = ext.startsWith('.') ? ext : `.${ext}`;
+    this.engines[ext] = callback;
     return this;
   }
 
-  engine(ext: string, callback: Gland.ViewEngineCallback): this {
-    this.viewEngines[ext] = callback;
+  set(name: string, value?: any): this {
+    this.settings[name] = value;
     return this;
+  }
+
+  get(name: string): any {
+    return this.settings[name];
   }
 
   all(path: string, ...handlers: Gland.RouteHandler[]): this {
-    handlers.forEach((handler) => {
-      this.use(path, handler);
+    METHODS.forEach((method) => {
+      // Register each handler for all HTTP methods
+      handlers.forEach((handler) => {
+        Router.set(handler as any, path);
+
+        this.middlewares.push(async (ctx: Context, next: () => Promise<void>) => {
+          if (ctx.url!.startsWith(path) && ctx.method === method) {
+            await handler(ctx);
+            if (ctx.writableEnded) {
+              return;
+            }
+          }
+          await next();
+        });
+      });
     });
     return this;
   }
   private async lifecycle(req: IncomingMessage, res: ServerResponse) {
+    (res as any).server = this;
     const { ctx } = new WebContext(req, res);
     const { method, path, url, base } = await Parser.Request(req);
     const matchingRoute = Router.findMatch(path, method, base);
