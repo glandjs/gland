@@ -2,6 +2,7 @@ import { METHODS } from 'http';
 import { Gland } from '../types/gland';
 import { Logger } from './logger';
 import { MidsFn } from '../types/types';
+import { extname } from 'path';
 export namespace ServerUtils {
   const logger = Logger.getInstance({ timestampFormat: 'locale', level: 'info' });
   export function getMethod(): Array<string> {
@@ -30,5 +31,38 @@ export namespace ServerUtils {
   }
   export function normalize(middleware: MidsFn | MidsFn[]): MidsFn[] {
     return Array.isArray(middleware) ? middleware : [middleware];
+  }
+  export function generateETag(stat: any): string {
+    const mtime = stat.mtime.getTime().toString(16);
+    const size = stat.size.toString(16);
+    return `W/"${size}-${mtime}"`;
+  }
+
+  export function getContentType(filePath: string): string {
+    const ext = extname(filePath).slice(1);
+    switch (ext) {
+      case 'html':
+        return 'text/html';
+      case 'css':
+        return 'text/css';
+      case 'js':
+        return 'application/javascript';
+      case 'png':
+        return 'image/png';
+      case 'jpg':
+        return 'image/jpeg';
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'gif':
+        return 'image/gif';
+      case 'svg':
+        return 'image/svg+xml';
+      case 'json':
+        return 'application/json';
+      case 'txt':
+        return 'text/plain';
+      default:
+        return 'application/octet-stream';
+    }
   }
 }
