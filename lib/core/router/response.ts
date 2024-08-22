@@ -1,6 +1,4 @@
 import { ServerResponse, CookieOptions } from 'http';
-import { WebServer } from '../server';
-import { resolve } from 'path';
 const PROTO = ServerResponse.prototype;
 PROTO.clearCookie = function (name: string): ServerResponse {
   if (!name) {
@@ -60,25 +58,4 @@ PROTO.redirect = function (url: string, statusCode: number = 302): void {
 
   this.writeHead(statusCode, { Location: url });
   this.end();
-};
-
-PROTO.render = async function (view: string, options: object = {}, callback?: (err: Error | null, html?: string) => void) {
-  const app: WebServer | undefined = (this as any).server;
-  if (!app) {
-    throw new Error('Server instance is not available on the response object.');
-  }
-  const done =
-    callback ||
-    ((err: Error | null, str?: string) => {
-      if (err) {
-        throw new Error(`${err}`);
-      }
-      this.end(str);
-    });
-
-  // Merge res.locals
-  options = { ...app.locals, ...options };
-
-  // Render the view
-  app.render(view, options, done);
 };

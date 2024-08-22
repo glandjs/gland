@@ -7,76 +7,15 @@ import { Router } from './router';
 import { LoadModules } from '../helper/load';
 import { Context } from '../types/types';
 import { METHODS } from 'http';
-import { midManager, Static } from './middleware';
-import { View } from '../helper/View';
-import path from 'path';
+import { midManager } from './middleware';
 export class WebServer extends Server implements Gland.Listener, Gland.APP {
   private middlewares: Gland.Middleware[] = [];
-  private engines: { [ext: string]: Gland.Engine } = {};
-  private settings: { [key: string]: any } = {};
-  private cache: { [name: string]: any } = {};
-  public locals: { [key: string]: any } = {};
-
   constructor() {
     super();
-  }
-  // Static method to serve static files
-  static(root: string, options?: Static.Options): this {
-    this.use(Static.serve(root, options));
-    return this;
   }
   use(path: string | Gland.Middleware, ...handlers: (Gland.Middleware | Gland.Middleware[])[]): this {
     midManager.process(path, handlers, this.middlewares);
     return this;
-  }
-  engine(ext: string, callback: Gland.Engine): this {
-    ext = ext.startsWith('.') ? ext : `.${ext}`;
-    this.engines[ext] = callback;
-    return this;
-  }
-
-  set(name: string, value?: any): this {
-    this.settings[name] = value;
-    return this;
-  }
-
-  get(name: string): any {
-    return this.settings[name];
-  }
-  // Render a view
-  render(name: string, options: object, callback: (err: Error | null, rendered?: string) => void) {
-    const done =
-      callback ||
-      function (err: Error | null, str?: string) {
-        if (err) {
-          throw err;
-        }
-      };
-
-    let view = this.cache[name];
-    const engines = this.engines;
-    const renderOptions = { ...this.locals, ...options };
-    if (!view) {
-      const ViewConstructor = View;
-      view = new ViewConstructor(name, {
-        defaultEngine: this.get('view engine'),
-        root: this.get('views'),
-        engines: engines,
-      });
-      if (!view.path) {
-        const dirs = Array.isArray(view.root) && view.root.length > 1 ? `directories "${view.root.slice(0, -1).join('", "')}" or "${view.root[view.root.length - 1]}"` : `directory "${view.root}"`;
-        const err: any = new Error(`Failed to lookup view "${name}" in views ${dirs}`);
-        err.view = view;
-        return done(err);
-      }
-      // Cache the view
-      if (renderOptions.cache) {
-        this.cache[name] = view;
-      }
-    }
-
-    // Render the view
-    tryRender(view, renderOptions, done);
   }
   all(path: string, ...handlers: Gland.RouteHandler[]): this {
     const uniqueHandlers = new Set<Gland.RouteHandler>(handlers);

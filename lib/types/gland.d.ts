@@ -20,13 +20,8 @@ export namespace Gland {
     setHeaders?: (res: ServerResponse, path: string, stat: any) => void;
   }
   export interface APP {
-    engine(ext: string, callback: Engine): this;
     all(path: string, ...handlers: RouteHandler[]): this;
     use(path: string | Middleware, ...handlers: Middleware[]): this;
-    engine(ext: string, callback: Function): this;
-    set(name: string, value?: any): this;
-    get(name: string): any;
-    static(root: string);
   }
   export interface Engine {
     (path: string, options: object, callback: (err: Error | null, rendered?: string) => void): void;

@@ -2,8 +2,11 @@ import { ServerUtils } from '../../helper';
 import { Context, MidsFn } from '../../types/types';
 import { Gland } from '../../types/gland';
 import { Router } from '../router';
-import { join, resolve } from 'path';
+import path, { extname, join, posix, resolve } from 'path';
 import { createReadStream, existsSync, statSync } from 'fs';
+import { IncomingMessage } from 'http';
+import { ServerResponse } from 'http';
+import { parse as parseUrl } from 'url';
 
 export namespace Gmid {
   let mids: MidsFn[] = [];
@@ -51,64 +54,10 @@ export namespace midManager {
         }
       });
     } else {
-      // If the first argument is not a string, treat it as a middleware
-      const middlewares = [path, ...handlers].flat() as Gland.Middleware[];
-      middlewares.push(...middlewares);
+      // Handle when path is not a string
+      const allMiddlewares = [path, ...handlers].flat();
+      const uniqueMiddlewares = Array.from(new Set(allMiddlewares));
+      middlewares.push(...uniqueMiddlewares);
     }
-  }
-}
-
-export namespace Static {
-  export function serve(root: string): Gland.Middleware {
-    const absoluteRoot = resolve(root);
-    console.log('absoluteRoot:', absoluteRoot);
-
-    return async (ctx: Context, next: () => Promise<void>) => {
-      try {
-        // Ensure the URL is correctly parsed and cleaned
-        const requestedPath = ctx.url! || '/';
-        console.log('requestedPath:', requestedPath);
-
-        const filePath = resolve(join(absoluteRoot, requestedPath));
-        console.log('filePath:', filePath);
-
-        // Prevent path traversal attacks
-        if (!filePath.startsWith(absoluteRoot)) {
-          console.log('Path traversal attempt detected');
-          await next();
-          return;
-        }
-
-        // Check if the file exists and is a file
-        if (existsSync(filePath) && statSync(filePath).isFile()) {
-          const stat = statSync(filePath);
-          console.log('File found:', filePath);
-
-          // Set the appropriate headers
-          ctx.rs.setHeader('Content-Type', ServerUtils.getContentType(filePath));
-          ctx.rs.setHeader('Content-Length', stat.size);
-          ctx.rs.setHeader('Last-Modified', stat.mtime.toUTCString());
-
-          // Handle ETag and If-None-Match for caching
-          const etag = ServerUtils.generateETag(stat);
-          ctx.rs.setHeader('ETag', etag);
-          if (ctx.rq.headers['if-none-match'] === etag) {
-            ctx.rs.writeHead(304);
-            ctx.rs.end();
-            return;
-          }
-
-          // Stream the file to the response
-          const stream = createReadStream(filePath);
-          stream.pipe(ctx.rs);
-        } else {
-          console.log('File not found, proceeding to next middleware');
-          await next(); // File not found, proceed to next middleware
-        }
-      } catch (error) {
-        console.error('Error in static middleware:', error);
-        await next(); // On error, proceed to next middleware
-      }
-    };
   }
 }

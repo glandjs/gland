@@ -9,7 +9,6 @@ declare module 'http' {
     clearCookie(name: string): this;
     cookie(name: string, value: string, options?: CookieOptions): this;
     redirect(url: string, statusCode?: number): void;
-    render(view: string, options?: object, callback?: (err: Error | null, html?: string) => void): void;
   }
   interface CookieOptions {
     expires?: Date;
