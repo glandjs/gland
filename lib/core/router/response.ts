@@ -62,49 +62,23 @@ PROTO.redirect = function (url: string, statusCode: number = 302): void {
   this.end();
 };
 
-PROTO.render = async function (view: string, options: object = {}, callback: (err: Error | null, html?: string) => void) {
-  // Ensure WebServer instance is available in the context
-  const server: WebServer = (this as any).server;
-  if (!server) {
-    throw new Error('Server instance is not available on response object');
+PROTO.render = async function (view: string, options: object = {}, callback?: (err: Error | null, html?: string) => void) {
+  const app: WebServer | undefined = (this as any).server;
+  if (!app) {
+    throw new Error('Server instance is not available on the response object.');
   }
-
-  // Default options to an empty object if not provided
-  options = options || {};
-
-  // If callback is not provided, use a default one
-  const cb =
+  const done =
     callback ||
-    ((err: Error | null, html?: string) => {
+    ((err: Error | null, str?: string) => {
       if (err) {
-        throw err;
+        throw new Error(`${err}`);
       }
-      this.end(html || '');
+      this.end(str);
     });
 
-  // Check if view engine is set
-  const ext = server.get('view engine');
-  if (!ext) {
-    return cb(new Error('No view engine set.'));
-  }
+  // Merge res.locals
+  options = { ...app.locals, ...options };
 
-  // Get the view engine
-  const engine = (server as any).engines[ext];
-  if (!engine) {
-    return cb(new Error(`No engine registered for extension "${ext}"`));
-  }
-  // Get the views directory from settings or default to current working directory
-  const viewsDir = server.get('views');
-  const viewPath = resolve(viewsDir, `${view}${ext}`);
-  try {
-    // Render the view using the engine
-    engine(viewPath, options, (err: Error | null, html?: string) => {
-      if (err) {
-        return cb(err);
-      }
-      cb(null, html);
-    });
-  } catch (error) {
-    cb(error as Error);
-  }
+  // Render the view
+  app.render(view, options, done);
 };
