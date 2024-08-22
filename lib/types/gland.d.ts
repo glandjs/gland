@@ -26,7 +26,7 @@ export namespace Gland {
     engine(ext: string, callback: Function): this;
     set(name: string, value?: any): this;
     get(name: string): any;
-    static(root: string, options?: Gland.StaticOptions): this;
+    static(root: string);
   }
   export interface Engine {
     (path: string, options: object, callback: (err: Error | null, rendered?: string) => void): void;
