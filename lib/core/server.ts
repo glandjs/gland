@@ -8,17 +8,21 @@ import { LoadModules } from '../helper/load';
 import { Context } from '../types/types';
 import { METHODS } from 'http';
 import { midManager, Static } from './middleware';
-
+import { View } from '../helper/View';
+import path from 'path';
 export class WebServer extends Server implements Gland.Listener, Gland.APP {
   private middlewares: Gland.Middleware[] = [];
   private engines: { [ext: string]: Gland.Engine } = {};
   private settings: { [key: string]: any } = {};
+  private cache: { [name: string]: any } = {};
+  public locals: { [key: string]: any } = {};
 
   constructor() {
     super();
   }
-  static(root: string): this {
-    this.use(Static.serve(root));
+  // Static method to serve static files
+  static(root: string, options?: Static.Options): this {
+    this.use(Static.serve(root, options));
     return this;
   }
   use(path: string | Gland.Middleware, ...handlers: (Gland.Middleware | Gland.Middleware[])[]): this {
@@ -39,24 +43,67 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
   get(name: string): any {
     return this.settings[name];
   }
+  // Render a view
+  render(name: string, options: object, callback: (err: Error | null, rendered?: string) => void) {
+    const done =
+      callback ||
+      function (err: Error | null, str?: string) {
+        if (err) {
+          throw err;
+        }
+      };
 
+    let view = this.cache[name];
+    const engines = this.engines;
+    const renderOptions = { ...this.locals, ...options };
+    if (!view) {
+      const ViewConstructor = View;
+      view = new ViewConstructor(name, {
+        defaultEngine: this.get('view engine'),
+        root: this.get('views'),
+        engines: engines,
+      });
+      if (!view.path) {
+        const dirs = Array.isArray(view.root) && view.root.length > 1 ? `directories "${view.root.slice(0, -1).join('", "')}" or "${view.root[view.root.length - 1]}"` : `directory "${view.root}"`;
+        const err: any = new Error(`Failed to lookup view "${name}" in views ${dirs}`);
+        err.view = view;
+        return done(err);
+      }
+      // Cache the view
+      if (renderOptions.cache) {
+        this.cache[name] = view;
+      }
+    }
+
+    // Render the view
+    tryRender(view, renderOptions, done);
+  }
   all(path: string, ...handlers: Gland.RouteHandler[]): this {
-    METHODS.forEach((method) => {
-      // Register each handler for all HTTP methods
-      handlers.forEach((handler) => {
-        Router.set(handler as any, path);
+    const uniqueHandlers = new Set<Gland.RouteHandler>(handlers);
 
-        this.middlewares.push(async (ctx: Context, next: () => Promise<void>) => {
-          if (ctx.url!.startsWith(path) && ctx.method === method) {
-            await handler(ctx);
-            if (ctx.writableEnded) {
-              return;
+    METHODS.forEach((method) => {
+      uniqueHandlers.forEach((handler) => {
+        const middlewareKey = `${method}:${path}:${handler.toString()}`;
+        const isAlreadyAdded = this.middlewares.some((middleware) => (middleware as any).key === middlewareKey);
+
+        if (!isAlreadyAdded) {
+          const middleware = async (ctx: Context, next: () => Promise<void>) => {
+            if (ctx.url!.startsWith(path) && ctx.method === method) {
+              await handler(ctx);
+              if (ctx.writableEnded) {
+                return;
+              }
             }
-          }
-          await next();
-        });
+            await next();
+          };
+
+          middleware.key = middlewareKey;
+          Router.set(handler as any, path);
+          this.middlewares.push(middleware);
+        }
       });
     });
+
     return this;
   }
   private async lifecycle(req: IncomingMessage, res: ServerResponse) {
@@ -102,3 +149,11 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
   }
 }
 export const g = new WebServer();
+// Helper function to try rendering a view
+function tryRender(view: any, options: object, callback: (err: Error | null, rendered?: string) => void) {
+  try {
+    view.render(options, callback);
+  } catch (err: any) {
+    callback(err);
+  }
+}
