@@ -18,11 +18,4 @@ export type URLPrams<T extends Record<string, string | undefined>> = {
 export type Context = WebContext & RQ & RS;
 export type MidsFn = (ctx: Context, next: Function) => any;
 export type RouteHandler = new (...args: any[]) => any | ((...args: any[]) => any);
-export interface StaticOptions {
-  index?: string | boolean; // Index file to use (e.g., "index.html")
-  etag?: boolean; // Enable/disable ETag headers
-  lastModified?: boolean; // Enable/disable Last-Modified headers
-  maxAge?: number; // Cache-Control max-age in milliseconds
-  cacheControl?: boolean; // Enable/disable Cache-Control headers
-  dotfiles?: 'allow' | 'deny' | 'ignore'; // How to treat dotfiles
-}
+export type DbTypes = 'mariadb' | 'postgres' | 'sqlite' | 'sqlserver' | 'mysql';

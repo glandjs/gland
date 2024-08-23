@@ -221,7 +221,7 @@ export class Logger {
   }
 
   public async error(message: string, error?: Error, category?: string): Promise<void> {
-    const errorMessage = error ? `${message}\nStack Trace: ${util.inspect(error.stack)}` : message;
+    const errorMessage = error ? `${message}}` : message;
     await this.log(errorMessage, 'error', category);
   }
 

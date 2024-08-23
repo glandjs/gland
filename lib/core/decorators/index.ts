@@ -1,6 +1,7 @@
 import { ServerUtils } from '../../helper';
 import Reflect from '../../metadata/metadata';
-import { MidsFn } from '../../types/types';
+import { MidsFn, RouteHandler } from '../../types/types';
+import { routes } from '../router';
 const classes: Set<any> = new Set();
 function exposed(t?: any): any {
   const attach = (target: any = t) => {
@@ -37,5 +38,12 @@ export function mids(middlewareArray: MidsFn[] | MidsFn): ClassDecorator {
   return (target: any) => {
     const newMids = ServerUtils.normalize(middlewareArray);
     Reflect.init('classMiddlewares', newMids, target.prototype);
+  };
+}
+
+export function Route(path: string): ClassDecorator {
+  return (target: Function): void => {
+    Reflect.init('route', path, target.prototype);
+    routes.set(path, target as RouteHandler);
   };
 }

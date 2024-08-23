@@ -2,12 +2,6 @@ import { ServerUtils } from '../../helper';
 import { Context, MidsFn } from '../../types/types';
 import { Gland } from '../../types/gland';
 import { Router } from '../router';
-import path, { extname, join, posix, resolve } from 'path';
-import { createReadStream, existsSync, statSync } from 'fs';
-import { IncomingMessage } from 'http';
-import { ServerResponse } from 'http';
-import { parse as parseUrl } from 'url';
-
 export namespace Gmid {
   let mids: MidsFn[] = [];
 

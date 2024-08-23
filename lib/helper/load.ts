@@ -1,5 +1,5 @@
 import path from 'path';
-import { getEx } from '../core/decorators/exposed';
+import { getEx } from '../core/decorators/index';
 import { Router } from '../core/router';
 import * as fs from 'fs';
 import { createInterface } from 'readline';

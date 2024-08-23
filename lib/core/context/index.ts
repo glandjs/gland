@@ -1,7 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { Context, RQ, RS } from '../../types/types';
 import '../router/request';
-import '../router/response';
 export class WebContext {
   public rq: RQ;
   public rs: RS;

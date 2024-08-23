@@ -1,5 +1,5 @@
-import { exposed } from '../../../lib/core/decorators/exposed';
-import { Delete, Get, Post, Put, Route } from '../../../lib/core/router';
+import { exposed, Route } from '../../../lib/core/decorators/index';
+import { Delete, Get, Post, Put } from '../../../lib/core/router';
 import { Context } from '../../../lib/types/types';
 import p from 'path';
 import * as fs from 'fs';
