@@ -1,7 +1,7 @@
 {
-  "name": "gland",
+  "name": "glands",
   "version": "1.0.0",
-  "description": "Gland is a lightweight framework for Node.js designed for simplicity and high performance.",
+  "description": "Glands is a lightweight framework for Node.js designed for simplicity and high performance.",
   "main": "index.ts",
   "types": "index.ts",
   "directories": {

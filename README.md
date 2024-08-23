@@ -1,6 +1,6 @@
-# Gland
+# Glands
 
-**Gland** is a lightweight framework for Node.js designed for simplicity and high performance.
+**Glands** is a lightweight framework for Node.js designed for simplicity and high performance.
 
 ## Features
 
@@ -15,7 +15,7 @@
 To install Gland, simply run:
 
 ```
-npm install gland
+npm install glands
 ```
 
 ### Basic Usage
