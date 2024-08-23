@@ -5,14 +5,6 @@ import { Context, RouteHandler } from '../../types/types';
 import { Gland } from '../../types/gland';
 import { Gmid } from '../middleware';
 export const routes: Map<string, RouteHandler> = new Map();
-
-export function Route(path: string): ClassDecorator {
-  return (target: Function): void => {
-    Reflect.init('route', path, target.prototype);
-    routes.set(path, target as RouteHandler);
-  };
-}
-
 const methods = METHODS.reduce((acc: Record<string, Function>, method: string) => {
   const decoratorName = method.charAt(0).toUpperCase() + method.slice(1).toLowerCase();
   acc[decoratorName] = generator(method);
