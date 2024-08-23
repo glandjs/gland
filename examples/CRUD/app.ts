@@ -1,4 +1,4 @@
-import gland, { Context } from '../../gland';
+import gland, { Context } from '../../';
 const app = new gland();
 
 // Define a dynamic route with `all` method

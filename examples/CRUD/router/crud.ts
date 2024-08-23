@@ -1,4 +1,4 @@
-import { exposed, Get, Route, Delete, Post, Put, Context } from '../../../gland/router';
+import { exposed, Get, Route, Delete, Post, Put, Context } from '../../../index';
 import p from 'path';
 import * as fs from 'fs';
 const db = p.join(__dirname, '..', 'db', 'db.json');

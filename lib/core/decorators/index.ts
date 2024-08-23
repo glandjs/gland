@@ -3,7 +3,7 @@ import Reflect from '../../metadata/metadata';
 import { MidsFn, RouteHandler } from '../../types/types';
 import { routes } from '../router';
 const classes: Set<any> = new Set();
-function exposeds(t?: any): any {
+function exposed(t?: any): any {
   const attach = (target: any = t) => {
     classes.add(target);
   };
@@ -25,7 +25,7 @@ function exposeds(t?: any): any {
 function getEx(): any[] {
   return Array.from(classes);
 }
-export { exposeds, getEx };
+export { exposed, getEx };
 export function mid(middleware: MidsFn | MidsFn[]): MethodDecorator | any {
   return (target: object, propertyKey: string | symbol, descriptor: PropertyDescriptor): void => {
     const existingMids = Reflect.get('middlewares', target.constructor.prototype, propertyKey) || [];
@@ -41,7 +41,7 @@ export function mids(middlewareArray: MidsFn[] | MidsFn): ClassDecorator {
   };
 }
 
-export function Routes(path: string): ClassDecorator {
+export function Route(path: string): ClassDecorator {
   return (target: Function): void => {
     Reflect.init('route', path, target.prototype);
     routes.set(path, target as RouteHandler);
