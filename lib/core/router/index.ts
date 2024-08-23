@@ -79,8 +79,10 @@ export namespace Router {
     const globalMids = Gmid.get();
 
     const allMids = [...globalMids, ...classMids, ...methodMids];
-    // Parse JSON body if the method is POST, PUT, or PATCHif (['POST', 'PUT', 'PATCH'].includes(method)) {
-    ctx.body = await ctx.json();
+    // Parse JSON body if the method is POST, PUT, or PATCH
+    if (['POST', 'PUT', 'PATCH'].includes(ctx.method!)) {
+      ctx.body = await ctx.json();
+    }
     // Execute global middlewares first
     await execute(ctx, GlMid);
     // Execute class and method middlewares with the handler

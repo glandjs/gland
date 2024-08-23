@@ -3,6 +3,7 @@ import { promisify } from 'util';
 import { access, constants } from 'fs/promises';
 import { DbTypes } from '../types/types';
 import { logger } from '../helper/logger';
+import path from 'path';
 
 const execAsync = promisify(exec);
 
@@ -28,7 +29,7 @@ export class Qiu {
   private permissionsSet: boolean = false;
   private scriptCache: Map<string, boolean> = new Map();
   private queryCache: Map<string, string> = new Map();
-
+  private static readonly scriptDir = path.resolve(__dirname, 'script');
   private constructor(dbType: DbTypes, user: string = '', password: string = '', dbFile: string = '') {
     this.dbType = dbType;
     this.user = user;
@@ -52,8 +53,7 @@ export class Qiu {
 
   private async setExecutePermissions() {
     if (!this.permissionsSet) {
-      const scripts = ['./script/mariadb.sh', './script/postgres.sh', './script/sqlite.sh', './script/sqlserver.sh', './script/mysql.sh'];
-
+      const scripts = ['mariadb.sh', 'postgres.sh', 'sqlite.sh', 'sqlserver.sh', 'mysql.sh'].map((script) => path.join(Qiu.scriptDir, script));
       for (const script of scripts) {
         if (!this.scriptCache.has(script)) {
           try {
@@ -124,21 +124,14 @@ export class Qiu {
 
   private buildCommand(query: string): string {
     let command: string;
+    const scriptPath = path.resolve(Qiu.scriptDir, `${this.dbType}.sh`);
     switch (this.dbType) {
       case 'mariadb':
-        command = `./script/mariadb.sh ${this.user} ${this.password} "${this.sanitizeQuery(query)}"`;
-        break;
       case 'postgres':
-        command = `./script/postgres.sh ${this.user} ${this.password} "${this.sanitizeQuery(query)}"`;
-        break;
       case 'sqlite':
-        command = `./script/sqlite.sh ${this.dbFile} "${this.sanitizeQuery(query)}"`;
-        break;
       case 'sqlserver':
-        command = `./script/sqlserver.sh ${this.user} ${this.password} "${this.sanitizeQuery(query)}"`;
-        break;
       case 'mysql':
-        command = `./script/mysql.sh ${this.user} ${this.password} "${this.sanitizeQuery(query)}"`;
+        command = `${scriptPath} ${this.user} ${this.password} "${this.sanitizeQuery(query)}"`;
         break;
       default:
         const errorMsg = `Unsupported database type: ${this.dbType}`;

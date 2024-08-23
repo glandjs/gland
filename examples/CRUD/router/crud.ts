@@ -1,6 +1,4 @@
-import { exposed, Route } from '../../../lib/core/decorators/index';
-import { Delete, Get, Post, Put } from '../../../lib/core/router';
-import { Context } from '../../../lib/types/types';
+import { exposed, Get, Route, Delete, Post, Put, Context } from '../../../gland/router';
 import p from 'path';
 import * as fs from 'fs';
 const db = p.join(__dirname, '..', 'db', 'db.json');
