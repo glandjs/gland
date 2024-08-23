@@ -1,6 +1,6 @@
 import { WebServer } from './lib/core/server';
 import { Qiu } from './lib/cli/Qiu';
-import { DbTypes, Context } from './lib/types/types';
+import { DbTypes, Context } from './lib/types';
 import { Logger } from './lib/helper/logger';
 import { exposed, Route } from './lib/core/decorators';
 import { Delete, Get, Head, Options, Patch, Post, Put } from './lib/core/router/index';
@@ -16,4 +16,4 @@ export default class gland extends WebServer {
     return Logger;
   }
 }
-export { Get, Post, Put, Delete, Patch, Head, Options, Route,exposed };
+export { Get, Post, Put, Delete, Patch, Head, Options, Route, exposed };

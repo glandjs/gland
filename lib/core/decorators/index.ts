@@ -1,6 +1,6 @@
 import { ServerUtils } from '../../helper';
-import Reflect from '../../metadata/metadata';
-import { MidsFn, RouteHandler } from '../../types/types';
+import Reflect from '../../metadata';
+import { MidsFn, RouteHandler } from '../../types';
 import { routes } from '../router';
 const classes: Set<any> = new Set();
 function exposed(t?: any): any {

@@ -1,7 +1,7 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { access, constants } from 'fs/promises';
-import { DbTypes } from '../types/types';
+import { DbTypes } from '../types';
 import { logger } from '../helper/logger';
 import path from 'path';
 

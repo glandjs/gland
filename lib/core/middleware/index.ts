@@ -1,5 +1,5 @@
 import { ServerUtils } from '../../helper';
-import { Context, MidsFn } from '../../types/types';
+import { Context, MidsFn } from '../../types';
 import { Gland } from '../../types/gland';
 import { Router } from '../router';
 export namespace Gmid {

@@ -1,7 +1,7 @@
 import { METHODS } from 'http';
 import { Gland } from '../types/gland';
 import { Logger } from './logger';
-import { MidsFn } from '../types/types';
+import { MidsFn } from '../types';
 import { extname } from 'path';
 export namespace ServerUtils {
   const logger = Logger.getInstance({ timestampFormat: 'locale', level: 'info' });

@@ -1,4 +1,4 @@
-import { MetadataKey, MetadataStorage, MetadataTarget, MetadataValue } from '../types/types';
+import { MetadataKey, MetadataStorage, MetadataTarget, MetadataValue } from '../types';
 
 namespace Reflect {
   const metadataStorage: MetadataStorage = new Map<MetadataTarget, Map<MetadataKey, MetadataValue>>();

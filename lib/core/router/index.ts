@@ -1,7 +1,7 @@
 import { Parser } from '../../helper/parser';
-import Reflect from '../../metadata/metadata';
+import Reflect from '../../metadata';
 import { METHODS } from 'http';
-import { Context, RouteHandler } from '../../types/types';
+import { Context, RouteHandler } from '../../types';
 import { Gland } from '../../types/gland';
 import { Gmid } from '../middleware';
 export const routes: Map<string, RouteHandler> = new Map();

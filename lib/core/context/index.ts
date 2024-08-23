@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { Context, RQ, RS } from '../../types/types';
+import { Context, RQ, RS } from '../../types';
 import '../router/request';
 export class WebContext {
   public rq: RQ;
