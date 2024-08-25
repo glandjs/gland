@@ -4,19 +4,27 @@ import { access, constants } from 'fs/promises';
 import { DbTypes } from '../types';
 import { logger } from '../helper/logger';
 import path from 'path';
-
 const execAsync = promisify(exec);
 
-class QDBError extends Error {
-  public query: string;
-  public dbType: DbTypes;
+class QiuError extends Error {
+  constructor(message: string, public query: string, public dbType: string, public suggestion: string) {
+    super();
+    this.name = 'QiuError';
+    this.message = this.formatErrorMessage(message, query, dbType, suggestion);
+  }
 
-  constructor(message: string, query: string, dbType: DbTypes, suggestion: string) {
-    super(message);
-    this.name = 'QDBError';
-    this.query = query;
-    this.dbType = dbType;
-    this.message = `${message}\nQuery: ${query}\nDatabase Type: ${dbType}\nSuggestion: ${suggestion}`;
+  private formatErrorMessage(message: string, query: string, dbType: string, suggestion: string): string {
+    const messageBlock = `\x1b[31m\x1b[1mError: ${message}\x1b[0m`; // Red bold
+    const queryBlock = `\x1b[33m\x1b[1mQuery Executed: \x1b[0m${query}`; // Yellow bold
+    const dbTypeBlock = `\x1b[33m\x1b[1mDatabase Type: \x1b[0m${dbType}`; // Yellow bold
+    const suggestionBlock = `\x1b[36m\x1b[1mSuggestion: \x1b[0m${suggestion}`; // Cyan bold
+
+    return `
+${messageBlock}
+${queryBlock}
+${dbTypeBlock}
+${suggestionBlock}
+    `.trim();
   }
 }
 
@@ -25,23 +33,21 @@ export class Qiu {
   private dbType: DbTypes;
   private user: string;
   private password: string;
-  private dbFile: string;
   private permissionsSet: boolean = false;
   private scriptCache: Map<string, boolean> = new Map();
   private queryCache: Map<string, string> = new Map();
   private static readonly scriptDir = path.resolve(__dirname, 'script');
-  private constructor(dbType: DbTypes, user: string = '', password: string = '', dbFile: string = '') {
+  private constructor(dbType: DbTypes, user: string = '', password: string = '') {
     this.dbType = dbType;
     this.user = user;
     this.password = password;
-    this.dbFile = dbFile;
 
     this.loadCredentials();
   }
 
-  public static getInstance(dbType: DbTypes, user: string = '', password: string = '', dbFile: string = ''): Qiu {
+  public static getInstance(dbType: DbTypes, user: string = '', password: string = ''): Qiu {
     if (!Qiu.instance) {
-      Qiu.instance = new Qiu(dbType, user, password, dbFile);
+      Qiu.instance = new Qiu(dbType, user, password);
     }
     return Qiu.instance;
   }
@@ -85,17 +91,17 @@ export class Qiu {
   }
 
   private handleError(message: string, query: string, suggestion: string = 'Please check the script or database configuration.'): never {
-    logger.error(message, new Error(message), 'database');
-    throw new QDBError(message, query, this.dbType, suggestion);
+    const error = new QiuError(message, query, this.dbType, suggestion);
+    logger.error(`\n${error}`, Error(error.message), 'QIU ERROR');
+    process.exit(1);
   }
 
-  async run(query: string): Promise<string> {
+  async run(query: string): Promise<string | undefined> {
     await this.setExecutePermissions();
     // Check if the query result is cached
     if (this.queryCache.has(query)) {
       return this.queryCache.get(query)!;
     }
-    await this.setExecutePermissions();
 
     const command = this.buildCommand(query);
 
@@ -105,23 +111,44 @@ export class Qiu {
       this.queryCache.set(query, result);
       return result;
     } catch (error: any) {
-      let errorMessage = `Failed to execute query: ${query}`;
-      let suggestion = 'Please verify your database credentials and query syntax.';
-      if (error.message.includes('Access denied for user')) {
-        errorMessage = `Authentication failed for user: ${this.user}`;
-        suggestion = `Check that the username and password are correct for the ${this.dbType} database.`;
-      } else if (error.message.includes('Unknown database')) {
-        errorMessage = `Database not found.`;
-        suggestion = `Ensure the database name is correct and that it exists on the server.`;
-      } else if (error.message.includes('command not found')) {
-        errorMessage = `Database client not found on the system.`;
-        suggestion = `Make sure the ${this.dbType} client is installed and accessible in your system's PATH.`;
-      }
-
-      this.handleError(errorMessage, query, suggestion);
+      this.handleExecutionError(error, query);
     }
   }
+  private handleExecutionError(error: any, query: string) {
+    let errorMessage = `Failed to execute query: ${query}`;
+    let suggestion = 'Please verify your database credentials and query syntax.';
 
+    if (error.message.includes('Access denied for user')) {
+      errorMessage = `Authentication failed for user "${this.user}". Unable to connect to the database.`;
+      suggestion = `Ensure the username and password are correct for the ${this.dbType} database. Double-check for any typos.`;
+    } else if (error.message.includes('Unknown database')) {
+      errorMessage = `The specified database was not found on the server.`;
+      suggestion = `Verify the database name and ensure it exists on the server. Create the database if it hasn't been set up.`;
+    } else if (error.message.includes('command not found')) {
+      errorMessage = `The ${this.dbType} client is not installed or accessible.`;
+      suggestion = `Make sure the ${this.dbType} client is installed on your system and included in your system's PATH. Install it if necessary.`;
+    } else if (error.message.includes('ECONNREFUSED')) {
+      errorMessage = `Unable to connect to the ${this.dbType} database. Connection was refused.`;
+      suggestion = `Check if the database server is running and accessible. Verify the host and port settings.`;
+    } else if (error.message.includes('ETIMEDOUT')) {
+      errorMessage = `The connection to the ${this.dbType} database timed out.`;
+      suggestion = `Check the network connection and database server status. Consider increasing the connection timeout settings.`;
+    } else if (error.message.includes('ER_PARSE_ERROR')) {
+      errorMessage = `There was a syntax error in the SQL query: "${query}".`;
+      suggestion = `Review the query for syntax errors. Refer to the ${this.dbType} documentation for correct SQL syntax.`;
+    } else if (error.message.includes('ER_NO_SUCH_TABLE')) {
+      errorMessage = `The specified table does not exist in the database.`;
+      suggestion = `Check that the table name is correct and that it exists in the database. Create the table if necessary.`;
+    } else if (error.message.includes('ER_DUP_ENTRY')) {
+      errorMessage = `A duplicate entry was found for a unique key or primary key.`;
+      suggestion = `Ensure that the data being inserted does not violate unique constraints. Modify the data or database schema as needed.`;
+    }else {
+        errorMessage = `An unexpected error occurred: ${error.message}`;
+        suggestion = `Please check the error message and consult the documentation for further guidance.`;
+   }
+
+    this.handleError(errorMessage, query, suggestion);
+  }
   private buildCommand(query: string): string {
     let command: string;
     const scriptPath = path.resolve(Qiu.scriptDir, `${this.dbType}.sh`);
