@@ -1,7 +1,7 @@
-import { exposed, Get, Route, Delete, Post, Put, Context } from '../../../lib';
+import { exposed, Get, Route, Delete, Post, Put, Context } from '../../../dist';
 import p from 'path';
 import * as fs from 'fs';
-const db = p.join(__dirname, '..', 'db', 'db.json');
+const db = p.join(__dirname, '..', 'db', 'index.json');
 const usersData: Users = JSON.parse(fs.readFileSync(db, 'utf-8'));
 interface User {
   id: number;

@@ -5,6 +5,8 @@ import { Logger } from './helper/logger';
 import { exposed, Route } from './core/decorators';
 import { Delete, Get, Head, Options, Patch, Post, Put } from './core/router/index';
 import { NxtFunction } from './types/index';
+import { mid, mids } from './core/decorators/index';
+import { Gmids } from './core/middleware';
 export { Context, NxtFunction };
 export default class gland extends WebServer {
   constructor() {
@@ -17,4 +19,5 @@ export default class gland extends WebServer {
     return Logger;
   }
 }
-export { Get, Post, Put, Delete, Patch, Head, Options, Route, exposed };
+export { Get, Post, Put, Delete, Patch, Head, Options, Route, exposed, mid, mids };
+export var Gmid = Gmids.set;

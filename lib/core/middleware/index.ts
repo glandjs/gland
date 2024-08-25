@@ -2,7 +2,7 @@ import { ServerUtils } from '../../helper';
 import { Context, MidsFn, NxtFunction } from '../../types';
 import { Gland } from '../../types';
 import { Router } from '../router';
-export namespace Gmid {
+export namespace Gmids {
   let mids: MidsFn[] = [];
 
   export function set(middleware: MidsFn | MidsFn[]) {

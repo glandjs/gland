@@ -3,7 +3,7 @@ import Reflect from '../../metadata';
 import { METHODS } from 'http';
 import { Context, RouteHandler } from '../../types';
 import { Gland } from '../../types';
-import { Gmid } from '../middleware';
+import { Gmids } from '../middleware';
 export const routes: Map<string, RouteHandler> = new Map();
 const methods = METHODS.reduce((acc: Record<string, Function>, method: string) => {
   const decoratorName = method.charAt(0).toUpperCase() + method.slice(1).toLowerCase();
@@ -40,13 +40,19 @@ export namespace Router {
   }
   export function findMatch(path: string, method: string, base: string): { controller: any; handlerKey: string; fullRoutePath: string; params: Record<string, string> } | null {
     for (const [routePath, controller] of routes.entries()) {
+      console.log('routePath:', routePath);
+      console.log('path:', path);
       if (path.startsWith(routePath)) {
         if (isClass(controller)) {
           const routeInstance = new controller();
           const keys = Object.getOwnPropertyNames(Object.getPrototypeOf(routeInstance)).filter((key) => key !== 'constructor');
+          console.log('KEYS:', keys);
+
           for (const key of keys) {
             const handlerMethod = Reflect.get('method', controller.prototype, key);
             const handlerPath = Reflect.get('path', controller.prototype, key);
+            console.log('handlerPath:', handlerPath);
+            console.log('handlerMethod:', handlerMethod);
             let fullRoutePath = handlerPath ? `${routePath}${handlerPath}` : routePath;
             const parsedURL = new Parser.URI(path, base, fullRoutePath);
 
@@ -76,7 +82,7 @@ export namespace Router {
     const handler = routeInstance[handlerKey].bind(routeInstance);
     const methodMids = Reflect.get('middlewares', routeInstance.constructor.prototype, handlerKey) || [];
     const classMids = Reflect.get('classMiddlewares', routeInstance.constructor.prototype) || [];
-    const globalMids = Gmid.get();
+    const globalMids = Gmids.get();
 
     const allMids = [...globalMids, ...classMids, ...methodMids];
     // Parse JSON body if the method is POST, PUT, or PATCH

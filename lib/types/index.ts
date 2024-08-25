@@ -29,7 +29,7 @@ export namespace Gland {
   }
 
   // Gland-style Middleware (ctx, next)
-  export type GlandMiddleware = (ctx: Context, next: () => Promise<void>) => void | Promise<void>;
+  export type GlandMiddleware = (ctx: Context, next: NxtFunction) => void | Promise<void>;
 
   // Express-style Middleware (req, res, next)
   export type ExpressMiddleware = (req: Context['req'], res: Context['res'], next: (err?: any) => void) => void | Promise<void>;
@@ -54,7 +54,7 @@ export type URLPrams<T extends Record<string, string | undefined>> = {
   [K in keyof T]: T[K] extends string ? string : never;
 };
 export type Context = WebContext & RQ & RS;
-export type MidsFn = (ctx: Context, next: Function) => any;
+export type MidsFn = (ctx: Context, next: NxtFunction) => any;
 export type RouteHandler = new (...args: any[]) => any | ((...args: any[]) => any);
 export type DbTypes = 'mariadb' | 'postgres' | 'sqlite' | 'sqlserver' | 'mysql';
 export type NxtFunction = () => Promise<void>;
