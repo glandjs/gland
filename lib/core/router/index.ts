@@ -2,7 +2,7 @@ import { Parser } from '../../helper/parser';
 import Reflect from '../../metadata';
 import { METHODS } from 'http';
 import { Context, RouteHandler } from '../../types';
-import { Gland } from '../../types/gland';
+import { Gland } from '../../types';
 import { Gmid } from '../middleware';
 export const routes: Map<string, RouteHandler> = new Map();
 const methods = METHODS.reduce((acc: Record<string, Function>, method: string) => {

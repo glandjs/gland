@@ -1,5 +1,5 @@
 import { METHODS } from 'http';
-import { Gland } from '../types/gland';
+import { Gland } from '../types';
 import { Logger } from './logger';
 import { MidsFn } from '../types';
 import { extname } from 'path';

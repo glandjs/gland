@@ -1,6 +1,6 @@
 import { ServerUtils } from '../../helper';
 import { Context, MidsFn, NxtFunction } from '../../types';
-import { Gland } from '../../types/gland';
+import { Gland } from '../../types';
 import { Router } from '../router';
 export namespace Gmid {
   let mids: MidsFn[] = [];

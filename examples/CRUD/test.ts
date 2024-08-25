@@ -1,5 +1,4 @@
-import gland, { Context } from 'glands';
-import { NxtFunction } from '../../lib/types';
+import gland, { Context, NxtFunction } from 'glands';
 const g = new gland();
 async function log(ctx: Context, nxt: NxtFunction) {
   console.log('Hello World');

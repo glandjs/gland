@@ -1,4 +1,4 @@
-import { exposed, Get, Route, Delete, Post, Put, Context } from '../../../index';
+import { exposed, Get, Route, Delete, Post, Put, Context } from '../../../lib';
 import p from 'path';
 import * as fs from 'fs';
 const db = p.join(__dirname, '..', 'db', 'db.json');

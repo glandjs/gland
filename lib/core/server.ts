@@ -1,6 +1,6 @@
 import { IncomingMessage, Server, ServerResponse, METHODS } from 'http';
 import { Parser } from '../helper/parser';
-import { Gland } from '../types/gland';
+import { Gland } from '../types';
 import { ServerUtils } from '../helper';
 import { WebContext } from './context';
 import { Router } from './router';

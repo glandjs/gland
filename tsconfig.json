@@ -9,6 +9,8 @@
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "moduleResolution": "node",
+    "declaration": true, 
+    "declarationMap": true,
     "rootDir": "lib",
     "outDir": "dist",
     "resolveJsonModule": true,

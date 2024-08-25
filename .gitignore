@@ -1,3 +1,11 @@
-/node_modules
-dist
-/dist
+# Node modules
+/node_modules/
+
+# Compiled output
+/dist/
+
+# Logs
+*.log
+
+# Environment variables
+.env
