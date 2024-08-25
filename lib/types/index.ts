@@ -8,7 +8,6 @@ export type MetadataStorage = WeakMap<MetadataTarget, Map<MetadataKey, MetadataV
 export interface RQ extends IncomingMessage {
   [key: string]: any;
 }
-
 export interface RS extends ServerResponse {
   [key: string]: any;
 }

@@ -1,12 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as util from 'util';
-
 const LINE = '==========================\n\t';
 const BOX_BORDER = '─'.repeat(50);
-
 type LogLevel = 'info' | 'warn' | 'error' | 'debug';
-
 interface LoggerOptions {
   level?: LogLevel;
   file?: string;
