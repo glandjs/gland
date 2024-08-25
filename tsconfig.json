@@ -14,5 +14,5 @@
     "resolveJsonModule": true,
     "typeRoots": ["node_modules/@types", "lib/types"]
   },
-  "include": ["lib/**/*.ts", "/*.ts", "lib/types/global.d.ts"]
+  "include": ["lib/**/*.ts", "/*.ts", "lib/types/gland.d.ts"]
 }
