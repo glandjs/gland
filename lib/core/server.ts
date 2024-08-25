@@ -88,11 +88,3 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
   }
 }
 export const g = new WebServer();
-// Helper function to try rendering a view
-function tryRender(view: any, options: object, callback: (err: Error | null, rendered?: string) => void) {
-  try {
-    view.render(options, callback);
-  } catch (err: any) {
-    callback(err);
-  }
-}
