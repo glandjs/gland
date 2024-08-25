@@ -10,5 +10,8 @@
   "devDependencies": {
     "@types/ejs": "^3.1.5",
     "ejs": "^3.1.10"
+  },
+  "dependencies": {
+    "glands": "^1.0.1"
   }
 }

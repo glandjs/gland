@@ -1,5 +1,5 @@
 import { ServerUtils } from '../../helper';
-import { Context, MidsFn } from '../../types';
+import { Context, MidsFn, NxtFunction } from '../../types';
 import { Gland } from '../../types/gland';
 import { Router } from '../router';
 export namespace Gmid {
@@ -23,7 +23,7 @@ export namespace midManager {
 
         // Add the middleware directly to the stack without unnecessary wrapping
         if (handler.length === 2 || handler.length === 3) {
-          middlewares.push(async (ctx: Context, next: () => Promise<void>) => {
+          middlewares.push(async (ctx: Context, next: NxtFunction) => {
             if (ctx.url!.startsWith(path)) {
               if (handler.length === 2) {
                 await (handler as Gland.GlandMiddleware)(ctx, next);

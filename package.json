@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "Glands is a lightweight framework for Node.js designed for simplicity and high performance.",
   "main": "index.ts",
+  "type": "module",
   "types": "index.ts",
   "directories": {
     "doc": "docs",

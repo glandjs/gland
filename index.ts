@@ -4,7 +4,8 @@ import { DbTypes, Context } from './lib/types';
 import { Logger } from './lib/helper/logger';
 import { exposed, Route } from './lib/core/decorators';
 import { Delete, Get, Head, Options, Patch, Post, Put } from './lib/core/router/index';
-export { Context };
+import { NxtFunction } from './lib/types/index';
+export { Context, NxtFunction };
 export default class gland extends WebServer {
   constructor() {
     super();

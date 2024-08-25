@@ -18,3 +18,4 @@ export type Context = WebContext & RQ & RS;
 export type MidsFn = (ctx: Context, next: Function) => any;
 export type RouteHandler = new (...args: any[]) => any | ((...args: any[]) => any);
 export type DbTypes = 'mariadb' | 'postgres' | 'sqlite' | 'sqlserver' | 'mysql';
+export type NxtFunction = () => Promise<void>;
