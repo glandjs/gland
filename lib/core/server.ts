@@ -1,4 +1,4 @@
-import { IncomingMessage, Server, ServerResponse } from 'http';
+import { IncomingMessage, Server, ServerResponse, METHODS } from 'http';
 import { Parser } from '../helper/parser';
 import { Gland } from '../types/gland';
 import { ServerUtils } from '../helper';
@@ -6,7 +6,6 @@ import { WebContext } from './context';
 import { Router } from './router';
 import { LoadModules } from '../helper/load';
 import { Context } from '../types';
-import { METHODS } from 'http';
 import { midManager } from './middleware';
 export class WebServer extends Server implements Gland.Listener, Gland.APP {
   private middlewares: Gland.Middleware[] = [];

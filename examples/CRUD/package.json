@@ -12,6 +12,6 @@
     "ejs": "^3.1.10"
   },
   "dependencies": {
-    "glands": "^1.0.1"
+    "glands": "^1.0.2"
   }
 }
