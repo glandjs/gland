@@ -1,13 +1,13 @@
 import { IncomingMessage, Server, ServerResponse, METHODS } from 'http';
 import { Parser } from '../helper/parser';
-import { Gland } from '../types';
+import { Gland, ListenArgs, NxtFunction } from '../types';
 import { ServerUtils } from '../helper';
 import { WebContext } from './context';
 import { Router } from './router';
 import { LoadModules } from '../helper/load';
 import { Context } from '../types';
 import { midManager } from './middleware';
-export class WebServer extends Server implements Gland.Listener, Gland.APP {
+export class WebServer extends Server implements Gland.APP {
   private middlewares: Gland.Middleware[] = [];
   constructor() {
     super();
@@ -25,7 +25,7 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
         const isAlreadyAdded = this.middlewares.some((middleware) => (middleware as any).key === middlewareKey);
 
         if (!isAlreadyAdded) {
-          const middleware = async (ctx: Context, next: () => Promise<void>) => {
+          const middleware = async (ctx: Context, next: NxtFunction) => {
             if (ctx.url!.startsWith(path) && ctx.method === method) {
               await handler(ctx);
               if (ctx.writableEnded) {
@@ -53,6 +53,7 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
       const { controller, handlerKey, params } = matchingRoute;
       ctx.query = Object.fromEntries(url.searchParams.entries());
       ctx.params = params;
+      ctx.body = await ctx.json();
       // Check if the controller is a class or a function
       if (typeof controller === 'function' && !handlerKey) {
         const middlewareStack = Array.from(new Set([...this.middlewares, controller]));
@@ -64,26 +65,48 @@ export class WebServer extends Server implements Gland.Listener, Gland.APP {
       }
     }
   }
-  init(opts: Gland.ListenOptions = {}, listeningListener?: (info: Gland.ListenOptions) => void): Server {
-    // Assign default values if not provided by the user
-    opts.port ??= 3000;
-    opts.host ??= 'localhost';
-    opts.logger ??= true;
+  listen(...args: ListenArgs): this {
+    let port: number | undefined;
+    let host: string | undefined;
+    let backlog: number | undefined;
+    let listener: (() => void) | undefined;
+
+    if (typeof args[0] === 'object' && args[0] !== null && !(args[0] instanceof Function)) {
+      const opts = args[0] as Gland.ListenOptions;
+      port = opts.port ?? 3000;
+      host = opts.host ?? 'localhost';
+      backlog = opts.backlog;
+      listener = args[1] as (() => void) | undefined;
+
+      if (opts.logger) {
+        ServerUtils.Tools.log(opts);
+      }
+    } else {
+      if (typeof args[0] === 'number') port = args[0];
+      if (typeof args[1] === 'string') host = args[1];
+      if (typeof args[1] === 'number') backlog = args[1];
+      if (typeof args[2] === 'number') backlog = args[2];
+      if (typeof args[1] === 'function') listener = args[1];
+      if (typeof args[2] === 'function') listener = args[2];
+      if (typeof args[3] === 'function') listener = args[3];
+    }
+
     this.on('request', this.lifecycle.bind(this));
 
-    const listener = ServerUtils.Tools.listener(opts, listeningListener);
-    if (opts.logger) {
-      ServerUtils.Tools.log(opts);
-    }
-    if (opts.path) {
-      this.listen(opts.path, opts.backlog, listener);
+    if (typeof args[0] === 'string') {
+      super.listen(args[0], backlog, listener);
     } else {
-      this.listen(opts.port, opts.host, opts.backlog, listener);
+      super.listen(port, host, backlog, listener);
     }
+
     return this;
+  }
+
+  // Reuse ListenArgs type for init method
+  init(...args: ListenArgs): this {
+    return this.listen(...args);
   }
   async load(paths: string = './*.ts') {
     await LoadModules.load(paths);
   }
 }
-export const g = new WebServer();

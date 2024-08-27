@@ -9,9 +9,6 @@ export namespace Gland {
     exclusive?: boolean;
     logger?: boolean;
   }
-  export interface Listener {
-    init(opts: ListenOptions): void;
-  }
   export interface StaticOptions {
     dotfiles?: 'allow' | 'deny' | 'ignore';
     etag?: boolean;
@@ -58,3 +55,11 @@ export type MidsFn = (ctx: Context, next: NxtFunction) => any;
 export type RouteHandler = new (...args: any[]) => any | ((...args: any[]) => any);
 export type DbTypes = 'mariadb' | 'postgres' | 'sqlite' | 'sqlserver' | 'mysql';
 export type NxtFunction = () => Promise<void>;
+export type ListenArgs =
+  | [port?: number, hostname?: string, backlog?: number, listeningListener?: () => void]
+  | [port?: number, hostname?: string, listeningListener?: () => void]
+  | [port?: number, backlog?: number, listeningListener?: () => void]
+  | [port?: number, listeningListener?: () => void]
+  | [path: string, backlog?: number, listeningListener?: () => void]
+  | [path: string, listeningListener?: () => void]
+  | [options: Gland.ListenOptions, listeningListener?: () => void];

@@ -3,7 +3,7 @@ import { Qiu } from './cli/Qiu';
 import { DbTypes, Context } from './types';
 import { Logger } from './helper/logger';
 import { exposed, Route } from './core/decorators';
-import { Delete, Get, Head, Options, Patch, Post, Put } from './core/router/index';
+import { Delete, Get, Head, Options, Patch, Post, Put, All } from './core/router/index';
 import { NxtFunction } from './types/index';
 import { mid, mids } from './core/decorators/index';
 import { Gmids } from './core/middleware';
@@ -19,5 +19,5 @@ export default class gland extends WebServer {
     return Logger;
   }
 }
-export { Get, Post, Put, Delete, Patch, Head, Options, Route, exposed, mid, mids };
+export { Get, Post, Put, Delete, Patch, Head, Options, Route, exposed, mid, mids, All };
 export var Gmid = Gmids.set;

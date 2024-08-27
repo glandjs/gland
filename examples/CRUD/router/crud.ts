@@ -1,4 +1,42 @@
-import { exposed, Get, Route, Delete, Post, Put, Context } from '../../../dist';
+import { graphql, buildSchema } from 'graphql';
+import { exposed, Route, Context, All, Get, Post, Delete, Put } from '../../../dist';
+// Define a simple GraphQL schema
+const schema = buildSchema(`
+  type Query {
+  hello(name: String): String
+}
+`);
+
+// Define the root resolver
+const root = {
+  hello: ({ name }: { name: string }) => `Hello, ${name || 'world'}!`,
+};
+
+
+@Route('/graphql')
+@exposed
+class GraphQLHandler {
+  @All()
+  async handleGraphQL(ctx: Context) {
+    const { query, variables } = ctx.body as { query: string; variables?: any };
+
+    // Execute the GraphQL query
+    const result = await graphql({
+      schema,
+      source: query,
+      variableValues: variables,
+      rootValue: root,
+    });
+
+    // Send the result back as the response
+    ctx.writeHead(200, {
+      'Content-Type': 'application/json',
+    });
+    ctx.write(JSON.stringify(result));
+    ctx.end();
+  }
+}
+
 import p from 'path';
 import * as fs from 'fs';
 const db = p.join(__dirname, '..', 'db', 'index.json');

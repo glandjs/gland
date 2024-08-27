@@ -18,8 +18,13 @@ function generator(method: string) {
     };
   };
 }
+export const All = function allGenerator(): MethodDecorator | any {
+  return (target: Object, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<any>): void => {
+    Reflect.init('method', 'ALL', target, propertyKey);
+    Reflect.init('path', '*', target, propertyKey);
+  };
+};
 export const { Get, Post, Put, Delete, Patch, Options, Head } = methods;
-
 export namespace Router {
   export function set(controllerClassOrFunction: RouteHandler, routePath?: string): void {
     if (typeof controllerClassOrFunction === 'function') {
@@ -40,29 +45,34 @@ export namespace Router {
   }
   export function findMatch(path: string, method: string, base: string): { controller: any; handlerKey: string; fullRoutePath: string; params: Record<string, string> } | null {
     for (const [routePath, controller] of routes.entries()) {
-      console.log('routePath:', routePath);
-      console.log('path:', path);
       if (path.startsWith(routePath)) {
         if (isClass(controller)) {
           const routeInstance = new controller();
           const keys = Object.getOwnPropertyNames(Object.getPrototypeOf(routeInstance)).filter((key) => key !== 'constructor');
-          console.log('KEYS:', keys);
-
           for (const key of keys) {
             const handlerMethod = Reflect.get('method', controller.prototype, key);
             const handlerPath = Reflect.get('path', controller.prototype, key);
-            console.log('handlerPath:', handlerPath);
-            console.log('handlerMethod:', handlerMethod);
             let fullRoutePath = handlerPath ? `${routePath}${handlerPath}` : routePath;
             const parsedURL = new Parser.URI(path, base, fullRoutePath);
-
             if (handlerPath && handlerPath.startsWith('/:')) {
               const paramName = handlerPath.split(':')[1];
               fullRoutePath = `${routePath}/${parsedURL.params[paramName]}`;
             }
 
-            if (handlerMethod === method && fullRoutePath === path) {
-              return { controller, handlerKey: key, fullRoutePath, params: parsedURL.params };
+            if ((handlerMethod === method || handlerMethod === 'ALL') && fullRoutePath === path) {
+              return {
+                controller,
+                handlerKey: key,
+                fullRoutePath,
+                params: parsedURL.params,
+              };
+            } else if (handlerMethod === 'ALL' && fullRoutePath.startsWith(path)) {
+              return {
+                controller,
+                handlerKey: key,
+                fullRoutePath,
+                params: parsedURL.params,
+              };
             }
           }
         } else if (typeof controller === 'function') {
@@ -85,10 +95,6 @@ export namespace Router {
     const globalMids = Gmids.get();
 
     const allMids = [...globalMids, ...classMids, ...methodMids];
-    // Parse JSON body if the method is POST, PUT, or PATCH
-    if (['POST', 'PUT', 'PATCH'].includes(ctx.method!)) {
-      ctx.body = await ctx.json();
-    }
     // Execute global middlewares first
     await execute(ctx, GlMid);
     // Execute class and method middlewares with the handler
