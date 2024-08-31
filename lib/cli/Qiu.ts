@@ -5,7 +5,6 @@ import { DbTypes } from '../types';
 import { logger } from '../helper/logger';
 import path from 'path';
 import { readFile } from 'fs/promises';
-import { StringLiteral } from 'typescript';
 const execAsync = promisify(exec);
 
 class QiuError extends Error {
