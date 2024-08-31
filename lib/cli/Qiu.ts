@@ -4,6 +4,8 @@ import { access, constants } from 'fs/promises';
 import { DbTypes } from '../types';
 import { logger } from '../helper/logger';
 import path from 'path';
+import { readFile } from 'fs/promises';
+import { StringLiteral } from 'typescript';
 const execAsync = promisify(exec);
 
 class QiuError extends Error {
@@ -37,6 +39,7 @@ export class Qiu {
   private scriptCache: Map<string, boolean> = new Map();
   private queryCache: Map<string, string> = new Map();
   private static readonly scriptDir = path.resolve(__dirname, 'script');
+  private currentDatabase: string | null = null;
   private constructor(dbType: DbTypes, user: string = '', password: string = '') {
     this.dbType = dbType;
     this.user = user;
@@ -98,11 +101,24 @@ export class Qiu {
 
   async run(query: string): Promise<string | undefined> {
     await this.setExecutePermissions();
+    // Track the current database if "USE" is executed and cache it
+    if (query.toLowerCase().startsWith('use ')) {
+      const dbName = query.split(' ')[1].replace(';', '').trim();
+      this.currentDatabase = dbName;
+      this.queryCache.set('currentDatabase', dbName); // Cache the current database
+    } else if (this.currentDatabase === null && this.queryCache.has('currentDatabase')) {
+      // Retrieve the cached database context if it's been set previously
+      this.currentDatabase = this.queryCache.get('currentDatabase')!;
+    }
+
+    // Automatically prepend the USE statement if a database is selected and the query doesn't include a database context
+    if (this.currentDatabase && !query.toLowerCase().startsWith('use')) {
+      query = `USE ${this.currentDatabase}; ${query}`;
+    }
     // Check if the query result is cached
     if (this.queryCache.has(query)) {
       return this.queryCache.get(query)!;
     }
-
     const command = this.buildCommand(query);
 
     try {
@@ -142,10 +158,10 @@ export class Qiu {
     } else if (error.message.includes('ER_DUP_ENTRY')) {
       errorMessage = `A duplicate entry was found for a unique key or primary key.`;
       suggestion = `Ensure that the data being inserted does not violate unique constraints. Modify the data or database schema as needed.`;
-    }else {
-        errorMessage = `An unexpected error occurred: ${error.message}`;
-        suggestion = `Please check the error message and consult the documentation for further guidance.`;
-   }
+    } else {
+      errorMessage = `An unexpected error occurred: ${error.message}`;
+      suggestion = `Please check the error message and consult the documentation for further guidance.`;
+    }
 
     this.handleError(errorMessage, query, suggestion);
   }
@@ -178,5 +194,15 @@ export class Qiu {
 
   private sanitizeQuery(query: string): string {
     return query.replace(/["`$]/g, '');
+  }
+  // Method to load and execute SQL from a file
+  public async runFile(filePath: string): Promise<void> {
+    const sql = await readFile(filePath, 'utf-8');
+    const queries = sql.split(';').filter((query) => query.trim() !== '');
+
+    // Prepend the USE statement to each query
+    for (const query of queries) {
+      await this.run(`${query.trim()};`);
+    }
   }
 }
