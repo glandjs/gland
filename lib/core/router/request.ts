@@ -1,5 +1,6 @@
+import { Factory } from '@medishn/gland-logger';
 import { IncomingMessage } from 'http';
-import { logger } from '../../helper/logger';
+const logger = new Factory({ transports: ['console'], level: 'warn' });
 const PROTO = IncomingMessage.prototype;
 PROTO.json = function (): Promise<object | undefined> {
   return new Promise((resolve, reject) => {
@@ -9,7 +10,7 @@ PROTO.json = function (): Promise<object | undefined> {
     });
     this.on('end', () => {
       if (!body) {
-        logger.warn('Request body is empty.');
+        logger.log('Request body is empty.', 'warn');
         resolve(undefined);
       } else {
         try {

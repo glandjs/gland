@@ -2,11 +2,11 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { access, constants } from 'fs/promises';
 import { DbTypes } from '../types';
-import { logger } from '../helper/logger';
 import path from 'path';
 import { readFile } from 'fs/promises';
+import { Factory } from '@medishn/gland-logger';
 const execAsync = promisify(exec);
-
+const logger = new Factory({ level: 'info', transports: ['console'], timestampFormat: 'locale' });
 class QiuError extends Error {
   constructor(message: string, public query: string, public dbType: string, public suggestion: string) {
     super();
@@ -70,7 +70,7 @@ export class Qiu {
             this.scriptCache.set(script, true);
           } catch {
             await execAsync(`chmod +x ${script}`);
-            logger.warn(`Execute permissions set for script: ${script}`, 'database');
+            logger.log(`Execute permissions set for script: ${script}`,'warn','database');
             this.scriptCache.set(script, true);
           }
         }
@@ -94,7 +94,7 @@ export class Qiu {
 
   private handleError(message: string, query: string, suggestion: string = 'Please check the script or database configuration.'): never {
     const error = new QiuError(message, query, this.dbType, suggestion);
-    logger.error(`\n${error}`, Error(error.message), 'QIU ERROR');
+    logger.log(`\n${error}`,'error','QIU ERROR')
     process.exit(1);
   }
 

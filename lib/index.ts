@@ -1,12 +1,12 @@
 import { WebServer } from './core/server';
 import { Qiu } from './cli/Qiu';
 import { DbTypes, Context } from './types';
-import { Logger } from './helper/logger';
 import { exposed, Route } from './core/decorators';
 import { Delete, Get, Head, Options, Patch, Post, Put, All } from './core/router/index';
 import { NxtFunction } from './types/index';
 import { mid, mids } from './core/decorators/index';
 import { Gmids } from './core/middleware';
+import { Factory } from '@medishn/gland-logger';
 export { Context, NxtFunction };
 export default class gland extends WebServer {
   constructor() {
@@ -16,7 +16,7 @@ export default class gland extends WebServer {
     return Qiu.getInstance(types, user, password);
   }
   lg() {
-    return Logger;
+    return Factory;
   }
 }
 export { Get, Post, Put, Delete, Patch, Head, Options, Route, exposed, mid, mids, All };

@@ -1,9 +1,9 @@
 import { METHODS } from 'http';
 import { Gland } from '../types';
-import { Logger } from './logger';
 import { MidsFn } from '../types';
+import { Factory } from '@medishn/gland-logger';
+const logger = new Factory({ timestampFormat: 'locale', level: 'info' });
 export namespace ServerUtils {
-  const logger = Logger.getInstance({ timestampFormat: 'locale', level: 'info' });
   export function getMethod(): Array<string> {
     return (
       METHODS &&
@@ -25,7 +25,7 @@ export namespace ServerUtils {
       };
     }
     static log(opts: Gland.ListenOptions) {
-      logger.info(Tools.logMsg(opts));
+      logger.log(Tools.logMsg(opts), 'info');
     }
   }
   export function normalize(middleware: MidsFn | MidsFn[]): MidsFn[] {

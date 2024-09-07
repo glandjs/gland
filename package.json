@@ -14,8 +14,13 @@
     "example": "examples"
   },
   "scripts": {
-    "build": "tsc",
-    "pub":"npm run build & npm publish"
+    "test": "scripts/tests.sh",
+    "test:unit": "test/unit",
+    "test:e2e": "test/e2e",
+    "test:integration": "test/integration",
+    "test:performance": "test/performance",
+    "build": "rm -r dist/* & tsc",
+    "release": "scripts/release.sh"
   },
   "repository": {
     "type": "git",
@@ -38,10 +43,15 @@
   },
   "homepage": "https://github.com/medishen/gland#readme",
   "devDependencies": {
-    "ts-node": "^10.9.2"
+    "@types/chai": "^4.3.19",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "^22.0.0",
+    "chai": "^5.1.1",
+    "mocha": "^10.7.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.5.4"
+    "@medishn/gland-logger": "^1.0.3"
   }
 }
