@@ -1,5 +1,5 @@
 import { IncomingMessage, Server, ServerResponse, METHODS } from 'http';
-import { Parser } from '../helper/parser';
+import { Parser } from '../helper/Parser';
 import { Gland, ListenArgs, NxtFunction } from '../types';
 import { ServerUtils } from '../helper';
 import { WebContext } from './context';
@@ -54,10 +54,8 @@ export class WebServer extends Server implements Gland.APP {
       ctx.query = Object.fromEntries(url.searchParams.entries());
       ctx.params = params;
       ctx.body = await ctx.json();
-      // Check if the controller is a class or a function
       if (typeof controller === 'function' && !handlerKey) {
         const middlewareStack = Array.from(new Set([...this.middlewares, controller]));
-        // Logging the function names or sources to help identify duplication
         await Router.execute(ctx, middlewareStack);
       } else {
         const routeInstance = new controller();
@@ -101,8 +99,6 @@ export class WebServer extends Server implements Gland.APP {
 
     return this;
   }
-
-  // Reuse ListenArgs type for init method
   init(...args: ListenArgs): this {
     return this.listen(...args);
   }
