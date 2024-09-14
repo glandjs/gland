@@ -15,7 +15,7 @@
   },
   "scripts": {
     "test": "env $(cat .env | xargs) mocha --require ts-node/register npm run test:unit & test/**/*.spec.ts",
-    "test:unit": "mocha --require ts-node/register lib/helper/__test__/Load.spec.ts",
+    "test:unit": "mocha --require ts-node/register lib/**/__test__/*.spec.ts",
     "test:e2e": "env $(cat .env | xargs) mocha --require ts-node/register test/e2e/**/*.spec.ts",
     "test:integration": "env $(cat .env | xargs) mocha --require ts-node/register test/integration/*.spec.ts",
     "test:performance": "env $(cat .env | xargs) mocha --require ts-node/register test/performance/*.spec.ts",
