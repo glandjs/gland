@@ -7,10 +7,16 @@ import { Router } from './router';
 import { LoadModules } from '../helper/load';
 import { Context } from '../types';
 import { midManager } from './middleware';
+import { Queue, QueueOptions } from '../helper/Queue';
+
 export class WebServer extends Server implements Gland.APP {
   private middlewares: Gland.Middleware[] = [];
-  constructor() {
+  private taskQueue: Queue;
+  private defaultQueueOptions: QueueOptions = { maxConcurrent: 10, cacheSize: 1000 };
+  private taskCounter = 0;
+  constructor(queueOptions?: QueueOptions) {
     super();
+    this.taskQueue = new Queue({ ...this.defaultQueueOptions, ...queueOptions });
   }
   use(path: string | Gland.Middleware, ...handlers: (Gland.Middleware | Gland.Middleware[])[]): this {
     midManager.process(path, handlers, this.middlewares);
@@ -49,19 +55,24 @@ export class WebServer extends Server implements Gland.APP {
     const { ctx } = new WebContext(req, res);
     const { method, path, url, base } = await Parser.Request(req);
     const matchingRoute = Router.findMatch(path, method, base);
-    if (matchingRoute) {
-      const { controller, handlerKey, params } = matchingRoute;
-      ctx.query = Object.fromEntries(url.searchParams.entries());
-      ctx.params = params;
-      ctx.body = await ctx.json();
-      if (typeof controller === 'function' && !handlerKey) {
-        const middlewareStack = Array.from(new Set([...this.middlewares, controller]));
-        await Router.execute(ctx, middlewareStack);
-      } else {
-        const routeInstance = new controller();
-        await Router.run(ctx, routeInstance, method, handlerKey, this.middlewares);
+
+    const taskId = `${method}:${path}:${Date.now()}:${this.taskCounter++}`;
+    const task = async () => {
+      if (matchingRoute) {
+        const { controller, handlerKey, params } = matchingRoute;
+        ctx.query = Object.fromEntries(url.searchParams.entries());
+        ctx.params = params;
+        ctx.body = await ctx.json();
+        if (typeof controller === 'function' && !handlerKey) {
+          const middlewareStack = Array.from(new Set([...this.middlewares, controller]));
+          await Router.execute(ctx, middlewareStack);
+        } else {
+          const routeInstance = new controller();
+          await Router.run(ctx, routeInstance, method, handlerKey, this.middlewares);
+        }
       }
-    }
+    };
+    await this.taskQueue.add(task, taskId);
   }
   listen(...args: ListenArgs): this {
     let port: number | undefined;

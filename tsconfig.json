@@ -9,7 +9,7 @@
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "moduleResolution": "node",
-    "declaration": true, 
+    "declaration": true,
     "declarationMap": true,
     "rootDir": "lib",
     "outDir": "dist",
@@ -17,5 +17,9 @@
     "typeRoots": ["node_modules/@types", "lib/types"]
   },
   "include": ["lib/**/*.ts", "lib/types/*.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "__test__" 
+  ]
 }

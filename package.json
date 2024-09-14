@@ -18,6 +18,7 @@
     "test:unit": "mocha --require ts-node/register lib/**/__test__/*.spec.ts",
     "test:e2e": "mocha --require ts-node/register test/e2e/*.spec.ts",
     "test:performance": "mocha --require ts-node/register test/performance/*.spec.ts",
+    "benchmark": "ts-node ./benchmark/gland.ts",
     "build": "rm -r dist/* & tsc",
     "release": "scripts/release.sh"
   },

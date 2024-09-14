@@ -1,22 +1,16 @@
-# Node modules
 node_modules/
-
-# Source directories (if included in the build output)
 lib/
-
-# Test and example directories
 examples/
 tests/
-
-# Documentation
+__test__/
+examples/
+coverage/
 docs/
-
-# Git files
+*.md
+*.pdf
 .git/
-
-# Environment files
+.gitignore
 .env
-
-# Local configuration files
 .prettierrc
 .eslintrc
+.github/
