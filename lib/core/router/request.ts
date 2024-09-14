@@ -10,7 +10,6 @@ PROTO.json = function (): Promise<object | undefined> {
     });
     this.on('end', () => {
       if (!body) {
-        logger.log('Request body is empty.', 'warn');
         resolve(undefined);
       } else {
         try {

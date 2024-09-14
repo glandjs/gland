@@ -1,4 +1,4 @@
-import { Parser } from '../../helper/parser';
+import { Parser } from '../../helper/Parser';
 import Reflect from '../../metadata';
 import { METHODS } from 'http';
 import { Context, RouteHandler } from '../../types';

@@ -21,22 +21,12 @@ describe('WebServer', () => {
 
   beforeEach(() => {
     server = new WebServer();
-
-    // Stub lifecycle method if needed
     lifecycleStub = sinon.stub(server as any, 'lifecycle');
-
-    // Stub Parser.Request
     parserRequestStub = sinon.stub(Parser, 'Request');
-
-    // Stub Router methods
     routerFindMatchStub = sinon.stub(Router, 'findMatch');
     routerExecuteStub = sinon.stub(Router, 'execute');
     routerRunStub = sinon.stub(Router, 'run');
-
-    // Stub LoadModules.load
     loadModulesLoadStub = sinon.stub(LoadModules, 'load').resolves();
-
-    // Stub ServerUtils.Tools.log
     serverUtilsLogStub = sinon.stub(ServerUtils.Tools, 'log');
   });
 

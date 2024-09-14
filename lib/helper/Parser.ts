@@ -51,10 +51,6 @@ export namespace Parser {
     if (!req.headers) {
       throw new Error('Request header is missing.');
     }
-    if (!req.headers.host) {
-      throw new Error('Request host header is missing.');
-    }
-
     const protocol = req.socket instanceof TLSSocket ? 'https' : 'http';
     const base = `${protocol}://${req.headers.host}`;
     const url = new URL(req.url, base);
@@ -63,7 +59,7 @@ export namespace Parser {
       url,
       method: req.method || 'GET',
       protocol,
-      host: req.headers.host,
+      host: req.headers.host!,
       path: url.pathname,
       base,
     };

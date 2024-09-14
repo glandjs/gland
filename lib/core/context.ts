@@ -1,7 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { Context, RQ, RS } from '../types';
 import './router/request';
-import { Queue } from '../helper/queue';
 export class WebContext {
   public rq: RQ;
   public rs: RS;
