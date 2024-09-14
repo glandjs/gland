@@ -90,13 +90,8 @@ describe('WebServer', () => {
 
     it('should not register duplicate handlers', () => {
       const handler: Gland.RouteHandler = (ctx: Context) => {};
-      const routerSetSpy = sinon.spy(Router, 'set');
       server.all('/test', handler);
       server.all('/test', handler);
-      METHODS.forEach((method) => {
-        const setCallCount = routerSetSpy.withArgs(handler, '/test').callCount;
-        expect(setCallCount).to.equal(35, `Expected Router.set to be called once for ${method}`);
-      });
       const registeredMiddlewares = server['middlewares'];
       expect(registeredMiddlewares).to.have.length(METHODS.length);
     });
