@@ -63,3 +63,10 @@ export type ListenArgs =
   | [path: string, backlog?: number, listeningListener?: () => void]
   | [path: string, listeningListener?: () => void]
   | [options: Gland.ListenOptions, listeningListener?: () => void];
+export interface ModuleConfig {
+  path: string;
+  recursive?: boolean;
+  pattern?: string;
+  cacheModules?: boolean;
+  logLevel?: 'none' | 'error' | 'warn' | 'info' | 'debug';
+}
