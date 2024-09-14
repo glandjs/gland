@@ -1,7 +1,7 @@
 {
   "name": "@medishn/gland",
   "version": "1.0.0",
-  "description": "Glands is a lightweight framework for Node.js designed for simplicity and high performance.",
+  "description": "Glands is a lightweight framework for Node.js designed for simplicity.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -14,11 +14,11 @@
     "example": "examples"
   },
   "scripts": {
-    "test": "scripts/tests.sh",
-    "test:unit": "test/unit",
-    "test:e2e": "test/e2e",
-    "test:integration": "test/integration",
-    "test:performance": "test/performance",
+    "test": "env $(cat .env | xargs) mocha --require ts-node/register npm run test:unit & test/**/*.spec.ts",
+    "test:unit": "mocha --require ts-node/register lib/helper/__test__/Load.spec.ts",
+    "test:e2e": "env $(cat .env | xargs) mocha --require ts-node/register test/e2e/**/*.spec.ts",
+    "test:integration": "env $(cat .env | xargs) mocha --require ts-node/register test/integration/*.spec.ts",
+    "test:performance": "env $(cat .env | xargs) mocha --require ts-node/register test/performance/*.spec.ts",
     "build": "rm -r dist/* & tsc",
     "release": "scripts/release.sh"
   },
@@ -46,12 +46,15 @@
     "@types/chai": "^4.3.19",
     "@types/mocha": "^10.0.7",
     "@types/node": "^22.0.0",
-    "chai": "^5.1.1",
+    "@types/sinon": "^17.0.3",
+    "chai": "^4.3.7",
     "mocha": "^10.7.3",
+    "sinon": "^19.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@medishn/gland-logger": "^1.0.3"
+    "@medishn/gland-logger": "^1.0.3",
+    "@medishn/gland-qiu": "^1.0.1"
   }
 }
