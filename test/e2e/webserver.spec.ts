@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { describe, it, beforeEach, afterEach } from 'mocha';
-import http, { Server } from 'http';
+import http from 'http';
 import { WebServer } from '../../lib/core/server';
 import { Context, NxtFunction } from '../../lib/types';
 
