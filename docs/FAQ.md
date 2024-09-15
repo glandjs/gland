@@ -9,14 +9,16 @@ Gland is a lightweight web server framework designed for Node.js. It provides a 
 To get started with Gland, you can follow these simple steps:
 
 1. Install Gland via npm:
+
    ```bash
-   npm install gland
+   npm install @medishn/gland
    ```
 
 2. Create a basic server:
+
    ```typescript
    import path from 'path';
-   import gland from 'gland';
+   import gland from '@medishn/gland';
 
    const g = new gland();
    g.load(path.join(__dirname, '.confmodule'));
@@ -26,8 +28,9 @@ To get started with Gland, you can follow these simple steps:
    ```
 
 3. Define your routes and handlers in a configuration file (`.confmodule`):
+
    ```typescript
-   import { Context, Get, Route } from 'gland';
+   import { Context, Get, Route } from '@medishn/gland';
 
    @Route('/')
    export class Test {
@@ -42,8 +45,9 @@ To get started with Gland, you can follow these simple steps:
 ## How does Gland handle logging?
 
 Gland uses the internal logger package, [@medishn/gland-logger](https://github.com/medishen/gland-logger), to handle logging. You can access the logger using the `logger` property:
+
 ```typescript
-import gland from 'gland';
+import gland from '@medishn/gland';
 
 const g = new gland();
 const logger = g.logger;

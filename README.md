@@ -1,49 +1,127 @@
-# Glands
+# Gland
 
-**Glands** is a lightweight framework for Node.js designed for simplicity and high performance.
+`Gland` is a lightweight and extensible web server framework for Node.js. It provides a flexible and modular approach to building web applications, including support for middleware, routing, logging, and SQL query execution.
 
 ## Features
 
-- **Lightweight:** Minimal overhead to keep your applications fast and responsive.
-- **Intuitive API:** Easy-to-use interface for quick development and deployment.
-- **Modular:** Flexible and extendable, allowing you to add only the features you need.
+- **Modular Configuration**: Load and configure modules dynamically.
+- **Middleware Support**: Easily add and manage middleware functions.
+- **Routing**: Define routes using decorators for different HTTP methods.
+- **Logging**: Integrate with the internal logger for customizable logging.
+- **SQL Query Runner**: Utilize the internal query runner to interact with SQL databases.
 
-## Getting Started
+## Installation
 
-### Installation
+You can install `@medishn/gland` via npm:
 
-To install Gland, simply run:
-
+```bash
+npm install @medishn/gland
 ```
-npm install glands
+
+## Basic Usage
+
+To get started with `@medishn/gland`, follow these steps:
+
+1. **Create a Basic Server**
+
+   ```typescript
+   import path from 'path';
+   import gland from '@medishn/gland';
+
+   const g = new gland();
+   g.load(path.join(__dirname, '.confmodule'));
+   g.init(3000, () => {
+     console.log('Server running on port 3000');
+   });
+   ```
+
+2. **Define Routes and Handlers**
+
+   Create a `.confmodule` file with the following content:
+
+   ```
+   path=router
+   ```
+
+3. **Create Router:(/router/example.ts)**
+   ```typescript
+   import { Context, Get, Route } from '@medishn/gland';
+
+   @Route('/')
+   export class Test {
+     @Get()
+     test(ctx: Context) {
+       ctx.write('hello world');
+       ctx.end();
+     }
+   }
+   ```
+
+## Middleware
+
+You can add middleware functions to your Gland instance:
+
+```typescript
+import { Context, mid } from '@medishn/gland';
+
+const g = new gland();
+
+const myMiddleware = async (ctx: Context, next: NxtFunction) => {
+  // Middleware logic here
+  await next();
+};
+
+g.use(mid(myMiddleware));
 ```
 
-### Basic Usage
+## Routing
 
-Create a basic web server with Gland:
+Define routes using decorators:
 
-1. **Import Gland:** Import the Gland module into your project.
-2. **Initialize the Server:** Create an instance of the Gland server.
-3. **Define Routes:** Set up your routes to handle different HTTP requests.
-4. **Start the Server:** Start the server and listen on a specified port.
+```typescript
+import { Context, Get, Post, Route } from '@medishn/gland';
 
-## Documentation
+@Route('/example')
+export class Example {
+  @Get()
+  getExample(ctx: Context) {
+    ctx.write('GET request');
+    ctx.end();
+  }
 
-For detailed documentation and API references, please visit the [Gland Documentation](#).
+  @Post()
+  postExample(ctx: Context) {
+    ctx.write('POST request');
+    ctx.end();
+  }
+}
+```
 
 ## Contributing
 
-We welcome contributions to Gland! If you would like to contribute, please follow these steps:
+We welcome contributions to the Gland project. Please follow these steps:
 
 1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Commit your changes and push to your branch.
-4. Open a pull request and describe your changes.
+2. Clone your fork and create a new branch.
+3. Make your changes and write tests.
+4. Commit your changes with a descriptive message.
+5. Push your changes and create a pull request.
+
+For more details, see the [CONTRIBUTING.md](docs/CONTRIBUTING.md).
+
+## Security
+
+For information on security practices and reporting vulnerabilities, please refer to [SECURITY.md](docs/SECURITY.md).
 
 ## License
 
-Gland is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Contact
 
-For any questions or inquiries, please contact us at [mediishn@gmail.com](mediishn@gmail.com).
+For any questions or further assistance, please reach out to us at [bitsgenix@gmail.com](mailto:bitsgenix@gmail.com).
+
+## Links
+
+- [Gland Logger](https://github.com/medishen/gland-logger)
+- [Gland Qiu](https://github.com/medishen/gland-qiu)
