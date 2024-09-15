@@ -7,7 +7,7 @@ export namespace LoadModules {
   export const moduleCache: { [key: string]: any } = {};
   const modules: { [key: string]: any } = {};
   const defaultConfig: ModuleConfig = {
-    path: '',
+    path: 'router',
     recursive: true,
     pattern: '*.ts',
     cacheModules: true,
@@ -19,11 +19,6 @@ export namespace LoadModules {
   export async function load(confPath: string) {
     const configFile = path.resolve(confPath);
     config = { ...defaultConfig, ...(await parseConfig(configFile)) };
-
-    if (!config.path) {
-      throw new Error("No 'path' specified in .confmodule");
-    }
-
     const baseDir = path.join(path.dirname(configFile), config.path);
     const files = await findModules(baseDir, config.pattern!, config.recursive!);
     const BATCH_SIZE = 10;
