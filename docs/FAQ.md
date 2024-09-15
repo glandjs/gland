@@ -29,6 +29,14 @@ To get started with Gland, you can follow these simple steps:
 
 3. Define your routes and handlers in a configuration file (`.confmodule`):
 
+   Create a `.confmodule` file with the following content:
+
+   ```
+   path=router
+   ```
+
+4. Create Router:(/router/example.ts)
+
    ```typescript
    import { Context, Get, Route } from '@medishn/gland';
 
@@ -50,7 +58,7 @@ Gland uses the internal logger package, [@medishn/gland-logger](https://github.c
 import gland from '@medishn/gland';
 
 const g = new gland();
-const logger = g.logger;
+const logger = new g.logger();
 ```
 
 ## What is Qiu?
