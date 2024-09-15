@@ -16,10 +16,21 @@ export namespace LoadModules {
 
   let config: ModuleConfig = defaultConfig;
 
-  export async function load(confPath: string) {
-    const configFile = path.resolve(confPath);
-    config = { ...defaultConfig, ...(await parseConfig(configFile)) };
-    const baseDir = path.join(path.dirname(configFile), config.path);
+  export async function load(conf: Partial<ModuleConfig> | string) {
+    let baseDir: string = '';
+    if (typeof conf === 'string') {
+      const configFile = path.resolve(conf);
+      const fileConfig = await parseConfig(configFile);
+      config = { ...defaultConfig, ...fileConfig };
+      baseDir = path.join(path.dirname(conf), config.path);
+    } else if (typeof conf === 'object') {
+      config = { ...defaultConfig, ...conf };
+      if (path.isAbsolute(config.path!)) {
+        baseDir = config.path!;
+      } else {
+        throw new Error(`Error: The directory '${conf.path}' does not exist or is invalid. Please provide a valid path.`);
+      }
+    }
     const files = await findModules(baseDir, config.pattern!, config.recursive!);
     const BATCH_SIZE = 10;
     for (let i = 0; i < files.length; i += BATCH_SIZE) {
@@ -82,11 +93,9 @@ export namespace LoadModules {
     }
     return config;
   }
-
-  // Queue-based file search with cache and worker thread support for faster searching
   export async function findModules(directory: string, pattern: string, recursive: boolean): Promise<string[]> {
     let fileList: string[] = [];
-    const queue: string[] = [directory]; // Use a queue to avoid recursive depth limits
+    const queue: string[] = [directory];
     const fileCache: { [key: string]: boolean } = {};
 
     while (queue.length) {

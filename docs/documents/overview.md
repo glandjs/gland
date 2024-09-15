@@ -12,13 +12,7 @@
 
 4. **Integrated Logger**: `gland` comes with an integrated logger from the `@medishn/gland-logger` package, allowing for seamless logging with customizable log levels. Whether logging to the console or implementing more advanced logging strategies, the logger provides robust support for tracking and debugging.
 
-5. **SQL Database Support**: `gland` natively integrates with SQL databases (MySQL, PostgreSQL, MariaDB) via `@medishn/gland-qiu`. This query runner supports database interaction and simplifies common operations with SQL databases, making it easier to connect, query, and manage your database.
-
-6. **Configuration through `.confmodule`**: The framework provides an easy-to-use configuration system that allows you to load routes, configure logging levels, and set middleware through a configuration module. This approach ensures flexibility and scalability for projects of any size.
-
-7. **Task Queue**: `gland` includes an internal task queue system, allowing asynchronous tasks to be handled efficiently. This is ideal for handling complex tasks in the background without blocking the main event loop.
-
-8. **Performance-Focused**: Optimized for performance, `gland` can process a high volume of requests with minimal overhead. Recent benchmarks show exceptional performance with low average response times, even under heavy loads.
+5. **Performance-Focused**: Optimized for performance, `gland` can process a high volume of requests with minimal overhead. Recent benchmarks show exceptional performance with low average response times, even under heavy loads.
 
 ## Use Cases
 
@@ -62,18 +56,6 @@ export class Test {
   }
 }
 ```
-
-## Internal Components
-
-### **Logger (`@medishn/gland-logger`)**
-`gland` uses an internal logger for detailed logging and debugging. The logger is highly customizable, allowing you to control log levels and output formatting. It supports features like file rotation and caching.
-
-For more information, visit the [gland-logger repository](https://github.com/medishen/gland-logger).
-
-### **SQL Query Runner (`@medishn/gland-qiu`)**
-For applications requiring SQL database support, `gland` provides `Qiu`, an integrated SQL query runner that simplifies database interactions. It supports MySQL, PostgreSQL, and MariaDB.
-
-For more details, see the [gland-qiu repository](https://github.com/medishen/gland-qiu).
 
 ## Conclusion
 

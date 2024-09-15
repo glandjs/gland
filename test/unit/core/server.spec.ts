@@ -98,8 +98,6 @@ describe('WebServer', () => {
   });
   describe('load()', () => {
     it('should call LoadModules.load with the correct path', async () => {
-      await server.load();
-      expect(loadModulesLoadStub.calledOnceWith('./*.ts')).to.be.true;
       loadModulesLoadStub.resetHistory();
       await server.load('./modules/*.ts');
       expect(loadModulesLoadStub.calledOnceWith('./modules/*.ts')).to.be.true;

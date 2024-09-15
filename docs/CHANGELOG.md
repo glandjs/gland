@@ -19,3 +19,11 @@ Initial release with the following features:
 
 ### Documentation
 - Added detailed documentation including FAQ, contributing guidelines, and security policy.
+
+## [1.0.2] - 2024-09-15
+
+### Added
+- Currently, the load method accepts arguments in the form of objects and there is no need to load a file.
+
+### Changed
+- logger and qiu dependencies are removed along with their documents

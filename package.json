@@ -1,6 +1,6 @@
 {
   "name": "@medishn/gland",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Glands is a lightweight framework for Node.js designed for simplicity.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -55,9 +55,5 @@
     "sinon": "^19.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
-  },
-  "dependencies": {
-    "@medishn/gland-logger": "^1.0.3",
-    "@medishn/gland-qiu": "^1.0.1"
   }
 }

@@ -7,8 +7,6 @@
 - **Modular Configuration**: Load and configure modules dynamically.
 - **Middleware Support**: Easily add and manage middleware functions.
 - **Routing**: Define routes using decorators for different HTTP methods.
-- **Logging**: Integrate with the internal logger for customizable logging.
-- **SQL Query Runner**: Utilize the internal query runner to interact with SQL databases.
 
 ## Installation
 
@@ -120,8 +118,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contact
 
 For any questions or further assistance, please reach out to us at [bitsgenix@gmail.com](mailto:bitsgenix@gmail.com).
-
-## Links
-
-- [Gland Logger](https://github.com/medishen/gland-logger)
-- [Gland Qiu](https://github.com/medishen/gland-qiu)

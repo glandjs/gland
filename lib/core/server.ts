@@ -1,6 +1,6 @@
 import { IncomingMessage, Server, ServerResponse, METHODS } from 'http';
 import { Parser } from '../helper/Parser';
-import { Gland, ListenArgs, NxtFunction } from '../types';
+import { Gland, ListenArgs, ModuleConfig, NxtFunction } from '../types';
 import { ServerUtils } from '../helper';
 import { WebContext } from './context';
 import { Router } from './router';
@@ -113,7 +113,7 @@ export class WebServer extends Server implements Gland.APP {
   init(...args: ListenArgs): this {
     return this.listen(...args);
   }
-  async load(paths: string = './*.ts') {
-    await LoadModules.load(paths);
+  async load(conf: Partial<ModuleConfig> | string) {
+    await LoadModules.load(conf);
   }
 }

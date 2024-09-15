@@ -7,13 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@medishn/gland-logger':
-        specifier: ^1.0.3
-        version: 1.0.3
-      '@medishn/gland-qiu':
-        specifier: ^1.0.1
-        version: 1.0.1
     devDependencies:
       '@types/chai':
         specifier: ^4.3.19
@@ -58,13 +51,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
-
-  '@medishn/gland-logger@1.0.3':
-    resolution: {integrity: sha512-+2V04pNSgr9rdH2rcNV9uj4dl+lUevc1ipNP/nXcc6EsBsN+9C1JWR3mbWuaT8AKKDPa61pLm6+2kT1ZU1C4ag==}
-
-  '@medishn/gland-qiu@1.0.1':
-    resolution: {integrity: sha512-gJ6s+FY4z9Z32A08tjpLBoiDq4EhsRJkOBrSA5xmSj5XUESCQLXUCpaOaLkgre0noJ0vk9c8jTJcwotTBIM2hQ==}
-    engines: {node: '>= 20'}
 
   '@sinonjs/commons@3.0.1':
     resolution: {integrity: sha512-K3mCHKQ9sVh8o1C9cxkwxaOmXoAMlDxC1mYyHrjqOWEcBjYr76t96zL2zlj5dUGZ3HSw240X1qgH3Mjf1yJWpQ==}
@@ -501,10 +487,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
-
-  '@medishn/gland-logger@1.0.3': {}
-
-  '@medishn/gland-qiu@1.0.1': {}
 
   '@sinonjs/commons@3.0.1':
     dependencies:

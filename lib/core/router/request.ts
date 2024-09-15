@@ -1,6 +1,4 @@
-import { Factory } from '@medishn/gland-logger';
 import { IncomingMessage } from 'http';
-const logger = new Factory({ transports: ['console'], level: 'warn' });
 const PROTO = IncomingMessage.prototype;
 PROTO.json = function (): Promise<object | undefined> {
   return new Promise((resolve, reject) => {
