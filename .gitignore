@@ -9,3 +9,5 @@
 
 # Environment variables
 .env
+# npm pack
+*.tgz

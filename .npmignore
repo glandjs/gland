@@ -2,9 +2,6 @@ node_modules/
 lib/
 test/
 __test__/
-*.spec*
-dist/**/__test__/
-__test__/*
 examples/
 docs/
 .git/
@@ -14,3 +11,4 @@ docs/
 tsconfig.json
 scripts/
 benchmark/
+*.tgz

@@ -1,10 +1,10 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { WebContext } from '../context';
+import { WebContext } from '../../../lib/core/context';
 import { IncomingMessage } from 'http';
 import { ServerResponse } from 'http';
-import { RQ, RS } from '../../types';
+import { RQ, RS } from '../../../lib/types';
 describe('CONTEXT', () => {
   let webContext: WebContext;
   let mockRequest: sinon.SinonStubbedInstance<IncomingMessage & RQ>;

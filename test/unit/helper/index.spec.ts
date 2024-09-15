@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { METHODS } from 'http';
-import { ServerUtils } from '../';
-import { Gland, MidsFn } from '../../types';
+import { ServerUtils } from '../../../lib/helper';
+import { Gland, MidsFn } from '../../../lib/types';
 
 describe('ServerUtils', () => {
   describe('getMethod()', () => {

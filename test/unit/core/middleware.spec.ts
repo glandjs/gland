@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { Gmids, midManager } from '../middleware';
-import { ServerUtils } from '../../helper';
-import { Gland } from '../../types/index';
+import { Gmids, midManager } from '../../../lib/core/middleware';
+import { ServerUtils } from '../../../lib/helper';
+import { Gland } from '../../../lib/types/index';
 
 describe('Gmids and midManager', () => {
   let serverUtilsNormalizeStub: sinon.SinonStub;

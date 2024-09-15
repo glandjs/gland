@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import * as fs from 'fs';
 import path from 'path';
-import { LoadModules } from '../load';
+import { LoadModules } from '../../../lib/helper/load';
 
 describe('LoadModules', () => {
   let readFileStub: sinon.SinonStub;
@@ -101,7 +101,7 @@ describe('LoadModules', () => {
       `;
 
       readFileStub.resolves(mockConfig);
-      readdirStub.resolves(['file1.ts', 'file2.ts']); 
+      readdirStub.resolves(['file1.ts', 'file2.ts']);
       statStub.resolves({ isDirectory: () => false, isFile: () => true });
 
       // Mock the dynamic imports

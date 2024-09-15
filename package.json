@@ -1,11 +1,13 @@
 {
   "name": "@medishn/gland",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Glands is a lightweight framework for Node.js designed for simplicity.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/**/*"
+    "dist/",
+    "LICENSE",
+    "README.md"
   ],
   "directories": {
     "doc": "docs",
@@ -15,7 +17,7 @@
   },
   "scripts": {
     "test": "npm run test:unit & npm run test:e2e & npm run test:performance",
-    "test:unit": "mocha --require ts-node/register lib/**/__test__/*.spec.ts",
+    "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts",
     "test:e2e": "mocha --require ts-node/register test/e2e/*.spec.ts",
     "test:performance": "mocha --require ts-node/register test/performance/*.spec.ts",
     "benchmark": "ts-node ./benchmark/gland.ts",

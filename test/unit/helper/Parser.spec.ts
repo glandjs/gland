@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { IncomingMessage } from 'http';
 import { TLSSocket } from 'tls';
-import { Parser } from '../Parser';
+import { Parser } from '../../../lib/helper/Parser';
 
 describe('Parser', function () {
   describe('URI class', function () {

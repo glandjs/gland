@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { WebServer } from '../server'; // Adjust the path as necessary
+import { WebServer } from '../../../lib/core/server'; // Adjust the path as necessary
 import { METHODS } from 'http';
-import { Parser } from '../../helper/Parser';
-import { Router } from '../router';
-import { LoadModules } from '../../helper/load';
-import { Context, Gland, NxtFunction } from '../../types';
-import { midManager } from '../middleware';
-import { ServerUtils } from '../../helper/';
+import { Parser } from '../../../lib/helper/Parser';
+import { Router } from '../../../lib/core/router';
+import { LoadModules } from '../../../lib/helper/load';
+import { Context, Gland, NxtFunction } from '../../../lib/types';
+import { midManager } from '../../../lib/core/middleware';
+import { ServerUtils } from '../../../lib/helper';
 
 describe('WebServer', () => {
   let server: WebServer;

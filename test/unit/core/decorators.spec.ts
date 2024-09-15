@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { mid, mids, Route, getEx } from '../decorators';
-import { ServerUtils } from '../../helper';
-import Reflect from '../../metadata';
-import { routes } from '../router';
+import { mid, mids, Route, getEx } from '../../../lib/core/decorators';
+import { ServerUtils } from '../../../lib/helper';
+import Reflect from '../../../lib/metadata';
+import { routes } from '../../../lib/core/router';
 
 describe('Decorators', () => {
   let reflectInitStub: sinon.SinonStub;
@@ -19,21 +19,21 @@ describe('Decorators', () => {
   });
 
   describe('mid decorator', () => {
-     it('should add middleware to the method using Reflect', () => {
-       const middleware = sinon.stub(); 
-       const target = {};
-       const propertyKey = 'someMethod';
-       const descriptor = {};
-       const mockGet = sinon.stub(Reflect, 'get').returns([]);
+    it('should add middleware to the method using Reflect', () => {
+      const middleware = sinon.stub();
+      const target = {};
+      const propertyKey = 'someMethod';
+      const descriptor = {};
+      const mockGet = sinon.stub(Reflect, 'get').returns([]);
 
-       mid(middleware)(target, propertyKey, descriptor as PropertyDescriptor);
+      mid(middleware)(target, propertyKey, descriptor as PropertyDescriptor);
 
-       expect(mockGet.calledOnceWith('middlewares', target.constructor.prototype, propertyKey)).to.be.true;
-       expect(serverUtilsNormalizeStub.calledOnceWith(middleware)).to.be.true;
-       expect(reflectInitStub.calledOnceWith('middlewares', [middleware], target.constructor.prototype, propertyKey)).to.be.true;
+      expect(mockGet.calledOnceWith('middlewares', target.constructor.prototype, propertyKey)).to.be.true;
+      expect(serverUtilsNormalizeStub.calledOnceWith(middleware)).to.be.true;
+      expect(reflectInitStub.calledOnceWith('middlewares', [middleware], target.constructor.prototype, propertyKey)).to.be.true;
 
-       mockGet.restore();
-     });
+      mockGet.restore();
+    });
   });
   describe('mids decorator', () => {
     it('should add class-level middleware using Reflect', () => {

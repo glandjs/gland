@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import Reflect from '../';
-import { MetadataKey, MetadataValue } from '../../types';
+import Reflect from '../../../lib/metadata';
+import { MetadataKey, MetadataValue } from '../../../lib/types';
 type TestTarget = object;
 const testTarget: TestTarget = {};
 
