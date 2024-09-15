@@ -20,7 +20,8 @@
     "test:performance": "mocha --require ts-node/register test/performance/*.spec.ts",
     "benchmark": "ts-node ./benchmark/gland.ts",
     "build": "rm -r dist/* & tsc",
-    "release": "scripts/release.sh"
+    "chmod": "chmod +x ./scripts/release.sh",
+    "release": "npm run chmod && ./scripts/release.sh"
   },
   "repository": {
     "type": "git",
