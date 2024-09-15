@@ -62,7 +62,7 @@ To get started with `@medishn/gland`, follow these steps:
 You can add middleware functions to your Gland instance:
 
 ```typescript
-import { Context, mid } from '@medishn/gland';
+import { Context } from '@medishn/gland';
 
 const g = new gland();
 
@@ -71,7 +71,7 @@ const myMiddleware = async (ctx: Context, next: NxtFunction) => {
   await next();
 };
 
-g.use(mid(myMiddleware));
+g.use(myMiddleware);
 ```
 
 ## Routing
