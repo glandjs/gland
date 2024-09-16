@@ -1,6 +1,6 @@
 {
   "name": "@medishn/gland",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Glands is a lightweight framework for Node.js designed for simplicity.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
