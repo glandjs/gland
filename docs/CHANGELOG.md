@@ -43,3 +43,8 @@ Initial release with the following features:
   
 ### Performance Improvements
 - **Module Caching**: Added caching logic to prevent redundant module imports, leading to faster performance when caching is enabled.
+  
+## [1.1.1] - 2024.09.16
+
+### fix
+- remove console.logs

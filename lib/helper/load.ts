@@ -23,14 +23,10 @@ export namespace LoadModules {
   export async function load(configFilePath: string) {
     const configFile = path.resolve(configFilePath);
     const fileConfig = await parseConfig(configFile);
-    console.log('fileConfig', fileConfig);
-
     config = { ...defaultConfig, ...fileConfig };
-
     if (!config.routes.length) {
       throw new Error('No routes specified in the configuration file.');
     }
-
     const baseDir = path.resolve(config.path);
     const files = config.routes.map((route) => path.join(baseDir, route));
     const BATCH_SIZE = 10;
@@ -59,8 +55,6 @@ export namespace LoadModules {
         .split('\n')
         .map((line) => line.trim())
         .filter((line) => line && !line.startsWith('//'));
-      console.log('configLines', configLines, '\n');
-
       for (const line of configLines) {
         if (line.startsWith('path')) {
           // Safely evaluate the expression using Function
