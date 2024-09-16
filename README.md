@@ -34,12 +34,17 @@ To get started with `@medishn/gland`, follow these steps:
    ```
 
 2. **Define Routes and Handlers**
+Create a `.confmodule` file to configure your routes, caching, and file-watching behavior. This file allows you to dynamically load and configure modules in your application. Below is an example configuration file:
 
-   Create a `.confmodule` file with the following content:
-
-   ```
-   path=router
-   ```
+```conf
+path = path.join(__dirname, 'router');
+router {
+    [0]: 'index.ts';
+    [1]: 'test.ts';
+}
+cache = true;
+watch = true;
+```
 
 3. **Create Router:(/router/example.ts)**
    ```typescript

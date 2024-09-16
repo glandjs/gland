@@ -113,7 +113,7 @@ export class WebServer extends Server implements Gland.APP {
   init(...args: ListenArgs): this {
     return this.listen(...args);
   }
-  async load(conf: Partial<ModuleConfig> | string) {
+  async load(conf: string) {
     await LoadModules.load(conf);
   }
 }

@@ -1,29 +1,21 @@
 #!/bin/bash
 set -e
-
-# Run the build script
 npm run build
-
-# Get the version from package.json
 VERSION=$(node -p "require('./package.json').version")
 
-# Get the changelog content
-CHANGELOG_CONTENT=$(cat docs/CHANGELOG.md)
+CHANGELOG_CONTENT=$(awk "/## \[${VERSION}\]/{flag=1;next}/## \[/{flag=0}flag" docs/CHANGELOG.md | sed '/^$/d')
 
-# Check for changes in the working directory
+if [ -z "$CHANGELOG_CONTENT" ]; then
+  echo "Changelog for version ${VERSION} not found. Please ensure the changelog is updated."
+  exit 1
+fi
 if [ -n "$(git status --porcelain)" ]; then
-  # There are changes to commit
   git add .
   git commit -m "chore: release version ${VERSION}"
-  
-  # Tag the commit with the new version
-  git tag -a "v${VERSION}" -m "Release ${VERSION}: ${CHANGELOG_CONTENT}"
-  
-  # Push the commit and the tag
+  git tag -a "v${VERSION}" -m "Release ${VERSION}" -m "${CHANGELOG_CONTENT}"
   git push origin main --tags
 else
   echo "No changes to commit."
 fi
-
-# Publish the package
 npm publish --access public
+echo "Version ${VERSION} successfully published."
