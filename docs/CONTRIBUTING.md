@@ -8,7 +8,7 @@ We welcome contributions to the Gland project! Please follow these guidelines to
 
 2. **Clone Your Fork**: Clone your forked repository to your local machine:
    ```bash
-   git clone https://github.com/your-username/gland.git
+   git clone https://github.com/medishen/gland.git
    ```
 
 3. **Create a Branch**: Create a new branch for your changes:
