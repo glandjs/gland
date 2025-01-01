@@ -7,6 +7,13 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@medishn/logger':
+        specifier: ^2.0.1
+        version: 2.0.1
+      '@medishn/qiks':
+        specifier: ^1.0.1
+        version: 1.0.1
     devDependencies:
       '@types/chai':
         specifier: ^4.3.19
@@ -51,6 +58,13 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@medishn/logger@2.0.1':
+    resolution: {integrity: sha512-59CyF251pBjLpWAmFzZyMI+Dyp9sfVJNNOFZ+OYRmNeQIQM1r9KQyTq0AmzKYUBanRNLtgSyxAdQBNEm2Dlh0g==}
+
+  '@medishn/qiks@1.0.1':
+    resolution: {integrity: sha512-X05rlH45Tz4204/7uKQ91aRmdGv+Rh2/xMN68MwzDw6pW3n0mV5XY6SODgUVQDo8Xb10j1bzEc2ZGpwm5bnB6g==}
+    engines: {node: '>= 20'}
 
   '@sinonjs/commons@3.0.1':
     resolution: {integrity: sha512-K3mCHKQ9sVh8o1C9cxkwxaOmXoAMlDxC1mYyHrjqOWEcBjYr76t96zL2zlj5dUGZ3HSw240X1qgH3Mjf1yJWpQ==}
@@ -487,6 +501,10 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  '@medishn/logger@2.0.1': {}
+
+  '@medishn/qiks@1.0.1': {}
 
   '@sinonjs/commons@3.0.1':
     dependencies:

@@ -55,5 +55,9 @@
     "sinon": "^19.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@medishn/logger": "^2.0.1",
+    "@medishn/qiks": "^1.0.1"
   }
 }
