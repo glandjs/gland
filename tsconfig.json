@@ -13,7 +13,7 @@
     "rootDir": "lib",
     "outDir": "dist",
     "resolveJsonModule": true,
-    "typeRoots": ["node_modules/@types", "lib/types"]
+    "typeRoots": ["lib/types", "lib/types/global.d.ts", "node_modules/@types"]
   },
   "include": ["lib/**/*.ts", "lib/types/*.d.ts"],
   "exclude": ["node_modules", "dist"]

@@ -1,100 +1,133 @@
 import { expect } from 'chai';
 import Reflect from '../../../lib/metadata';
-import { MetadataKey, MetadataValue } from '../../../lib/types';
-type TestTarget = object;
-const testTarget: TestTarget = {};
+import { describe, it } from 'mocha';
 
 describe('Reflect', function () {
-  describe('init', function () {
-    it('should initialize metadata correctly', function () {
-      const metadataKey: MetadataKey = 'key1';
-      const metadataValue: MetadataValue = 'value1';
+  describe('define()', function () {
+    it('should define metadata for a target', function () {
+      const target = {};
+      const metadataKey = 'key1';
+      const metadataValue = 'value1';
+      Reflect.define(metadataKey, metadataValue, target);
 
-      Reflect.init(metadataKey, metadataValue, testTarget);
-
-      const result = Reflect.get(metadataKey, testTarget);
+      const result = Reflect.get(metadataKey, target);
       expect(result).to.equal(metadataValue);
     });
 
-    it('should initialize metadata with property key', function () {
-      const metadataKey: MetadataKey = 'key2';
-      const metadataValue: MetadataValue = 'value2';
-      const propertyKey: MetadataKey = 'prop1';
+    it('should define metadata with propertyKey for a target', function () {
+      const target = {};
+      const propertyKey = 'property1';
+      const metadataKey = 'key2';
+      const metadataValue = 'value2';
+      Reflect.define(metadataKey, metadataValue, target, propertyKey);
 
-      Reflect.init(metadataKey, metadataValue, testTarget, propertyKey);
-
-      const result = Reflect.get(metadataKey, testTarget, propertyKey);
+      const result = Reflect.get(metadataKey, target, propertyKey);
       expect(result).to.equal(metadataValue);
     });
   });
 
-  describe('has', function () {
-    it('should return true if metadata exists', function () {
-      const metadataKey: MetadataKey = 'key3';
-      const metadataValue: MetadataValue = 'value3';
+  describe('has()', function () {
+    it('should return true if metadata exists for a target', function () {
+      const target = {};
+      const metadataKey = 'key1';
+      const metadataValue = 'value1';
+      Reflect.define(metadataKey, metadataValue, target);
 
-      Reflect.init(metadataKey, metadataValue, testTarget);
-
-      const result = Reflect.has(metadataKey, testTarget);
+      const result = Reflect.has(metadataKey, target);
       expect(result).to.be.true;
     });
 
-    it('should return false if metadata does not exist', function () {
-      const metadataKey: MetadataKey = 'key4';
+    it('should return false if metadata does not exist for a target', function () {
+      const target = {};
+      const metadataKey = 'nonExistentKey';
 
-      const result = Reflect.has(metadataKey, testTarget);
+      const result = Reflect.has(metadataKey, target);
       expect(result).to.be.false;
     });
   });
 
-  describe('get', function () {
-    it('should return the correct metadata value', function () {
-      const metadataKey: MetadataKey = 'key5';
-      const metadataValue: MetadataValue = 'value5';
+  describe('get()', function () {
+    it('should retrieve the correct metadata value', function () {
+      const target = {};
+      const metadataKey = 'key1';
+      const metadataValue = 'value1';
+      Reflect.define(metadataKey, metadataValue, target);
 
-      Reflect.init(metadataKey, metadataValue, testTarget);
-
-      const result = Reflect.get(metadataKey, testTarget);
+      const result = Reflect.get(metadataKey, target);
       expect(result).to.equal(metadataValue);
     });
 
     it('should return undefined if metadata does not exist', function () {
-      const metadataKey: MetadataKey = 'key6';
+      const target = {};
+      const metadataKey = 'nonExistentKey';
 
-      const result = Reflect.get(metadataKey, testTarget);
+      const result = Reflect.get(metadataKey, target);
       expect(result).to.be.undefined;
-    });
-
-    it('should return the correct metadata value with property key', function () {
-      const metadataKey: MetadataKey = 'key7';
-      const metadataValue: MetadataValue = 'value7';
-      const propertyKey: MetadataKey = 'prop2';
-
-      Reflect.init(metadataKey, metadataValue, testTarget, propertyKey);
-
-      const result = Reflect.get(metadataKey, testTarget, propertyKey);
-      expect(result).to.equal(metadataValue);
     });
   });
 
-  describe('getOwn', function () {
-    it('should return the correct own metadata value', function () {
-      const metadataKey: MetadataKey = 'key8';
-      const metadataValue: MetadataValue = 'value8';
-      const propertyKey: MetadataKey = 'prop3';
+  describe('delete()', function () {
+    it('should delete the correct metadata key', function () {
+      const target = {};
+      const metadataKey = 'key1';
+      const metadataValue = 'value1';
+      Reflect.define(metadataKey, metadataValue, target);
 
-      Reflect.init(metadataKey, metadataValue, testTarget, propertyKey);
+      const result = Reflect.delete(metadataKey, target);
+      expect(result).to.be.true;
 
-      const result = Reflect.getOwn(metadataKey, testTarget, propertyKey);
-      expect(result).to.equal(metadataValue);
+      const checkDeleted = Reflect.has(metadataKey, target);
+      expect(checkDeleted).to.be.false;
     });
 
-    it('should return undefined if own metadata does not exist', function () {
-      const metadataKey: MetadataKey = 'key9';
-      const propertyKey: MetadataKey = 'prop4';
+    it('should return false if the metadata key does not exist', function () {
+      const target = {};
+      const metadataKey = 'nonExistentKey';
 
-      const result = Reflect.getOwn(metadataKey, testTarget, propertyKey);
-      expect(result).to.be.undefined;
+      const result = Reflect.delete(metadataKey, target);
+      expect(result).to.be.false;
+    });
+  });
+
+  describe('clear()', function () {
+    it('should clear all metadata for a target', function () {
+      const target = {};
+      const metadataKey1 = 'key1';
+      const metadataValue1 = 'value1';
+      const metadataKey2 = 'key2';
+      const metadataValue2 = 'value2';
+
+      Reflect.define(metadataKey1, metadataValue1, target);
+      Reflect.define(metadataKey2, metadataValue2, target);
+
+      Reflect.clear(target);
+
+      const hasMetadata1 = Reflect.has(metadataKey1, target);
+      const hasMetadata2 = Reflect.has(metadataKey2, target);
+
+      expect(hasMetadata1).to.be.false;
+      expect(hasMetadata2).to.be.false;
+    });
+  });
+
+  describe('list()', function () {
+    it('should list all metadata for a target', function () {
+      const target = {};
+      const metadataKey1 = 'key1';
+      const metadataValue1 = 'value1';
+      const metadataKey2 = 'key2';
+      const metadataValue2 = 'value2';
+
+      Reflect.define(metadataKey1, metadataValue1, target);
+      Reflect.define(metadataKey2, metadataValue2, target);
+
+      const result = Reflect.list(target);
+      expect(result).to.deep.equal(
+        new Map([
+          [metadataKey1, metadataValue1],
+          [metadataKey2, metadataValue2],
+        ]),
+      );
     });
   });
 });

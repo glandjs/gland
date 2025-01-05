@@ -1,42 +1,31 @@
-import { MetadataKey, MetadataStorage, MetadataTarget, MetadataValue } from '../types';
+import { MetadataKey, MetadataTarget, MetadataValue } from './Reflect.interface';
+import ReflectStorage from './reflect-metadata';
+const Reflector = {
+  define(metadataKey: MetadataKey, metadataValue: MetadataValue, target: MetadataTarget, propertyKey?: MetadataKey): void {
+    const key = propertyKey ? `${String(metadataKey)}:${String(propertyKey)}` : metadataKey;
+    ReflectStorage.set(target, key, metadataValue);
+  },
 
-namespace Reflect {
-  const metadataStorage: MetadataStorage = new Map<MetadataTarget, Map<MetadataKey, MetadataValue>>();
+  has(metadataKey: MetadataKey, target: MetadataTarget, propertyKey?: MetadataKey): boolean {
+    const key = propertyKey ? `${String(propertyKey)}:${String(metadataKey)}` : metadataKey;
+    return ReflectStorage.has(target, key);
+  },
 
-  export function init(metadataKey: MetadataKey, metadataValue: MetadataValue, target: MetadataTarget, propertyKey?: MetadataKey): void {
-    let targetMetadata = metadataStorage.get(target);
-    if (!targetMetadata) {
-      targetMetadata = new Map<MetadataKey, MetadataValue>();
-      metadataStorage.set(target, targetMetadata);
-    }
+  get(metadataKey: MetadataKey, target: MetadataTarget, propertyKey?: MetadataKey): MetadataValue {
+    const key = propertyKey ? `${String(propertyKey)}:${String(metadataKey)}` : metadataKey;
+    return ReflectStorage.get(target).get(key);
+  },
 
-    const key = propertyKey !== undefined ? `${String(propertyKey)}:${String(metadataKey)}` : metadataKey;
-    targetMetadata.set(key, metadataValue);
-  }
+  delete(metadataKey: MetadataKey, target: MetadataTarget, propertyKey?: MetadataKey): boolean {
+    const key = propertyKey ? `${String(propertyKey)}:${String(metadataKey)}` : metadataKey;
+    return ReflectStorage.delete(target, key);
+  },
+  clear(target: MetadataTarget): void {
+    ReflectStorage.clear(target);
+  },
 
-  export function has(metadataKey: MetadataKey, target: MetadataTarget, propertyKey?: MetadataKey): boolean {
-    return get(metadataKey, target, propertyKey) !== undefined;
-  }
-
-  export function get(metadataKey: MetadataKey, target: MetadataTarget, propertyKey?: MetadataKey): MetadataValue {
-    const targetMetadata = metadataStorage.get(target);
-    if (!targetMetadata) {
-      return undefined;
-    }
-
-    const key = propertyKey !== undefined ? `${propertyKey.toString()}:${String(metadataKey)}` : metadataKey;
-    return targetMetadata.get(key);
-  }
-
-  export function getOwn(metadataKey: MetadataKey, target: MetadataTarget, propertyKey?: MetadataKey): MetadataValue {
-    const targetMetadata = metadataStorage.get(target);
-    if (!targetMetadata) {
-      return undefined;
-    }
-
-    const key = propertyKey !== undefined ? `${propertyKey.toString()}:${String(metadataKey)}` : metadataKey;
-    return targetMetadata.get(key);
-  }
-}
-
-export default Reflect;
+  list(target: MetadataTarget): Map<MetadataKey, MetadataValue> | null {
+    return ReflectStorage.list(target);
+  },
+};
+export default Reflector;
