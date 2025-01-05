@@ -2,7 +2,7 @@
 
 ## Phase 1: Core Refactoring
 
-- [ ] Refactor the core architecture to make it fully object-oriented.
+- [x] Refactor the core architecture to make it fully object-oriented.
 - [ ] Replace `.confmodule` with `gland.config.ts` for configuration.
 - [ ] Implement module-based architecture for routers, middlewares, and services.
 - [ ] Use `@medishn/logger` for logging throughout the framework.

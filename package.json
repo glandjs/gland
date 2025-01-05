@@ -58,6 +58,6 @@
   },
   "dependencies": {
     "@medishn/logger": "^2.0.1",
-    "@medishn/qiks": "^1.0.4"
+    "@medishn/qiks": "^1.1.0"
   }
 }

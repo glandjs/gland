@@ -12,8 +12,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
       '@medishn/qiks':
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.1.0
+        version: 1.1.0
     devDependencies:
       '@types/chai':
         specifier: ^4.3.19
@@ -62,8 +62,8 @@ packages:
   '@medishn/logger@2.0.1':
     resolution: {integrity: sha512-59CyF251pBjLpWAmFzZyMI+Dyp9sfVJNNOFZ+OYRmNeQIQM1r9KQyTq0AmzKYUBanRNLtgSyxAdQBNEm2Dlh0g==}
 
-  '@medishn/qiks@1.0.4':
-    resolution: {integrity: sha512-KgeeCov0DrZk8Qf3FPmhBfxgdiKwikXP5tmW/gFocXonk2lq8tHEnJ/CIbI9SgwD/134e1RwqL4sUrsTaT43rw==}
+  '@medishn/qiks@1.1.0':
+    resolution: {integrity: sha512-Cqy/r6yfTfSncwmzv6D1KZ9K9YM2AsgwYiCt/WshUTysTheWIaRRC8bYqDgks3orpR1GbN9cMGT8nDxLVkTVGw==}
     engines: {node: '>= 20'}
 
   '@sinonjs/commons@3.0.1':
@@ -504,7 +504,7 @@ snapshots:
 
   '@medishn/logger@2.0.1': {}
 
-  '@medishn/qiks@1.0.4': {}
+  '@medishn/qiks@1.1.0': {}
 
   '@sinonjs/commons@3.0.1':
     dependencies:
