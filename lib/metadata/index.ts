@@ -4,7 +4,7 @@ import { MetadataKey, MetadataTarget, MetadataValue } from './Reflect.interface'
 import ReflectStorage from './reflect-metadata';
 const Reflector = {
   define(metadataKey: MetadataKey, metadataValue: MetadataValue, target: MetadataTarget, propertyKey?: MetadataKey): void {
-    const key = propertyKey ? `${String(metadataKey)}:${String(propertyKey)}` : metadataKey;
+    const key = propertyKey ? `${String(propertyKey)}:${String(metadataKey)}` : metadataKey;
     ReflectStorage.set(target, key, metadataValue);
   },
 

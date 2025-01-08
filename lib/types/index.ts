@@ -13,9 +13,26 @@ export type HttpContext = IncomingMessage &
   ServerResponse & {
     req: IncomingMessage;
     res: ServerResponse;
+    /** Application instance */
     server: Application;
     json(): Promise<void>;
-    code(code: HttpStatus): boolean;
-    params: { [key: string]: string };
-    body: Record<string, string> | undefined;
+    /** Set status code for the response */
+    status(code: HttpStatus): HttpContext;
+
+    /** Parsed query parameters from the URL */
+    query: Record<string, string | number | undefined>;
+
+    /** Route parameters from the matched route */
+    params: Record<string, string | number>;
+
+    /** Parsed body of the request */
+    body: Record<string, any> | string | undefined;
+    /** Utilities for localization (multi-language) */
+    lang(defaultLang?: string): string;
+
+    /** Send a response with custom content type */
+    send(data: any, contentType?: string): void;
+
+    /** Redirect to another URL */
+    redirect(url: string, status?: HttpStatus): void;
   };

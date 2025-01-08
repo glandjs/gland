@@ -49,12 +49,6 @@ export interface CacheConfig {
   options?: object;
 }
 
-export interface EventConfig {
-  enabled: boolean;
-  maxListeners?: number;
-  bus?: string; // Event bus type, e.g., 'default', 'rabbitmq', 'kafka'
-}
-
 export interface PluginConfig {
   name: string;
   version?: string;
