@@ -1,9 +1,11 @@
+import { MetadataTarget } from '../../metadata/Reflect.interface';
 import { MiddlewareFn } from './middleware.interface';
 
 export interface RouteDefinition {
   method: string;
   path: string;
-  handler: Function;
+  constructor: MetadataTarget;
+  action: Function;
   middlewares?: MiddlewareFn[];
   params: { [key: string]: string };
 }

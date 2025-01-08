@@ -4,8 +4,3 @@ export interface ModuleConfig {
   cache?: boolean;
   watch?: boolean;
 }
-export interface AppConfig {
-  port?: number;
-  watch?: boolean;
-  hostname?: string;
-}

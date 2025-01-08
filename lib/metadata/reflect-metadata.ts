@@ -1,8 +1,10 @@
+import { RouterMetadataKeys } from '../common/constants';
+import { RouteDefinition } from '../common/interface/router.interface';
 import { isClass } from '../utils';
 import { QiksCache } from '../utils/Cache';
 import { MetadataKey, MetadataStorage, MetadataTarget, MetadataValue } from './Reflect.interface';
 
-class ReflectMetadataStorage implements MetadataStorage {
+class ReflectStorage implements MetadataStorage {
   private storage = new QiksCache<string, Map<MetadataKey, MetadataValue>>();
   constructor() {
     this.storage = new QiksCache({
@@ -77,6 +79,33 @@ class ReflectMetadataStorage implements MetadataStorage {
     }
     return null;
   }
+  keys(): string[] {
+    return Array.from(this.storage.keys());
+  }
+  getRoutes(): RouteDefinition[] {
+    const allMetadata = this.allList();
+    const routes: RouteDefinition[] = [];
+
+    for (const [_, metadataMap] of allMetadata) {
+      const controllerRoutes = metadataMap.get(RouterMetadataKeys.ROUTES);
+      if (Array.isArray(controllerRoutes)) {
+        routes.push(...controllerRoutes);
+      }
+    }
+
+    return routes;
+  }
+  allList(): Map<string, Map<MetadataKey, MetadataValue>> {
+    const entries = this.storage.get('*', { pattern: true, withTuples: true }) as [string, Map<MetadataKey, MetadataValue>][];
+    const allMetadata = new Map<string, Map<MetadataKey, MetadataValue>>();
+
+    for (const [key, value] of entries) {
+      if (value instanceof Map) {
+        allMetadata.set(key, value);
+      }
+    }
+    return allMetadata;
+  }
 }
 
-export default new ReflectMetadataStorage();
+export default new ReflectStorage();

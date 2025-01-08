@@ -7,9 +7,7 @@ export enum KEY_SETTINGS {
   SERVER = 'server', // Server configurations
   LOGGER = 'logger', // Logger configurations
   PATHS = 'paths', // Paths configurations
-  ROUTES = 'routes', // Routes configurations
   CACHE = 'cache', // Cache configurations
-  EVENTS = 'events', // Event system configurations
   PLUGINS = 'plugins', // Plugins configurations
   GLOBAL_SETTINGS = 'global_settings', // Global application settings
 }
@@ -22,9 +20,7 @@ export interface AppConfig {
   [KEY_SETTINGS.SERVER]?: ServerConfig;
   [KEY_SETTINGS.LOGGER]?: LoggerConfig;
   [KEY_SETTINGS.PATHS]?: PathConfig;
-  [KEY_SETTINGS.ROUTES]?: RouteConfig[];
   [KEY_SETTINGS.CACHE]?: CacheConfig;
-  [KEY_SETTINGS.EVENTS]?: EventConfig;
   [KEY_SETTINGS.PLUGINS]?: PluginConfig[];
   [KEY_SETTINGS.GLOBAL_SETTINGS]?: GlobalSettingsConfig;
 }
@@ -46,14 +42,6 @@ export interface LoggerConfig {
 export interface PathConfig {
   apiPrefix?: string;
   staticFilesPath?: string;
-}
-
-export interface RouteConfig {
-  method: string;
-  path: string;
-  handler: Function;
-  middlewares?: MiddlewareFn[];
-  version?: string;
 }
 
 export interface CacheConfig {
@@ -86,8 +74,8 @@ export enum Environment {
 
 /** Cache Item Interface */
 export interface CacheItem {
-  createdAt: number;
-  watch: boolean;
+  createdAt?: number;
+  watch?: boolean;
 }
 export interface Engine {
   name: string;
