@@ -10,8 +10,7 @@
 
 - [x] Implement decorators for routing (`@Controller`, `@Get`, `@Post`, etc.).
 - [x] Support nested routes and dynamic parameter parsing.
-- [ ] Add route metadata and documentation generation.
-- [ ] Introduce multilingual route support with `@MultiLang`.
+- [x] Introduce multilingual route support with `@MultiLang`.
 
 ## Phase 3: Middleware System
 

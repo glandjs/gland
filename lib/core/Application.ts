@@ -29,11 +29,15 @@ export class Application {
     this.router.registerControllers(controllers);
   }
   /** HTTP request lifecycle */
-
   private async lifecycle(req: IncomingMessage, res: ServerResponse) {
+    console.log('req.headers', req.headers);
     const { ctx } = new Context(req, res);
+    console.log('ctx.headers', ctx.headers);
     ctx.server = this;
-    this.router.run(ctx);
+    if (ctx.method === 'POST' || ctx.method === 'PUT') {
+      await ctx.json();
+    }
+    await this.router.run(ctx);
   }
   /** Start the server */
   listen(port?: number, hostname?: string): void {

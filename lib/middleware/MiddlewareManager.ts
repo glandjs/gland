@@ -1,6 +1,6 @@
-import { HttpContext } from 'node:http';
 import { MiddlewareStack } from './MiddlewareStack';
 import { MiddlewareFn } from '../common/interface/middleware.interface';
+import { HttpContext } from '../types';
 
 export class MiddlewareManager {
   private readonly stack: MiddlewareStack;
