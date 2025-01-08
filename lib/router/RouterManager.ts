@@ -1,5 +1,5 @@
+import { HttpContext } from '../types';
 import { Router } from './Router';
-import { HttpContext } from 'node:http';
 
 export class RouterManager {
   private router: Router;
@@ -12,7 +12,7 @@ export class RouterManager {
   getRouter(): Router {
     return this.router;
   }
-  run(ctx: HttpContext) {
-    this.router.run(ctx);
+  async run(ctx: HttpContext) {
+    await this.router.run(ctx);
   }
 }

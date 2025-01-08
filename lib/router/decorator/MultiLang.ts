@@ -1,7 +1,8 @@
+import { RouterMetadataKeys } from '../../common/constants';
 import Reflector from '../../metadata';
 
-export function MultiLang(routes: { [key: string]: string }): MethodDecorator {
-  return (target, propertyKey, descriptor) => {
-    Reflector.define('multiLangRoutes', { [propertyKey as string]: routes }, target.constructor);
+export function MultiLang(translations: { [lang: string]: string }): MethodDecorator {
+  return (target) => {
+    Reflector.define(RouterMetadataKeys.MULTI_LANG, translations, target.constructor);
   };
 }

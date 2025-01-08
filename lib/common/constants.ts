@@ -2,6 +2,7 @@
 export enum RouterMetadataKeys {
   CONTROLLER_PREFIX = 'router:controller:prefix', // Prefix for all routes in a controller
   ROUTES = 'router:routes',
+  MULTI_LANG = 'router:multiLang',
 }
 
 // Utility constants for router
