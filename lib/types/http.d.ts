@@ -10,5 +10,6 @@ declare module 'http' {
       server: Application;
       json(): Promise<object | undefined>;
       code(code: HttpStatus): boolean;
+      params: { [key: string]: string };
     };
 }

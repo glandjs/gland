@@ -1,41 +1,51 @@
 import { createServer } from 'http';
-import { AppConfig } from '../types';
 import { IncomingMessage, ServerResponse, Server } from 'http';
-import { AppSettings } from './AppSettings';
 import { Context } from './Context';
-import { GLogger } from '../utils/Logger';
-import { Middleware } from '../middleware/Middleware';
-import { MiddlewareFn } from '../middleware/Middleware.interface';
-import { Router } from '../router/Router';
-export class Application extends AppSettings {
+import { MiddlewareFn } from '../common/interface/middleware.interface';
+import { CoreModule } from './CoreModule';
+import { AppConfig, KEY_SETTINGS } from '../common/interface/app-settings.interface';
+import { RouterManager } from '../router/RouterManager';
+import { MiddlewareManager } from '../middleware/MiddlewareManager';
+export class Application {
+  private readonly coreModule: CoreModule;
+  private readonly router: RouterManager;
+  private readonly middleware: MiddlewareManager;
+  private readonly settings: AppConfig;
   private _server!: Server;
-  private router: Router;
-  private middlewares: Middleware;
-  constructor(private appConfig: AppConfig) {
-    super();
-    this.router = new Router();
-    this.middlewares = new Middleware();
+  constructor(config: AppConfig) {
+    this.coreModule = new CoreModule(config);
+    this.router = this.coreModule.router;
+    this.middleware = this.coreModule.middleware;
+    this.settings = this.coreModule.config.getAllSettings();
   }
+  /** Register a global middleware */
   use(middleware: MiddlewareFn): Application {
-    this.middlewares.new(middleware);
+    this.middleware.use(middleware);
     return this;
   }
-  registerControllers(controllers: Function[]): void {
+
+  /** Register controllers */
+  register(controllers: Function[]): void {
     this.router.registerControllers(controllers);
   }
+  /** HTTP request lifecycle */
+
   private async lifecycle(req: IncomingMessage, res: ServerResponse) {
     const { ctx } = new Context(req, res);
     ctx.server = this;
     this.router.run(ctx);
   }
-  listen(port?: number, hostname?: string, listeningListener?: () => void, backlog?: number): void {
+  /** Start the server */
+  listen(port?: number, hostname?: string): void {
+    const serverConfig = this.settings[KEY_SETTINGS.SERVER];
+    const loggerConfig = this.settings[KEY_SETTINGS.LOGGER];
+    const serverPort = port || serverConfig?.port;
+    const serverHostname = hostname || serverConfig?.hostname;
     this._server = createServer(this.lifecycle.bind(this));
-    this._server.listen(port ? port : this.appConfig.port, hostname ? hostname : this.appConfig.hostname, backlog, () => {
-      if (this.appConfig.watch) {
-        this._cache['watch'] = true;
-        GLogger.info(`Server is running on http://${hostname ? hostname : this.appConfig.hostname}:${port ? port : this.appConfig.port}`);
+    this._server.listen(serverPort, serverHostname, () => {
+      if (loggerConfig?.prettyPrint) {
+        this.coreModule.logger.info(`Server is running at http://${serverHostname}:${serverPort}`);
       }
-      listeningListener ? listeningListener() : null;
     });
   }
 }

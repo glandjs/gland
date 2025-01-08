@@ -3,16 +3,13 @@
 ## Phase 1: Core Refactoring
 
 - [x] Refactor the core architecture to make it fully object-oriented.
-- [ ] Replace `.confmodule` with `gland.config.ts` for configuration.
-- [ ] Implement module-based architecture for routers, middlewares, and services.
-- [ ] Use `@medishn/logger` for logging throughout the framework.
-- [ ] Ensure clean and readable code structure with short, expressive names.
-- [ ] Develop comprehensive unit tests for the core.
+- [x] Replace `.confmodule` with `gland.config.ts` for configuration.
+- [x] Implement module-based architecture for routers, middlewares, and services.
 
 ## Phase 2: Router Enhancements
 
-- [ ] Implement decorators for routing (`@Controller`, `@Get`, `@Post`, etc.).
-- [ ] Support nested routes and dynamic parameter parsing.
+- [x] Implement decorators for routing (`@Controller`, `@Get`, `@Post`, etc.).
+- [x] Support nested routes and dynamic parameter parsing.
 - [ ] Add route metadata and documentation generation.
 - [ ] Introduce multilingual route support with `@MultiLang`.
 
