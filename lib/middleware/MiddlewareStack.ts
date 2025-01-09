@@ -3,30 +3,30 @@ import { HttpContext } from '../types';
 export class MiddlewareStack {
   private readonly middlewares: MiddlewareFn[] = [];
 
-  add(...middlewares: MiddlewareFn[]): void {
+  push(...middlewares: MiddlewareFn[]): void {
     if (!middlewares || middlewares.some((mw) => typeof mw !== 'function')) {
       throw new Error('Invalid middleware provided. Each middleware must be a function.');
     }
     this.middlewares.push(...middlewares);
   }
-  async execute(ctx: HttpContext, next: Function): Promise<void> {
+  async execute(ctx: HttpContext, action: Function): Promise<void> {
     let index = 0;
 
-    const invokeNext = async () => {
+    const next = async () => {
       if (index < this.middlewares.length) {
         const middleware = this.middlewares[index++];
         try {
-          await middleware(ctx, invokeNext);
+          await middleware(ctx, next);
         } catch (err) {
           console.error('Middleware execution error:', err);
           throw err;
         }
       } else {
-        await next(ctx);
+        await action(ctx);
       }
     };
 
-    await invokeNext();
+    await next();
   }
 
   getStack(): MiddlewareFn[] {

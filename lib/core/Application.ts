@@ -19,8 +19,8 @@ export class Application {
     this.settings = this.coreModule.config.getAllSettings();
   }
   /** Register a global middleware */
-  use(middleware: MiddlewareFn): Application {
-    this.middleware.use(middleware);
+  use(...middleware: MiddlewareFn[]): Application {
+    this.middleware.use(...middleware);
     return this;
   }
 
@@ -30,14 +30,17 @@ export class Application {
   }
   /** HTTP request lifecycle */
   private async lifecycle(req: IncomingMessage, res: ServerResponse) {
-    console.log('req.headers', req.headers);
     const { ctx } = new Context(req, res);
-    console.log('ctx.headers', ctx.headers);
     ctx.server = this;
     if (ctx.method === 'POST' || ctx.method === 'PUT') {
       await ctx.json();
     }
-    await this.router.run(ctx);
+    await this.middleware.run(ctx, async () => {
+      if (ctx.method === 'POST' || ctx.method === 'PUT') {
+        await ctx.json();
+      }
+      await this.router.run(ctx);
+    });
   }
   /** Start the server */
   listen(port?: number, hostname?: string): void {

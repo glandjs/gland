@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'mocha';
 import { Router } from '../../../lib/router/Router';
 import sinon from 'sinon';
 import Reflector from '../../../lib/metadata';

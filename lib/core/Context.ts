@@ -9,7 +9,7 @@ export class Context {
     this.ctx.req = req;
     this.ctx.res = res;
     this.ctx.json = this.json.bind(this);
-    this.ctx.code = this.code.bind(this);
+    this.ctx.status = this.status.bind(this);
   }
   private bindProperties(req: IncomingMessage, res: ServerResponse) {
     // List of properties/methods from req
@@ -17,9 +17,8 @@ export class Context {
     // List of properties/methods from res
     const resKeys = Object.keys(res).concat(Object.getOwnPropertyNames(ServerResponse.prototype));
 
-    // Define getters/setters for req properties
     for (const key of reqKeys) {
-      if (key in this.ctx) continue; // Avoid overriding existing properties
+      if (key in this.ctx) continue;
       Object.defineProperty(this.ctx, key, {
         get: () => (req as any)[key],
         set: (value) => ((req as any)[key] = value),
@@ -28,9 +27,8 @@ export class Context {
       });
     }
 
-    // Define getters/setters for res properties
     for (const key of resKeys) {
-      if (key in this.ctx) continue; // Avoid overriding existing properties
+      if (key in this.ctx) continue;
       Object.defineProperty(this.ctx, key, {
         get: () => (res as any)[key],
         set: (value) => ((res as any)[key] = value),
@@ -38,16 +36,15 @@ export class Context {
         configurable: true,
       });
     }
-    // Special handling for methods that belong only to res
+
     Object.defineProperty(this.ctx, 'writeHead', {
-      get: () => res.writeHead.bind(res), // Ensure `writeHead` points to `res.writeHead`
+      get: () => res.writeHead.bind(res),
       enumerable: true,
       configurable: true,
     });
 
-    // You can add more specific methods as needed, like `end`, `setHeader`, etc.
     Object.defineProperty(this.ctx, 'end', {
-      get: () => res.end.bind(res), // Ensure `end` points to `res.end`
+      get: () => res.end.bind(res),
       enumerable: true,
       configurable: true,
     });
@@ -63,7 +60,8 @@ export class Context {
           this.ctx.body = JSON.parse(body);
           resolve();
         } catch (error) {
-          reject(new Error('Invalid JSON format.'));
+          this.ctx.body = body === '' ? undefined : body;
+          resolve();
         }
       });
       this.req.on('error', (error) => {
@@ -72,11 +70,13 @@ export class Context {
     });
   }
 
-  code(code: HttpStatus): boolean {
+  status(code: HttpStatus): HttpContext {
+    // Assign the status code
     this.ctx.statusCode = code;
+    this.res.statusCode = code;
     if ((this.ctx.statusCode && this.res.statusCode) === code) {
-      return true;
+      return this.ctx;
     }
-    return false;
+    return this.ctx;
   }
 }

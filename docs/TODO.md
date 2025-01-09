@@ -14,10 +14,10 @@
 
 ## Phase 3: Middleware System
 
-- [ ] Design a middleware pipeline with support for async functions.
-- [ ] Add a built-in body parser middleware.
-- [ ] Implement request transformation middleware (`@Transform`).
-- [ ] Enable global, route-specific, and grouped middleware.
+- [x] Design a middleware pipeline with support for async functions.
+- [x] Add a built-in body parser middleware.
+- [x] Implement request transformation middleware (`@Transform`).
+- [x] Enable global, route-specific, and grouped middleware.
 
 ## Phase 4: New Features
 
