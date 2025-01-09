@@ -60,7 +60,7 @@ export class Context {
           this.ctx.body = JSON.parse(body);
           resolve();
         } catch (error) {
-          this.ctx.body = body;
+          this.ctx.body = body === '' ? undefined : body;
           resolve();
         }
       });
