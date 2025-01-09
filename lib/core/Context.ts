@@ -12,42 +12,48 @@ export class Context {
     this.ctx.status = this.status.bind(this);
   }
   private bindProperties(req: IncomingMessage, res: ServerResponse) {
-    // List of properties/methods from req
-    const reqKeys = Object.keys(req).concat(Object.getOwnPropertyNames(IncomingMessage.prototype));
-    // List of properties/methods from res
-    const resKeys = Object.keys(res).concat(Object.getOwnPropertyNames(ServerResponse.prototype));
+    const bindRuntimeProperties = (source: any, target: any, prefix = '') => {
+      let currentProto = source;
 
-    for (const key of reqKeys) {
-      if (key in this.ctx) continue;
-      Object.defineProperty(this.ctx, key, {
-        get: () => (req as any)[key],
-        set: (value) => ((req as any)[key] = value),
-        enumerable: true,
-        configurable: true,
-      });
-    }
+      while (currentProto) {
+        const keys = [
+          ...Object.getOwnPropertyNames(currentProto), // Own properties
+          ...Object.getOwnPropertySymbols(currentProto), // Symbol properties
+        ];
 
-    for (const key of resKeys) {
-      if (key in this.ctx) continue;
-      Object.defineProperty(this.ctx, key, {
-        get: () => (res as any)[key],
-        set: (value) => ((res as any)[key] = value),
-        enumerable: true,
-        configurable: true,
-      });
-    }
+        keys.forEach((key) => {
+          const keyName = typeof key === 'symbol' ? key : prefix + key;
 
-    Object.defineProperty(this.ctx, 'writeHead', {
-      get: () => res.writeHead.bind(res),
-      enumerable: true,
-      configurable: true,
-    });
+          if (!(keyName in target)) {
+            const descriptor = Object.getOwnPropertyDescriptor(currentProto, key) || Object.getOwnPropertyDescriptor(Object.getPrototypeOf(currentProto), key);
 
-    Object.defineProperty(this.ctx, 'end', {
-      get: () => res.end.bind(res),
-      enumerable: true,
-      configurable: true,
-    });
+            if (descriptor) {
+              if (typeof descriptor.value === 'function') {
+                // Bind methods
+                target[keyName] = source[key].bind(source);
+              } else {
+                // Define getters and setters for properties
+                Object.defineProperty(target, keyName, {
+                  get: () => source[key],
+                  set: (value) => {
+                    source[key] = value;
+                  },
+                  enumerable: descriptor.enumerable,
+                  configurable: true,
+                });
+              }
+            }
+          }
+        });
+
+        // Move up the prototype chain
+        currentProto = Object.getPrototypeOf(currentProto);
+      }
+    };
+
+    // Bind req and res properties/methods to ctx
+    bindRuntimeProperties(req, this.ctx); // Bind req properties
+    bindRuntimeProperties(res, this.ctx); // Bind res properties
   }
   json(): Promise<void> {
     return new Promise((resolve, reject) => {
