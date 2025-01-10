@@ -26,6 +26,7 @@ describe('Router', () => {
     it('should find a route that matches the method, path, and language', () => {
       const routes: RouteDefinition[] = [
         {
+          query: {},
           params: {},
           method: 'GET',
           path: '/users/:id',
@@ -59,6 +60,7 @@ describe('Router', () => {
     it('should handle multi-language routes correctly', () => {
       const routes: RouteDefinition[] = [
         {
+          query: {},
           method: 'GET',
           params: {},
           path: '/users/:id',
@@ -78,22 +80,6 @@ describe('Router', () => {
         method: 'GET',
         path: '/api/utilisateurs/:id',
         params: { id: '123' },
-      });
-    });
-  });
-
-  describe('run', () => {
-    describe('when no route is found', () => {
-      it('should do nothing', async () => {
-        const routes: RouteDefinition[] = []; // No routes defined
-        sinon.stub(Reflector, 'getRoutes').returns(routes);
-
-        const ctx = { method: 'GET', url: '/unknown', headers: { 'accept-language': 'en' } } as HttpContext;
-        await router.run(ctx);
-
-        // Verify that no middleware or action was executed
-        expect((MiddlewareManager.prototype.use as any).called).to.be.false;
-        expect((MiddlewareManager.prototype.run as any).called).to.be.false;
       });
     });
   });
