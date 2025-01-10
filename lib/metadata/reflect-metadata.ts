@@ -1,13 +1,13 @@
 import { RouterMetadataKeys } from '../common/constants';
 import { RouteDefinition } from '../common/interface/router.interface';
 import { isClass } from '../utils';
-import { QiksCache } from '../utils/Cache';
+import { MemoryCacheStore } from '../utils/Cache';
 import { MetadataKey, MetadataStorage, MetadataTarget, MetadataValue } from './Reflect.interface';
 
 class ReflectStorage implements MetadataStorage {
-  private storage = new QiksCache<string, Map<MetadataKey, MetadataValue>>();
+  private storage = new MemoryCacheStore<string, Map<MetadataKey, MetadataValue>>();
   constructor() {
-    this.storage = new QiksCache({
+    this.storage = new MemoryCacheStore({
       policy: 'LRU',
     });
   }

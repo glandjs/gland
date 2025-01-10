@@ -8,4 +8,5 @@ export interface RouteDefinition {
   action: Function;
   middlewares?: MiddlewareFn[];
   params: { [key: string]: string };
+  query: Record<string, string | number | undefined>;
 }

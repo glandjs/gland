@@ -22,6 +22,7 @@ function createDecorator(method: RequestMethod) {
         action: descriptor.value,
         middlewares: middlewares || [],
         params: {},
+        query: {},
       });
       Reflector.define(RouterMetadataKeys.ROUTES, existingRoutes, target.constructor);
     };

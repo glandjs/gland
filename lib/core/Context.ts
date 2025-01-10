@@ -11,8 +11,8 @@ export class Context {
     this.ctx.json = this.json.bind(this);
     this.ctx.status = this.status.bind(this);
   }
-  private bindProperties(req: IncomingMessage, res: ServerResponse) {
-    const bindRuntimeProperties = (source: any, target: any, prefix = '') => {
+  bindProperties(req: IncomingMessage, res: ServerResponse) {
+    const bindRuntimeProperties = (source: any, target: any) => {
       let currentProto = source;
 
       while (currentProto) {
@@ -22,7 +22,7 @@ export class Context {
         ];
 
         keys.forEach((key) => {
-          const keyName = typeof key === 'symbol' ? key : prefix + key;
+          const keyName = typeof key === 'symbol' ? key : key;
 
           if (!(keyName in target)) {
             const descriptor = Object.getOwnPropertyDescriptor(currentProto, key) || Object.getOwnPropertyDescriptor(Object.getPrototypeOf(currentProto), key);
@@ -54,6 +54,18 @@ export class Context {
     // Bind req and res properties/methods to ctx
     bindRuntimeProperties(req, this.ctx); // Bind req properties
     bindRuntimeProperties(res, this.ctx); // Bind res properties
+
+    // Ensure that ctx is always in sync with res and req
+    const syncProperties = (source: any, target: any) => {
+      Object.defineProperties(target, {
+        ...Object.getOwnPropertyDescriptors(source),
+        ...Object.getOwnPropertyDescriptors(Object.getPrototypeOf(source)),
+      });
+    };
+
+    // Sync req and res properties to ctx
+    syncProperties(req, this.ctx);
+    syncProperties(res, this.ctx);
   }
   json(): Promise<void> {
     return new Promise((resolve, reject) => {

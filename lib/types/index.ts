@@ -2,6 +2,7 @@ import { ServerResponse } from 'http';
 import { IncomingMessage } from 'http';
 import { Application } from '../core/Application';
 import { HttpStatus } from '../common/enums/status.enum';
+import { GlobalCache } from '../common/interface/app-settings.interface';
 
 export interface ModuleConfig {
   path: string;
@@ -35,4 +36,5 @@ export type HttpContext = IncomingMessage &
 
     /** Redirect to another URL */
     redirect(url: string, status?: HttpStatus): void;
+    cache: GlobalCache;
   };
