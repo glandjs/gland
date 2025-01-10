@@ -42,15 +42,12 @@
 
 ### Global Guards
 
-- [ ] Implement a `@Guard` decorator for route protection.
-- [ ] Support reusable guard logic (e.g., authentication and permissions).
-- [ ] Integrate guards seamlessly with middleware.
+- [x] Implement a `@Guard` decorator for route protection.
 
 ### Caching System
 
-- [ ] Build a caching system with `@Cache` decorator for routes.
-- [ ] Support configurable `ttl` and custom cache stores.
-- [ ] Integrate with `@medishn/qiks` for advanced caching options.
+- [x] Support configurable `ttl` and custom cache stores.
+- [x] Integrate with `@medishn/qiks` for advanced caching options.
 
 ### Event System
 

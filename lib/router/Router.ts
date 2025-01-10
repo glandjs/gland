@@ -3,6 +3,7 @@ import { MiddlewareManager } from '../middleware/MiddlewareManager';
 import { RouteDefinition } from '../common/interface/router.interface';
 import { HttpContext } from '../types';
 import Reflector from '../metadata';
+import { URL } from 'url';
 export class Router {
   constructor(private apiPrefix: string) {}
   // Utility function to extract the primary language code from the accept-language header
@@ -30,20 +31,36 @@ export class Router {
       const { path: routePath, constructor } = route;
       const paramRegex = routePath.replace(RouterUtils.PARAMETER, '([^/]+)');
       const regex = new RegExp(`^${paramRegex}$`);
-      const match = fullPath.match(regex);
+      const match = fullPath.split('?')[0].match(regex);
       if (match) {
+        // Extract query parameters
+        const urlParts = fullPath.split('?');
+        let queryParams: Record<string, string | number | undefined> = {};
+
+        if (urlParts.length > 1) {
+          // Only analyze the query part if it exists
+          const query = new URLSearchParams(urlParts[1]);
+          queryParams = Object.fromEntries(query.entries());
+        }
+
+        // Extract route parameters (e.g., from /users/:id)
         const paramNames = Array.from(routePath.matchAll(RouterUtils.PARAMETER)).map((m) => m[1]);
         const params = Object.fromEntries(paramNames.map((name, index) => [name, match[index + 1]]));
+
+        // Update route with matched params and query
         route.params = params;
+        route.query = queryParams;
         Reflector.update(constructor, { ...route });
-        return { ...route, params };
+        console.log('ROUTE:', route);
+
+        return { ...route };
       }
     }
     return null;
   }
   async run(ctx: HttpContext): Promise<void> {
-    const lang = this.extractLang(ctx.headers?.['accept-language']);
-    const route = this.findMatch(ctx.method!, ctx.url!, lang);
+    const lang = this.extractLang(ctx.req.headers?.['accept-language']);
+    const route = this.findMatch(ctx.req.method!, ctx.req.url!, lang);
     if (!route) {
       return;
     }
@@ -51,12 +68,21 @@ export class Router {
     ctx.params = params || {};
     const middlewareExecutor = new MiddlewareManager();
     middlewareExecutor.use(...middlewares!);
-
     // Wrap the controller action with the transform function
     const transformFn = Reflector.get(RouterMetadataKeys.TRANSFORM, constructor, action.name);
     const wrappedAction = async (ctx: HttpContext) => {
+      // Fetch guards from metadata
+      const guards = Reflector.get(RouterMetadataKeys.GUARDS, constructor, action.name);
+
+      if (guards) {
+        for (const guard of guards) {
+          await guard(ctx);
+          if (ctx.res.writableEnded) return;
+        }
+      }
       if (transformFn) {
         transformFn(ctx); // Execute transform function
+        if (ctx.res.writableEnded) return;
       }
       await action(ctx); // Execute the controller action
     };
