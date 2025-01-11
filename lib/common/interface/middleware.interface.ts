@@ -1,3 +1,3 @@
-import { HttpContext } from "../../types";
+import { ServerRequest } from '../../types';
 
-export type MiddlewareFn = (ctx: HttpContext, next: Function) => void;
+export type MiddlewareFn = (ctx: ServerRequest, next: Function) => void;

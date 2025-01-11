@@ -1,10 +1,11 @@
-import { HttpContext } from '../types';
+import { EventSystemManager } from '../events/EventSystemManager';
+import { ServerRequest } from '../types';
 import { Router } from './Router';
 
 export class RouterManager {
   private router: Router;
-  constructor(apiPrefix: string) {
-    this.router = new Router(apiPrefix);
+  constructor(apiPrefix: string, events: EventSystemManager) {
+    this.router = new Router(apiPrefix, events);
   }
   registerControllers(controllers: Function[]): void {
     controllers.forEach((controller) => this.router.registerController(controller));
@@ -12,7 +13,7 @@ export class RouterManager {
   getRouter(): Router {
     return this.router;
   }
-  async run(ctx: HttpContext) {
+  async run(ctx: ServerRequest) {
     await this.router.run(ctx);
   }
 }

@@ -1,6 +1,7 @@
 import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from 'http';
 import { ServerRequest } from '../types';
 import { TLSSocket } from 'tls';
+import { AppConfig, KEY_SETTINGS } from '../common/interface/app-settings.interface';
 
 export class RequestInfo {
   private req: IncomingMessage;
@@ -67,12 +68,15 @@ export class RequestInfo {
   }
 
   get ip(): string {
-    const xff = this.req.headers['x-forwarded-for'];
-    if (xff) {
-      const ips = (xff as string).split(',');
-      return ips[0].trim();
+    const trustProxy = this.ctx.settings[KEY_SETTINGS.TRUST_PROXY] || false;
+    if (trustProxy) {
+      const xff = this.req.headers['x-forwarded-for'];
+      if (xff) {
+        const ips = (xff as string).split(',');
+        return ips[0].trim();
+      }
     }
-    return this.req.socket.remoteAddress || '';
+    return this.req.socket.remoteAddress || 'unknown';
   }
 
   get headers(): IncomingHttpHeaders {

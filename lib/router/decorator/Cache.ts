@@ -1,5 +1,6 @@
 import { GlobalCache } from '../../common/interface/app-settings.interface';
-import { HttpContext } from '../../types';
+import { ServerRequest } from '../../types';
+import { generateCacheKey } from '../../utils';
 
 /**
  * Cache decorator to enable caching for a route.
@@ -9,33 +10,27 @@ export function Cache(ttl?: number): MethodDecorator {
   return (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (ctx: HttpContext, ...args: any[]) {
+    descriptor.value = async function (ctx: ServerRequest, ...args: any[]) {
       const cacheSystem: GlobalCache = ctx.cache;
-      const cacheKey = `${ctx.req.method}:${ctx.req.url}`;
-      console.log('KEYS:', cacheSystem.keys());
-      console.log('KEYS:cacheKey', cacheSystem.has(cacheKey));
-      console.log('cacheKey', cacheKey);
-
-      // Check if the response is cached
+      const cacheKey = generateCacheKey(ctx);
       if (cacheSystem.has(cacheKey)) {
         const cachedResponse = cacheSystem.get(cacheKey);
-        console.log('cachedResponse', cachedResponse);
-
-        return cachedResponse;
+        ctx.res.writeHead(cachedResponse.statusCode, cachedResponse.headers);
+        ctx.res.end(cachedResponse.body);
+        return cachedResponse.body;
       }
-
-      // Call the original method to handle the request
+      // Cache miss - Call the original method to handle the request
       const result = await originalMethod.apply(this, [ctx, ...args]);
-      console.log('result', result);
-      console.log('ctx.res.statusCode', ctx.res.statusCode);
-      console.log('ctx.statusCode', ctx.statusCode);
-      // Cache the response
-      if (ctx.res.statusCode === 200) {
-        cacheSystem.set(cacheKey, result, {
-          ttl: ttl,
-        });
+      if (result) {
+        const cachedResponse = {
+          body: result,
+          statusCode: ctx.res.statusCode,
+          headers: ctx.res.getHeaders(),
+        };
+        if (ctx.res.statusCode === 200) {
+          cacheSystem.set(cacheKey, cachedResponse, { ttl });
+        }
       }
-
       return result;
     };
 

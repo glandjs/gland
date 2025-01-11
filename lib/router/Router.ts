@@ -1,11 +1,15 @@
 import { RouterUtils, RouterMetadataKeys } from '../common/constants';
 import { MiddlewareManager } from '../middleware/MiddlewareManager';
 import { RouteDefinition } from '../common/interface/router.interface';
-import { HttpContext } from '../types';
 import Reflector from '../metadata';
-import { URL } from 'url';
+import { EventSystemManager } from '../events/EventSystemManager';
+import { ServerRequest } from '../types';
+import { ContextHandler, CoreEventType } from '../events/EventSystem.interface';
+import { RequestInfo } from '../utils/RequestInfo';
+import { handleETag } from '../utils';
+import { HttpStatus } from '../common/enums/status.enum';
 export class Router {
-  constructor(private apiPrefix: string) {}
+  constructor(private apiPrefix: string, private events: EventSystemManager) {}
   // Utility function to extract the primary language code from the accept-language header
   private extractLang(header: string | undefined): string {
     if (!header) return RouterUtils.DEFAULT_LANG;
@@ -51,26 +55,69 @@ export class Router {
         route.params = params;
         route.query = queryParams;
         Reflector.update(constructor, { ...route });
-        console.log('ROUTE:', route);
-
         return { ...route };
       }
     }
     return null;
   }
-  async run(ctx: HttpContext): Promise<void> {
+  async run(ctx: ServerRequest): Promise<void> {
     const lang = this.extractLang(ctx.req.headers?.['accept-language']);
     const route = this.findMatch(ctx.req.method!, ctx.req.url!, lang);
+    const requestInfo = new RequestInfo(ctx);
     if (!route) {
       return;
     }
-    const { action, middlewares, params, constructor } = route;
+    const { action, middlewares, params, constructor, query } = route;
     ctx.params = params || {};
+    ctx.clientIp = requestInfo.ip;
+    ctx.query = query || {};
+    let dynamicContext: ContextHandler['RouteContext'] = {
+      path: route.path,
+      method: route.method,
+      params: params,
+      query,
+      middlewares,
+      statusCode: ctx.res.statusCode,
+      headers: ctx.req.headers,
+      ip: requestInfo.ip,
+      statusMessage: 'OK',
+      statusCodeClass: requestInfo.statusCodeClass,
+      isCacheHit: false,
+      response: {
+        contentLength: requestInfo.bodySize,
+        contentType: ctx.req.headers['content-type'],
+      },
+      request: {
+        body: ctx.body,
+        url: ctx.req.url,
+        cookies: requestInfo.cookies,
+        protocol: requestInfo.protocol,
+        userAgent: requestInfo.userAgent,
+        referer: requestInfo.referer,
+        acceptedLanguages: requestInfo.acceptedLanguages,
+        bodySize: +requestInfo.bodySize,
+        bodyRaw: requestInfo.bodyRaw,
+      },
+    };
+    await handleETag(ctx);
+    // Example: Check if ETag resulted in a 304 (Not Modified)
+    if (ctx.res.statusCode === 304) {
+      dynamicContext.statusMessage = 'NOT_MODIFIED';
+      dynamicContext.statusCodeClass = '3xx'; // 3xx indicates redirect or not modified
+    }
+
+    // Example: If there is an error, update the statusCode and statusMessage
+    if (ctx.error) {
+      dynamicContext.statusCode = 500;
+      dynamicContext.statusMessage = 'INTERNAL_SERVER_ERROR';
+      dynamicContext.statusCodeClass = '5xx';
+    }
+    this.events.emit(CoreEventType.Route, dynamicContext);
     const middlewareExecutor = new MiddlewareManager();
     middlewareExecutor.use(...middlewares!);
     // Wrap the controller action with the transform function
     const transformFn = Reflector.get(RouterMetadataKeys.TRANSFORM, constructor, action.name);
-    const wrappedAction = async (ctx: HttpContext) => {
+    const wrappedAction = async (ctx: ServerRequest) => {
       // Fetch guards from metadata
       const guards = Reflector.get(RouterMetadataKeys.GUARDS, constructor, action.name);
 

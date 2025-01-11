@@ -1,5 +1,3 @@
-import { MemoryCacheStore } from '../utils/Cache';
-
 // Router-related constants with type safety
 export enum RouterMetadataKeys {
   CONTROLLER_PREFIX = 'router:controller:prefix', // Prefix for all routes in a controller

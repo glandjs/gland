@@ -1,6 +1,6 @@
 import { MiddlewareStack } from './MiddlewareStack';
 import { MiddlewareFn } from '../common/interface/middleware.interface';
-import { HttpContext } from '../types';
+import { ServerRequest } from '../types';
 
 export class MiddlewareManager {
   private readonly stack: MiddlewareStack;
@@ -11,7 +11,7 @@ export class MiddlewareManager {
   use(...middlewares: MiddlewareFn[]): void {
     this.stack.push(...middlewares);
   }
-  async run(ctx: HttpContext, action: Function): Promise<void> {
+  async run(ctx: ServerRequest, action: Function): Promise<void> {
     await this.stack.execute(ctx, action);
   }
 }

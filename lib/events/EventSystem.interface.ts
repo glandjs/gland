@@ -13,7 +13,7 @@ export enum CoreEventType {
 export type EventType = 'start' | 'stop' | 'error' | 'route';
 
 export type CommonProps = {
-  statusCode?: ServerRequest['res']['statusCode'];
+  statusCode?: HttpStatus;
   method?: ServerRequest['req']['method'];
   url?: ServerRequest['req']['url'];
   headers?: ServerRequest['req']['headers'];
@@ -24,6 +24,8 @@ export type CommonProps = {
   ip?: string;
   cookies?: Record<string, string>;
   timestamp?: Date;
+  statusMessage?: keyof typeof HttpStatus;
+  statusCodeClass?: '1xx' | '2xx' | '3xx' | '4xx' | '5xx' | 'Unknown';
 };
 
 export interface ContextHandler {
@@ -36,17 +38,17 @@ export interface ContextHandler {
     nodeVersion?: string; // Node.js version running on the server
   };
 
-  StopContext: Pick<CommonProps, 'statusCode' | 'timestamp'> & {
+  StopContext: Pick<CommonProps, 'statusCodeClass' | 'statusMessage' | 'statusCode' | 'timestamp'> & {
     reason?: 'maintenance' | 'shutdown' | 'server_error' | 'error' | 'timeout';
     exitCode?: number | string;
     error?: Error;
   };
-  ErrorContext: Pick<CommonProps, 'method' | 'path' | 'query' | 'body' | 'headers' | 'statusCode' | 'timestamp' | 'ip'> & {
+  ErrorContext: Pick<CommonProps, 'statusCodeClass' | 'statusMessage' | 'method' | 'body' | 'headers' | 'statusCode' | 'timestamp'> & {
     error: Error;
     message: string; // Human-readable error message
   };
   RouteContext: Pick<RouteDefinition, 'middlewares'> &
-    Pick<CommonProps, 'method' | 'path' | 'query' | 'params' | 'statusCode' | 'headers' | 'ip'> & {
+    Pick<CommonProps, 'statusCodeClass' | 'statusMessage' | 'method' | 'path' | 'query' | 'params' | 'statusCode' | 'headers' | 'ip'> & {
       cacheControl?: string | undefined; // Cache control settings
       response?: {
         contentLength?: IncomingMessage['headers']['content-length']; // Content length of the response
@@ -60,8 +62,6 @@ export interface ContextHandler {
         bodySize?: number; // Size of the request body in bytes
         bodyRaw?: Buffer; // Raw request body (if needed for processing)
       };
-      statusMessage?: keyof typeof HttpStatus; // Status message (e.g., 'OK', 'Not Found')
-      statusCodeClass?: '1xx' | '2xx' | '3xx' | '4xx' | '5xx' | 'Unknown';
       isCacheHit?: boolean; // Whether the response was served from the cache
     };
 }
