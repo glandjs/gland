@@ -6,7 +6,7 @@ import { MiddlewareManager } from '../../../lib/middleware/MiddlewareManager';
 import { RouteDefinition } from '../../../lib/common/interface/router.interface';
 import { RouterMetadataKeys } from '../../../lib/common/constants';
 import { expect } from 'chai';
-import { HttpContext } from '../../../lib/types';
+import { ServerRequest } from '../../../lib/types';
 
 describe('Router', () => {
   let router: Router;

@@ -1,26 +1,39 @@
-import { RouterUtils } from '../common/constants';
+import { ServerResponse } from 'http';
+import { ServerRequest } from '../types';
+import { AppConfig, KEY_SETTINGS } from '../common/interface/app-settings.interface';
+import { HttpStatus } from '../common/enums/status.enum';
 
 export function isClass(func: Function): boolean {
   return typeof func === 'function' && /^class\s/.test(Function.prototype.toString.call(func));
 }
-export function generateCacheKey(ctx: any): string {
-  // Extract the HTTP method and URL
-  const method = ctx.method.toUpperCase();
-  let url = ctx.url;
+export function generateCacheKey(ctx: ServerRequest): string {
+  return `${ctx.req.method}:${ctx.req.url}`;
+}
+export function generateETag(body: string): string {
+  return require('crypto').createHash('sha256').update(body).digest('hex');
+}
+export async function handleETag(ctx: ServerRequest): Promise<void> {
+  if (ctx.res.getHeader('etag')) {
+    // Check if the client has sent an If-None-Match header with a matching ETag
+    const clientEtag = ctx.req.headers['if-none-match'];
+    const serverEtag = ctx.res.getHeader('etag');
 
-  // Replace dynamic route parameters with their values
-  url = url.replace(RouterUtils.PARAMETER, (_: any, param: string) => {
-    // Get the value for each dynamic route parameter from `ctx.params`
-    return ctx.params[param] || '';
-  });
-
-  // Include query parameters if available
-  let queryParams = '';
-  if (ctx.query && Object.keys(ctx.query).length > 0) {
-    queryParams = '?' + new URLSearchParams(ctx.query).toString();
+    if (clientEtag && clientEtag === serverEtag) {
+      ctx.res.statusCode = HttpStatus.NOT_MODIFIED; // Not Modified
+      ctx.res.end(); // No need to send the response body
+      return;
+    }
   }
+  const body = JSON.stringify(ctx.body);
+  const etag = generateETag(body);
+  ctx.res.setHeader('etag', etag);
+}
+export function setPoweredByHeader(res: ServerResponse, settings: AppConfig): void {
+  const poweredBy = settings[KEY_SETTINGS.X_POWERED_BY] ?? true;
 
-  // Generate the final cache key
-  const cacheKey = `${method}:${url}${queryParams}`;
-  return cacheKey;
+  if (poweredBy) {
+    res.setHeader('X-Powered-By', 'Gland');
+  } else {
+    res.removeHeader('X-Powered-By');
+  }
 }

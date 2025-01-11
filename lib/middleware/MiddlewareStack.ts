@@ -1,5 +1,5 @@
 import { MiddlewareFn } from '../common/interface/middleware.interface';
-import { HttpContext } from '../types';
+import { ServerRequest } from '../types';
 export class MiddlewareStack {
   private readonly middlewares: MiddlewareFn[] = [];
 
@@ -9,7 +9,7 @@ export class MiddlewareStack {
     }
     this.middlewares.push(...middlewares);
   }
-  async execute(ctx: HttpContext, action: Function): Promise<void> {
+  async execute(ctx: ServerRequest, action: Function): Promise<void> {
     let index = 0;
 
     const next = async () => {

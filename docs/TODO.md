@@ -51,13 +51,11 @@
 
 ### Event System
 
-- [ ] Enhance the built-in event system for route and application-level events.
-- [ ] Add hooks for lifecycle events (e.g., `onInit`, `onDestroy`).
-- [ ] Provide APIs for custom event handling.
+- [x] Enhance the built-in event system for route and application-level events.
+- [x] Provide APIs for custom event handling.
 
 ## Phase 5: Advanced Router Features
 
-- [ ] Add automatic Swagger (OpenAPI) documentation generation.
 - [ ] Implement request-response lifecycle hooks for extensibility.
 - [ ] Introduce grouped routes with shared middleware and guards.
 - [ ] Create a powerful and expressive query builder or ORM (optional).

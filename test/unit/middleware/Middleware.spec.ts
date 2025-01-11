@@ -3,16 +3,16 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { MiddlewareStack } from '../../../lib/middleware/MiddlewareStack';
 import { MiddlewareFn } from '../../../lib/common/interface/middleware.interface';
-import { HttpContext } from '../../../lib/types';
+import { ServerRequest } from '../../../lib/types';
 
 describe('MiddlewareStack', () => {
   let middleware: MiddlewareStack;
-  let ctx: HttpContext;
+  let ctx: ServerRequest;
   let actionStub: sinon.SinonStub;
 
   beforeEach(() => {
     middleware = new MiddlewareStack();
-    ctx = {} as HttpContext;
+    ctx = {} as ServerRequest;
     actionStub = sinon.stub();
   });
 
