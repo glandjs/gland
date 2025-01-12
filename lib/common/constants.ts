@@ -6,6 +6,10 @@ export enum RouterMetadataKeys {
   TRANSFORM = 'router:transform', // Request transformation metadata
   MIDDLEWARES = 'router:middlewares', // Route-specific middlewares
   GUARDS = 'router:guards', // Stores the guards for a specific route
+  MODULE_PROVIDERS = 'module:providers',
+  MODULE_IMPORTS = 'module:imports',
+  MODULE_CONTROLLERS = 'module:controllers',
+  MODULE_INJECTABLES = 'module:injectables',
 }
 
 // Utility constants for router
