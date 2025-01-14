@@ -19,8 +19,8 @@ export class BodyParser {
   constructor(req: IncomingMessage, options?: BodyParserOptions) {
     this.req = req;
     this.options = {
-      limit: options?.limit || 1e6, // Default 1MB
-      encoding: options?.encoding || 'utf-8',
+      limit: options?.limit ?? 1e6, // Default 1MB
+      encoding: options?.encoding ?? 'utf-8',
     };
   }
 
