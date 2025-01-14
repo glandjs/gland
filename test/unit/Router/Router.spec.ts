@@ -6,14 +6,16 @@ import { MiddlewareManager } from '../../../lib/middleware/MiddlewareManager';
 import { RouteDefinition } from '../../../lib/common/interface/router.interface';
 import { RouterMetadataKeys } from '../../../lib/common/constants';
 import { expect } from 'chai';
-import { ServerRequest } from '../../../lib/types';
+import { EventSystemManager } from '../../../lib/events/EventSystemManager';
 
 describe('Router', () => {
   let router: Router;
   const apiPrefix = '/api';
+  let events: EventSystemManager;
 
   beforeEach(() => {
-    router = new Router(apiPrefix);
+    events = new EventSystemManager();
+    router = new Router(apiPrefix, events);
     sinon.stub(MiddlewareManager.prototype, 'use');
     sinon.stub(MiddlewareManager.prototype, 'run');
   });

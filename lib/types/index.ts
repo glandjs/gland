@@ -1,9 +1,9 @@
-import { ServerResponse } from 'http';
-import { IncomingMessage } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import { Application } from '../core/Application';
 import { HttpStatus } from '../common/enums/status.enum';
 import { AppConfig, GlobalCache } from '../common/interface/app-settings.interface';
-import { Context } from '../core/Context';
+import { Context } from '../context/Context';
+import { ResponseBody } from '../context/Context.interface';
 
 export interface ModuleConfig {
   path: string;
@@ -17,7 +17,7 @@ export type ServerRequest = Context & {
   /** Application instance */
   status: number;
   server: Application;
-  json(): Promise<void>;
+  send<T = any>(body: ResponseBody<T>): void;
   bodySize: number;
   bodyRaw: Buffer;
   /** Parsed query parameters from the URL */
