@@ -1,8 +1,6 @@
-import { RouterMetadataKeys } from '../common/constants';
-import { RouteDefinition } from '../common/interface/router.interface';
-import { isClass } from '../utils';
-import { MemoryCacheStore } from '../utils/Cache';
-import { MetadataKey, MetadataStorage, MetadataTarget, MetadataValue } from './Reflect.interface';
+import { RouterMetadataKeys } from '../common/enums';
+import { MetadataKey, MetadataStorage, MetadataTarget, MetadataValue, RouteDefinition } from '../common/interfaces';
+import { MemoryCacheStore, isClass } from '../utils';
 
 class ReflectStorage implements MetadataStorage {
   private storage = new MemoryCacheStore<string, Map<MetadataKey, MetadataValue>>();

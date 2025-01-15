@@ -1,39 +1,74 @@
-import { ServerResponse } from 'http';
-import { ServerRequest } from '../types';
-import { AppConfig, KEY_SETTINGS } from '../common/interface/app-settings.interface';
-import { HttpStatus } from '../common/enums/status.enum';
+export * from './app.utils';
+export * from './router.utils';
+export * from './decorator.utils';
+export * from './reflect.utils';
+export * from './context.utils';
 
-export function isClass(func: Function): boolean {
-  return typeof func === 'function' && /^class\s/.test(Function.prototype.toString.call(func));
-}
-export function generateCacheKey(ctx: ServerRequest): string {
-  return `${ctx.req.method}:${ctx.req.url}`;
-}
-export function generateETag(body: string): string {
-  return require('crypto').createHash('sha256').update(body).digest('hex');
-}
-export async function handleETag(ctx: ServerRequest): Promise<void> {
-  if (ctx.res.getHeader('etag')) {
-    // Check if the client has sent an If-None-Match header with a matching ETag
-    const clientEtag = ctx.req.headers['if-none-match'];
-    const serverEtag = ctx.res.getHeader('etag');
 
-    if (clientEtag && clientEtag === serverEtag) {
-      ctx.res.statusCode = HttpStatus.NOT_MODIFIED; // Not Modified
-      ctx.res.end(); // No need to send the response body
-      return;
-    }
-  }
-  const body = JSON.stringify(ctx.body);
-  const etag = generateETag(body);
-  ctx.res.setHeader('etag', etag);
-}
-export function setPoweredByHeader(res: ServerResponse, settings: AppConfig): void {
-  const poweredBy = settings[KEY_SETTINGS.X_POWERED_BY] ?? true;
+/**
+lib/
+    /common/
+        /enums/
+            app-settings.enum.ts
+            decorator.enum.ts
+            event.enum.ts
+            index.ts
+            method.enum.ts
+            router.enum.ts
+            status.enum.ts
+        /interfaces/
+            app-settings.interface.ts
+            app.interface.ts
+            context.interface.ts
+            event.interface.ts
+            index.ts
+            module.interface.ts
+            reflect.interface.ts
+            router.interface.ts
+        /types/
+            app-settings.type.ts
+            app.types.ts
+            event.type.ts
+            index.ts
+            middleware.type.ts
+            module.type.ts
+        settings.ts
+        index.ts
+        IDManager.ts
+        config.ts
+    /context/
+        index.ts
+        context.ts
+        context-factory.ts
+    /core/
+        Application.ts
+        CoreModule.ts
+    /decorator/
+        module/
+        Cache.ts
+        Controller.ts
+        Guards.ts
+        http.ts // @Get @Post and etc..
+        index.ts
+        MultiLang.ts
+        Transform.ts
+    /events/
+        EventSystem.ts
+        index.ts
+    /metadata/
+        index.ts
+        reflect-metadata.ts
+    /middleware/
+        index.ts
+    /router/
+        Router.ts
+        index.ts
+    /utils/
+        app.utils.ts
+        context.utils.ts
+        decorator.utils.ts
+        index.ts
+        reflect.utils.ts
+        router.utils.ts
 
-  if (poweredBy) {
-    res.setHeader('X-Powered-By', 'Gland');
-  } else {
-    res.removeHeader('X-Powered-By');
-  }
-}
+ */
