@@ -2,11 +2,11 @@ import { describe, it, beforeEach, afterEach } from 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { IncomingMessage, ServerResponse } from 'http';
-import { Context } from '../../../lib/context/Context';
-import { HttpStatus } from '../../../lib/common/enums/status.enum';
-import { ResponseBody } from '../../../lib/context/Context.interface';
 import { Socket } from 'net';
 import { Stream } from 'stream';
+import { ResponseBody } from '../../../dist/common/interfaces';
+import { HttpStatus } from '../../../dist/common/enums';
+import { Context } from '../../../dist/context/index';
 
 describe('Context Class', () => {
   let req: IncomingMessage;

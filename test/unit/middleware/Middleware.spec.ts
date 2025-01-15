@@ -1,9 +1,9 @@
 import { describe, it, beforeEach, afterEach } from 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { MiddlewareStack } from '../../../lib/middleware/MiddlewareStack';
-import { MiddlewareFn } from '../../../lib/common/interface/middleware.interface';
-import { ServerRequest } from '../../../lib/types';
+import { MiddlewareStack } from '../../../dist/middleware';
+import { ServerRequest } from '../../../dist/common/interfaces';
+import { MiddlewareFn } from '../../../dist/common/types';
 
 describe('MiddlewareStack', () => {
   let middleware: MiddlewareStack;
@@ -27,7 +27,7 @@ describe('MiddlewareStack', () => {
       const mw2: MiddlewareFn = sinon.stub();
 
       // Act
-      middleware.push(mw1, mw2);
+      middleware.use(mw1, mw2);
 
       // Assert
       expect(middleware.getStack()).to.deep.equal([mw1, mw2]);
@@ -38,7 +38,7 @@ describe('MiddlewareStack', () => {
       const invalidMw: any = null;
 
       // Act & Assert
-      expect(() => middleware.push(invalidMw)).to.throw('Invalid middleware provided. Each middleware must be a function.');
+      expect(() => middleware.use(invalidMw)).to.throw('Invalid middleware provided. Each middleware must be a function.');
     });
   });
 
@@ -54,7 +54,7 @@ describe('MiddlewareStack', () => {
         await next();
       });
 
-      middleware.push(mw1, mw2);
+      middleware.use(mw1, mw2);
 
       // Act
       await middleware.execute(ctx, actionStub);
@@ -76,7 +76,7 @@ describe('MiddlewareStack', () => {
         await next();
       });
 
-      middleware.push(mw1, mw2);
+      middleware.use(mw1, mw2);
 
       // Act
       await middleware.execute(ctx, actionStub);
@@ -103,7 +103,7 @@ describe('MiddlewareStack', () => {
       });
       const mw2: MiddlewareFn = sinon.stub();
 
-      middleware.push(mw1, mw2);
+      middleware.use(mw1, mw2);
 
       // Act & Assert
       try {
@@ -124,7 +124,7 @@ describe('MiddlewareStack', () => {
       });
       actionStub.rejects(error);
 
-      middleware.push(mw1);
+      middleware.use(mw1);
 
       // Act & Assert
       try {
@@ -144,7 +144,7 @@ describe('MiddlewareStack', () => {
         await next();
       });
 
-      middleware.push(mw1, mw2);
+      middleware.use(mw1, mw2);
 
       // Act
       await middleware.execute(ctx, actionStub);
@@ -161,7 +161,7 @@ describe('MiddlewareStack', () => {
       // Arrange
       const mw1: MiddlewareFn = sinon.stub();
       const mw2: MiddlewareFn = sinon.stub();
-      middleware.push(mw1, mw2);
+      middleware.use(mw1, mw2);
 
       // Act
       const stack = middleware.getStack();

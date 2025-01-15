@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, it } from 'mocha';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { IncomingMessage } from 'http';
-import { BodyParser } from '../../../lib/utils/BodyParser';
+import { BodyParser } from '../../../dist/utils';
 
 describe('Body Parser', () => {
   let request: sinon.SinonStubbedInstance<IncomingMessage>;
@@ -37,7 +37,7 @@ describe('Body Parser', () => {
 
       expect(result.body).to.deep.equal({ key: 'value' });
       expect(result.bodySize).to.equal(buffer.length);
-      expect(result.bodyRaw.toString('utf-8')).to.equal(body);
+      expect(result.bodyRaw!.toString('utf-8')).to.equal(body);
     });
     it('should throw an error for malformed JSON', async () => {
       const body = '{"key": "value"';
