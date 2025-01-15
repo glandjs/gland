@@ -1,24 +1,26 @@
-import { AppConfig, GlobalCache, KEY_SETTINGS } from '../common/interface/app-settings.interface';
-import { AppSettings } from '../common/settings';
-import { EventSystemManager } from '../events/EventSystemManager';
-import { MiddlewareManager } from '../middleware/MiddlewareManager';
-import { RouterManager } from '../router/RouterManager';
-import { MemoryCacheStore } from '../utils/Cache';
-import { Glogger } from '../utils/Logger';
+import { IncomingMessage } from 'http';
+import { BodyParser, Glogger, MemoryCacheStore } from '../utils';
+import { Router } from '../router';
+import { EventSystem } from '../events';
+import { MiddlewareStack } from '../middleware';
+import { GlobalCache } from '../common/types';
+import { KEY_SETTINGS } from '../common/enums';
+import { AppSettings } from '../common';
+import { AppConfig, BodyParserOptions } from '../common/interfaces';
 export class CoreModule {
   private readonly loggerManager: Glogger;
-  private readonly routerManager: RouterManager;
-  private readonly middlewareManager: MiddlewareManager;
+  private readonly routerManager: Router;
+  private readonly middlewareManager: MiddlewareStack;
   private readonly cacheSystemManager: GlobalCache;
   private readonly settings: AppSettings;
-  private readonly eventsManager: EventSystemManager;
+  private readonly eventsManager: EventSystem;
   constructor(config: Partial<AppConfig> = {}) {
     this.settings = new AppSettings(config);
     this.loggerManager = new Glogger();
-    this.middlewareManager = new MiddlewareManager();
+    this.middlewareManager = new MiddlewareStack();
     this.cacheSystemManager = new MemoryCacheStore(config?.[KEY_SETTINGS.CACHE]);
-    this.eventsManager = new EventSystemManager();
-    this.routerManager = new RouterManager(this.settings.getPaths().apiPrefix!, this.eventsManager);
+    this.eventsManager = new EventSystem();
+    this.routerManager = new Router(this.settings.getPaths().apiPrefix!, this.eventsManager);
   }
   /** Access the logger instance */
   get logger(): Glogger {
@@ -26,12 +28,12 @@ export class CoreModule {
   }
 
   /** Access the middleware module */
-  get middleware(): MiddlewareManager {
+  get middleware(): MiddlewareStack {
     return this.middlewareManager;
   }
 
   /** Access the router module */
-  get router(): RouterManager {
+  get router(): Router {
     return this.routerManager;
   }
 
@@ -42,7 +44,10 @@ export class CoreModule {
   get cacheSystem(): GlobalCache {
     return this.cacheSystemManager;
   }
-  get events(): EventSystemManager {
+  get events(): EventSystem {
     return this.eventsManager;
+  }
+  bodyParser(req: IncomingMessage, options?: BodyParserOptions) {
+    return new BodyParser(req, options);
   }
 }

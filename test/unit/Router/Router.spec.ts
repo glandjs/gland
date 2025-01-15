@@ -1,21 +1,23 @@
 import { afterEach, beforeEach, describe, it } from 'mocha';
-import { Router } from '../../../lib/router/Router';
+import { Router } from '../../../dist/router/Router';
 import sinon from 'sinon';
-import Reflector from '../../../lib/metadata';
-import { MiddlewareManager } from '../../../lib/middleware/MiddlewareManager';
-import { RouteDefinition } from '../../../lib/common/interface/router.interface';
-import { RouterMetadataKeys } from '../../../lib/common/constants';
 import { expect } from 'chai';
-import { ServerRequest } from '../../../lib/types';
+import { EventSystem } from '../../../dist/events/EventSystem';
+import { MiddlewareStack } from '../../../dist/middleware/index';
+import { RouteDefinition } from '../../../dist/common/interfaces';
+import Reflector from '../../../dist/metadata';
+import { RouterMetadataKeys } from '../../../dist/common/enums';
 
 describe('Router', () => {
   let router: Router;
   const apiPrefix = '/api';
+  let events: EventSystem;
 
   beforeEach(() => {
-    router = new Router(apiPrefix);
-    sinon.stub(MiddlewareManager.prototype, 'use');
-    sinon.stub(MiddlewareManager.prototype, 'run');
+    events = new EventSystem();
+    router = new Router(apiPrefix, events);
+    sinon.stub(MiddlewareStack.prototype, 'use');
+    sinon.stub(MiddlewareStack.prototype, 'execute');
   });
 
   afterEach(() => {

@@ -1,4 +1,5 @@
-import { AppConfig, KEY_SETTINGS, PathConfig } from '../common/interface/app-settings.interface';
+import { KEY_SETTINGS } from './enums';
+import { AppConfig, PathConfig } from './interfaces';
 import { defaultConfig } from './config';
 export class AppSettings {
   private readonly _settings: AppConfig;
@@ -26,6 +27,6 @@ export class AppSettings {
   }
 
   getPaths(): PathConfig {
-    return this._settings[KEY_SETTINGS.PATHS] || {};
+    return this._settings[KEY_SETTINGS.PATHS]!;
   }
 }

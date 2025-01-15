@@ -1,17 +1,15 @@
-import { RouterUtils } from './constants';
+import { Environment } from './enums';
 import { IDManager } from './IDManager';
-import { AppConfig, Environment } from './interface/app-settings.interface';
-
+import { AppConfig } from './interfaces';
+import { RouterUtils } from '../utils';
 export const defaultConfig: AppConfig = {
-  // Application general settings
-  app_name: 'GlandMyApp', // Default application name
-  app_version: '1.0.0', // Default version
-  environment: Environment.DEVELOPMENT, // Default environment: development
+  app_name: 'GlandMyApp',
+  app_version: '1.0.0',
+  environment: Environment.DEVELOPMENT,
   server_id: IDManager.generateServerId(),
-  // Paths configuration
+
   paths: {
-    apiPrefix: RouterUtils.API_PREFIX, // Default API prefix for routes
-    staticFilesPath: '/public', // Default path for static files
+    apiPrefix: RouterUtils.API_PREFIX,
   },
   cache: {
     maxSize: 1000,

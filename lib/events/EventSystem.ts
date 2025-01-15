@@ -1,9 +1,10 @@
-import { CoreEventType, EventHandler, ContextHandler } from './EventSystem.interface';
+import { CoreEventType } from '../common/enums';
+import { LifecycleEvents } from '../common/interfaces';
+import { EventHandler } from '../common/types';
 
 type EventListener<T extends CoreEventType> = { route: string; handler: EventHandler<T> } | { handler: EventHandler<T> };
 export class EventSystem {
   private events: Partial<Record<CoreEventType, EventListener<any>[]>> = {};
-
   /**
    * Register a listener for a route event with a specific route.
    *
@@ -126,16 +127,17 @@ export class EventSystem {
    * app.emit('route', { route: 'users/:id', params: { id: '123' } });
    * app.emit('start', { timestamp: new Date() });
    */
-  emit<T extends CoreEventType>(event: T, context: ContextHandler[keyof ContextHandler]): void {
-    if (!this.events[event]) return;
+  async emit<T extends CoreEventType>(event: T, context: LifecycleEvents[keyof LifecycleEvents]): Promise<void> {
+    const listeners: EventHandler<any> = this.events[event];
+    if (!listeners) return;
 
-    this.events[event]!.forEach(async (listener: any) => {
+    for (const listener of listeners) {
       if (typeof listener === 'function') {
         await listener(context);
       } else if (typeof listener === 'object' && 'handler' in listener) {
         await listener.handler(context);
       }
-    });
+    }
   }
 
   /**

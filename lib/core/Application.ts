@@ -1,45 +1,41 @@
-import { createServer } from 'http';
-import { IncomingMessage, ServerResponse, Server } from 'http';
-import { Context } from './Context';
-import { MiddlewareFn } from '../common/interface/middleware.interface';
+import { IncomingMessage, ServerResponse, Server, createServer } from 'http';
+import Reflector from '../metadata';
 import { CoreModule } from './CoreModule';
-import { AppConfig, AppConfigKey, AppConfigValue, Environment, GlobalCache, KEY_SETTINGS } from '../common/interface/app-settings.interface';
-import { RouterManager } from '../router/RouterManager';
-import { MiddlewareManager } from '../middleware/MiddlewareManager';
-import { CoreEventType, EventHandler, EventType, ContextHandler } from '../events/EventSystem.interface';
+import { Router } from '../router';
+import { MiddlewareStack } from '../middleware';
 import { setPoweredByHeader } from '../utils';
-import { HttpStatus } from '../common/enums/status.enum';
+import { Context, ContextFactory } from '../context';
+import { Injector } from '../decorator';
+import { AppConfig, Constructor, LifecycleEvents, RouteDefinition } from '../common/interfaces';
+import { CoreEventType, KEY_SETTINGS, ModuleMetadataKeys, RouterMetadataKeys } from '../common/enums';
+import { AppConfigKey, AppConfigValue, EventHandler, EventType, GlobalCache, MiddlewareFn, Provider } from '../common/types';
 export class Application {
   private readonly coreModule: CoreModule;
-  private readonly router: RouterManager;
-  private readonly middleware: MiddlewareManager;
+  private readonly router: Router;
+  private readonly middleware: MiddlewareStack;
   private readonly settings: AppConfig;
+  private static injector = new Injector();
   private _server!: Server;
   constructor(config?: AppConfig) {
     this.coreModule = new CoreModule(config);
     this.router = this.coreModule.router;
     this.middleware = this.coreModule.middleware;
     // Use settings in config
-    const appName = config?.[KEY_SETTINGS.APP_NAME] || 'Default App';
-    const environment = config?.[KEY_SETTINGS.ENVIRONMENT] || Environment.DEVELOPMENT;
     this.settings = this.coreModule.config.getAllSettings();
+    const appName = this.settings?.[KEY_SETTINGS.APP_NAME];
+    const environment = this.settings?.[KEY_SETTINGS.ENVIRONMENT];
     this.coreModule.logger.info(`${appName} is running in ${environment} mode`);
   }
-
   /** Expose Cache System */
   get cache(): GlobalCache {
     return this.coreModule.cacheSystem;
   }
   /** Register a global middleware */
-  use(...middleware: MiddlewareFn[]): Application {
+  use(...middleware: MiddlewareFn[]): this {
     this.middleware.use(...middleware);
     return this;
   }
 
-  /** Register controllers */
-  register(controllers: Function[]): void {
-    this.router.registerControllers(controllers);
-  }
   /** HTTP request lifecycle */
   private async lifecycle(req: IncomingMessage, res: ServerResponse) {
     const context = new Context(req, res);
@@ -48,29 +44,38 @@ export class Application {
     ctx.cache = this.cache;
     ctx.settings = this.settings;
     setPoweredByHeader(res, this.settings);
+    const bodyParser = this.coreModule.bodyParser(req, this.settings[KEY_SETTINGS.BODY_PARSER]);
+    const { bodyRaw, bodySize, body } = await bodyParser.parse();
+    let errorContext = ContextFactory.createErrorContext(ctx, null);
+    // Set parsed body
     try {
-      await this.middleware.run(ctx, async () => {
-        if (ctx.req.method === 'POST' || ctx.req.method === 'PUT') {
-          await ctx.json();
-          ctx.res.setHeader('content-length', ctx.bodySize);
-        }
+      ctx.body = typeof body === 'string' ? JSON.parse(body) : body;
+    } catch (parseError: any) {
+      ctx.body = null; // Default if JSON parsing fails
+      errorContext = ContextFactory.createErrorContext(ctx, parseError);
+      errorContext.statusCode = 400;
+      errorContext.statusMessage = 'BAD_REQUEST';
+      errorContext.statusCodeClass = '4xx';
+      this.coreModule.events.emit(CoreEventType.Error, errorContext);
+      if (ctx.res.writableEnded) return;
+    }
+    ctx.bodySize = bodySize;
+    ctx.bodyRaw = bodyRaw;
+    ctx.res.setHeader('Content-Length', ctx.bodySize);
+    try {
+      await this.middleware.execute(ctx, async () => {
         await this.router.run(ctx);
       });
     } catch (error: any) {
       ctx.error = error;
-      this.coreModule.events.emit(CoreEventType.Error, {
-        method: ctx.req.method,
-        body: ctx.body,
-        headers: ctx.req.headers,
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        timestamp: new Date(),
-        error: error,
-        message: 'Internal Server Error',
-      });
+      errorContext = ContextFactory.createErrorContext(ctx, error);
+      this.coreModule.events.emit(CoreEventType.Error, errorContext);
+      errorContext.error = error;
+      if (ctx.res.writableEnded) return;
     }
   }
   onRoute(route: string, handler: EventHandler<CoreEventType.Route>): void {
-    this.coreModule.events.onRoute(route, handler);
+    this.coreModule.events.on(CoreEventType.Route, route, handler);
   }
 
   /**
@@ -114,19 +119,18 @@ export class Application {
   /** Start the server */
   listen(port?: number, hostname?: string, listeningListener?: () => void): void {
     // Default port and hostname
-    const serverPort = port || 3000;
-    const serverHostname = hostname || 'localhost';
-
+    const serverPort = port ?? 3000;
+    const serverHostname = hostname ?? 'localhost';
     // Emit the start event after the application is fully initialized
-    this.coreModule.events.emit(CoreEventType.Start, {
-      timestamp: new Date(),
-      environment: this.settings[KEY_SETTINGS.ENVIRONMENT],
-      serverId: this.settings[KEY_SETTINGS.SERVER_ID],
-      hostname: serverHostname,
-      version: this.settings[KEY_SETTINGS.APP_VERSION] || 'v1.0.0',
-      uptime: process.uptime(),
-      nodeVersion: process.version,
-    });
+    this.coreModule.events.emit(
+      CoreEventType.Start,
+      ContextFactory.createStartContext(this.settings[KEY_SETTINGS.ENVIRONMENT]!, {
+        hostname: serverHostname,
+        nodeVersion: process.version,
+        serverId: this.settings[KEY_SETTINGS.SERVER_ID]!,
+        version: this.settings[KEY_SETTINGS.APP_VERSION]!,
+      }),
+    );
 
     // Start the server
     this._server = createServer(this.lifecycle.bind(this));
@@ -135,19 +139,11 @@ export class Application {
     });
   }
   /** Stop the server */
-  stop(reason: ContextHandler['StopContext']['reason'], error?: Error, callback?: () => void): void {
+  stop(reason: LifecycleEvents['Stop']['reason'], error?: Error, callback?: () => void): void {
     if (this._server) {
       this._server.close(() => {
         // Create the context for the stop event
-        let stopContext: ContextHandler['StopContext'] = {
-          statusCode: 200, // Default status code (this could vary based on reason)
-          statusMessage: 'OK', // Default message
-          statusCodeClass: '2xx', // Default status class (you may modify this)
-          timestamp: new Date(),
-          reason: reason,
-          exitCode: process.exitCode,
-          error: error,
-        };
+        let stopContext = ContextFactory.createStopContext(reason, process.exitCode, error);
 
         // Modify statusCode, statusMessage, and statusCodeClass based on the reason or error
         switch (reason) {
@@ -187,19 +183,19 @@ export class Application {
     }
   }
   /** Set configuration values */
-  set(key: AppConfigKey, value: AppConfigValue): Application {
+  set(key: AppConfigKey, value: AppConfigValue): this {
     this.settings[key] = value;
     return this;
   }
 
   /** Enable specific feature */
-  enable(feature: AppConfigKey): Application {
+  enable(feature: AppConfigKey): this {
     this.set(feature, true);
     return this;
   }
 
   /** Disable specific feature */
-  disable(feature: AppConfigKey): Application {
+  disable(feature: AppConfigKey): this {
     this.set(feature, false);
     return this;
   }
@@ -207,5 +203,53 @@ export class Application {
   /** Get configuration value */
   get(key: AppConfigKey): any {
     return this.settings[key];
+  }
+
+  // Create the application instance
+  static create(rootModule: Constructor<any>, config?: AppConfig) {
+    const moduleMetadata = Reflector.get(ModuleMetadataKeys.MODULE, rootModule);
+    if (!moduleMetadata) {
+      throw new Error(`The provided class is not a valid module. Ensure it is decorated with @Module.`);
+    }
+    const app = new Application(config);
+    // Initialize the injector
+    const injector = Application.injector;
+    // Register all providers from the root module
+    this.registerModuleProviders(rootModule, injector);
+
+    // Resolve and instantiate controllers
+    const controllers = moduleMetadata.controllers || [];
+    controllers.forEach((controller: Constructor<any>) => {
+      const controllerPrefix = Reflector.get(RouterMetadataKeys.CONTROLLER_PREFIX, controller);
+      const routes = Reflector.get(RouterMetadataKeys.ROUTES, controller) || [];
+      const controllerInstance = Application.instantiateController(controller, injector);
+      routes.forEach((route: RouteDefinition) => {
+        route.path = `${controllerPrefix}${route.path}`;
+        route.action = route.action.bind(controllerInstance);
+      });
+    });
+    return app;
+  }
+  /**
+   * Recursively register providers from the module and its imports.
+   */
+  private static registerModuleProviders(module: Constructor<any>, injector: Injector) {
+    const moduleMetadata = Reflector.get(ModuleMetadataKeys.MODULE, module);
+    if (!moduleMetadata) return;
+
+    // Register module's own providers
+    (moduleMetadata.providers ?? []).forEach((provider: Provider) => {
+      injector.register(provider);
+    });
+
+    // Recursively register imported modules
+    (moduleMetadata.imports ?? []).forEach((importedModule: Constructor<any>) => {
+      this.registerModuleProviders(importedModule, injector);
+    });
+  }
+  private static instantiateController(controller: Constructor<any>, injector: Injector) {
+    const dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, controller) || [];
+    const resolvedDeps = dependencies.map((dep: any) => injector.resolve(dep.param));
+    return new controller(...resolvedDeps);
   }
 }

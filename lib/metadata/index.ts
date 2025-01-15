@@ -1,7 +1,6 @@
-import { RouterMetadataKeys } from '../common/constants';
-import { RouteDefinition } from '../common/interface/router.interface';
-import { MetadataKey, MetadataTarget, MetadataValue } from './Reflect.interface';
 import ReflectStorage from './reflect-metadata';
+import { RouterMetadataKeys } from '../common/enums';
+import { MetadataKey, MetadataTarget, MetadataValue, RouteDefinition } from '../common/interfaces';
 const Reflector = {
   define(metadataKey: MetadataKey, metadataValue: MetadataValue, target: MetadataTarget, propertyKey?: MetadataKey): void {
     const key = propertyKey ? `${String(propertyKey)}:${String(metadataKey)}` : metadataKey;
@@ -52,3 +51,4 @@ const Reflector = {
   },
 };
 export default Reflector;
+export * from './reflect-metadata';

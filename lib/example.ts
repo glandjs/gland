@@ -1,51 +1,54 @@
 import { Application } from './core/Application';
-import { Get } from './router/decorator/http';
-import { Controller } from './router/decorator/Controller';
-import { MiddlewareFn } from './common/interface/middleware.interface';
-import { MultiLang } from './router/decorator/MultiLang';
-import { HttpContext } from './types';
-import { Transform } from './router/decorator/Transform';
-import { Guard } from './router/decorator/Guards';
-import { Cache } from './router/decorator/Cache';
-const loggerMiddleware: MiddlewareFn = async (ctx, next) => {
-  console.log('Route-specific Middleware');
-  await next();
-};
-const globalLogger: MiddlewareFn = async (ctx, next) => {
-  console.log('Global MIddleware');
-  await next();
-};
-function Auth(ctx: HttpContext) {
-  console.log('Hello Guard');
-  ctx.res.writeHead(200, { 'Content-Type': 'text/plain' });
-  ctx.res.end(`End From Guard`);
-}
-@Controller('/users')
-class UsersController {
-  @Get('/:id', [loggerMiddleware])
-  @MultiLang({
-    en: '/users/:id',
-    fr: '/utilisateurs/:id',
-    es: '/usuarios/:id',
-  })
-  @Transform((ctx) => {
-    if (ctx.params.id) {
-      console.log('ctx.params.id', ctx.params.id);
-      ctx.params.id = +ctx.params.id;
-      console.log('ctx.params.id', ctx.params.id);
-    }
-  })
-  @Guard(Auth)
-  @Cache(30)
-  getUserById(ctx: HttpContext) {
-    const { id } = ctx.params;
-    console.log('typeof id', typeof id);
-    console.log('id', id);
-    ctx.res.writeHead(200, { 'Content-Type': 'text/plain' });
-    ctx.res.end(`User ID is: ${id}`);
+import { Get } from './decorator/http';
+import { Controller } from './decorator/Controller';
+import { Injectable, Module, Inject } from './decorator/module/Module';
+import { Guard } from './decorator/Guards';
+import { Transform } from './decorator/Transform';
+import { ServerRequest } from './common/interfaces';
+@Injectable()
+export class AppService {
+  getHello(): string {
+    return 'Hello World!';
   }
 }
-const app = new Application();
-app.use(globalLogger); // not work
-app.register([UsersController]);
-app.listen();
+function globalMid(ctx: ServerRequest, nxt: Function) {
+  console.log('GLobal Middleware');
+  nxt();
+}
+function routeMid(ctx: ServerRequest, nxt: Function) {
+  console.log('Route:GET Middleware');
+  nxt();
+}
+function auth(ctx: ServerRequest) {
+  console.log('auth guard');
+}
+@Controller('/app')
+export class AppController {
+  constructor(@Inject(AppService) private readonly appService: AppService) {}
+
+  @Get('/hello', [routeMid])
+  @Guard(auth)
+  @Transform((ctx) => {})
+  getHello(ctx: ServerRequest): void {
+    const text = this.appService.getHello();
+    ctx.send(text);
+  }
+}
+
+@Module({
+  controllers: [AppController],
+  providers: [
+    {
+      provide: AppService,
+      useClass: AppService,
+      scope: 'singleton',
+    },
+  ],
+})
+class AppModule {}
+
+const app = Application.create(AppModule);
+app.use(globalMid);
+app.listen(3000, 'localhost', () => {
+  console.log('Server Running on port 3000');
+});
