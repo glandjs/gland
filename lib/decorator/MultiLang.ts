@@ -17,18 +17,19 @@ import Reflector from '../metadata';
  *
  * class ExampleController {
  *   @MultiLanguage({
- *     en: '/test',     // English route
- *     fr: '/essai',    // French route
- *     default: '/test' // Default route
+ *     en: '/foo',     // English route
+ *     fr: '/bar',    // French route
+ *     default: '/foo' // Default route
  *   })
- *   public handleRequest(ctx: TransformContext) {
+ *   public handleRequest(ctx: ServerRequest) {
  *     console.log(`Selected language: ${ctx.language}`);
+ *     ctx.end()
  *   }
  * }
  * ```
  */
 export function MultiLanguage(translations: MultiLanguageContext): MethodDecorator {
   return (target) => {
-    Reflector.define(RouterMetadataKeys.MULTI_LANG, translations, target.constructor);
+    Reflector.define(RouterMetadataKeys.MULTI_LANGUAGE, translations, target.constructor);
   };
 }

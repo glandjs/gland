@@ -47,19 +47,16 @@ describe('Decorators - @Transform Decorator', () => {
       }
     });
 
-    // Simulating a class method decorated with @Transform
     class ExampleController {
       @Transform(transformFn)
       public handleRequest() {}
     }
 
-    // Simulate an empty context being passed to the transform function
     const ctx: TransformContext = {} as TransformContext;
     transformFn(ctx);
 
-    // Verifying that the transformation function handles an empty context gracefully
     expect(transformFn.calledOnce).to.be.true;
-    expect(ctx.body).to.equal(undefined); // No body should be set, transformation function should not throw
+    expect(ctx.body).to.equal(undefined);
   });
 
   it('should handle the Transform function with ss() format', () => {
@@ -69,7 +66,6 @@ describe('Decorators - @Transform Decorator', () => {
       }
     };
 
-    // Simulating a class method decorated with @Transform
     class ExampleController {
       @Transform(transformFn)
       public handleRequest() {}
@@ -79,10 +75,7 @@ describe('Decorators - @Transform Decorator', () => {
       body: { original: 'data' },
     };
 
-    // Apply the transformation function
     transformFn(ctx);
-
-    // Check if the transformation function modifies the body as expected
 
     expect(ctx.body?.modified).to.be.true;
     expect(ctx.body?.original).to.equal('data');
@@ -101,7 +94,6 @@ describe('Decorators - @Transform Decorator', () => {
       }
     });
 
-    // Simulating a class method decorated with @Transform twice
     class ExampleController {
       @Transform(transformFn1)
       @Transform(transformFn2)
@@ -112,28 +104,24 @@ describe('Decorators - @Transform Decorator', () => {
       body: { original: 'data' },
     };
 
-    // Apply both transformations
     transformFn1(ctx);
     transformFn2(ctx);
 
-    // Check if both transformations have been applied
     expect(ctx.body?.transformed1).to.be.true;
     expect(ctx.body?.transformed2).to.be.true;
     expect(ctx.body?.original).to.equal('data');
   });
 
   it('should throw error when transformation function is not passed', () => {
-    // Simulating a class method decorated with @Transform but without a function
     class ExampleController {
       @Transform(null as any)
       public handleRequest() {}
     }
 
     try {
-      // Trying to access metadata to test the error
       Reflector.define(RouterMetadataKeys.TRANSFORM, null, ExampleController, 'handleRequest');
     } catch (error: any) {
-      expect(error).to.be.instanceOf(TypeError); // Or any error you expect
+      expect(error).to.be.instanceOf(TypeError);
       expect(error.message).to.include('transformFn should be a function');
     }
   });
@@ -145,7 +133,6 @@ describe('Decorators - @Transform Decorator', () => {
       }
     };
 
-    // Simulating a class method decorated with @Transform
     class ExampleController {
       @Transform(transformFn)
       public handleRequest() {}
@@ -155,10 +142,8 @@ describe('Decorators - @Transform Decorator', () => {
       body: { user: { profile: { name: 'John' } } },
     };
 
-    // Apply the transformation function
     transformFn(ctx);
 
-    // Check if the nested properties are correctly transformed
     expect(ctx.body?.user.profile.updated).to.be.true;
     expect(ctx.body?.user.profile.name).to.equal('John');
   });

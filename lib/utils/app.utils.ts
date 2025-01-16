@@ -50,7 +50,6 @@ export class BodyParser {
         try {
           const rawBody = Buffer.concat(chunks);
           const bodyString = rawBody.toString(this.options.encoding);
-
           let parsedBody: ParsedBody['body'];
           if (!contentType) {
             parsedBody = { raw: bodyString };
@@ -59,15 +58,14 @@ export class BodyParser {
           } else if (contentType.includes('text/plain')) {
             parsedBody = { raw: bodyString };
           } else if (contentType.includes('application/x-www-form-urlencoded')) {
-            parsedBody = this.parseUrlEncoded(bodyString);
+            parsedBody = { raw: this.parseUrlEncoded(bodyString) };
           } else if (contentType.includes('text/html')) {
             parsedBody = { raw: bodyString };
           } else if (contentType.includes('image/') || contentType.includes('application/octet-stream')) {
-            parsedBody = rawBody;
+            parsedBody = { raw: rawBody };
           } else {
             parsedBody = { raw: bodyString };
           }
-
           resolve({
             body: parsedBody.raw,
             bodyRaw: rawBody,

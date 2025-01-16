@@ -17,7 +17,7 @@ export class Router {
     const method = ctx.req.method!;
     for (const route of routes) {
       if (method !== route.method) continue;
-      const multiLangRoutes = Reflector.get(RouterMetadataKeys.MULTI_LANG, route.constructor);
+      const multiLangRoutes = Reflector.get(RouterMetadataKeys.MULTI_LANGUAGE, route.constructor);
       if (multiLangRoutes) {
         const lang = ctx.language;
         let langPath = multiLangRoutes[lang];
