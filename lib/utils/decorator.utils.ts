@@ -1,4 +1,4 @@
-import { ServerRequest } from "../common/interfaces";
+import { ServerRequest } from '../common/interfaces';
 
 export function generateCacheKey(ctx: ServerRequest): string {
   return `${ctx.req.method}:${ctx.req.url}`;
@@ -38,5 +38,24 @@ export class RouteNormalizer {
     if (isStatic) {
       throw new Error(`Decorators cannot be applied to static methods: ${String(propertyKey)}`);
     }
+  }
+}
+/**
+ * Route Validation Utility to ensure valid prefix
+ */
+export class RouteValidation {
+  static isValidPath(path: string): boolean {
+    // Check if path is non-empty, non-null, and of type string
+    if (!path || typeof path !== 'string' || path.trim() === '') {
+      return false;
+    }
+
+    // Ensure path doesn't contain invalid characters such as '{}' or "'"
+    const invalidCharacters = /[{}'"]+/;
+    if (invalidCharacters.test(path)) {
+      return false;
+    }
+
+    return true;
   }
 }

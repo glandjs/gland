@@ -2,7 +2,7 @@ import { RequestMethod, RouterMetadataKeys } from '../common/enums';
 import { RouteDefinition } from '../common/interfaces';
 import { MiddlewareFn } from '../common/types';
 import Reflector from '../metadata';
-import { RouteNormalizer } from '../utils';
+import { RouteNormalizer, RouteValidation } from '../utils';
 /**
  * @module Route Decorators
  * @description
@@ -38,6 +38,10 @@ function createDecorator(method: RequestMethod) {
   return (path: string, middlewares?: MiddlewareFn[]): MethodDecorator => {
     if (!Object.values(RequestMethod).includes(method)) {
       throw new Error(`Invalid RequestMethod: ${method}`);
+    }
+    // Validate prefix using RouteValidation
+    if (!RouteValidation.isValidPath(path)) {
+      throw new Error(`Invalid route prefix: "${path}". Prefix cannot be empty or contain invalid characters.`);
     }
     return (target, propertyKey, descriptor) => {
       if (!descriptor || typeof descriptor.value !== 'function') {
