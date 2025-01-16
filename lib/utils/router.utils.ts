@@ -91,7 +91,7 @@ export class RequestInfo {
         return ips[0].trim();
       }
     }
-    return this.req.socket.remoteAddress || 'unknown';
+    return this.req?.socket?.remoteAddress || 'unknown';
   }
 
   get headers(): IncomingHttpHeaders {
