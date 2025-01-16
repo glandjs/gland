@@ -1,12 +1,11 @@
 import { Stream } from 'stream';
 import { IncomingMessage, ServerResponse } from 'http';
-import { Context } from 'mocha';
 import { HttpStatus } from '../enums';
 import { GlobalCache, ParsedBody } from '../types';
 import { AppConfig } from './app-settings.interface';
 import { RouteDefinition } from './router.interface';
 import { Application } from '../../core/Application';
-export type ServerRequest = Context & {
+export type ServerRequest = {
   req: IncomingMessage;
   res: ServerResponse;
   status: HttpStatus;

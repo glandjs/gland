@@ -1,5 +1,5 @@
-import { ModuleMetadataKeys } from '../../common/enums';
-import { ClassProvider, ValueProvider, FactoryProvider, ExistingProvider, Constructor } from '../../common/interfaces';
+import { ModuleMetadataKeys, RouterMetadataKeys } from '../../common/enums';
+import { ClassProvider, ValueProvider, FactoryProvider, ExistingProvider, Constructor, RouteDefinition } from '../../common/interfaces';
 import { InjectionToken, Provider } from '../../common/types';
 import Reflector from '../../metadata';
 
@@ -78,5 +78,40 @@ export class Injector {
 
   private isExistingProvider(provider: Provider): provider is ExistingProvider {
     return (provider as ExistingProvider).useExisting !== undefined;
+  }
+  private registerModuleDependencies(module: Constructor<any>) {
+    const moduleMetadata = Reflector.get(ModuleMetadataKeys.MODULE, module);
+    if (!moduleMetadata) return;
+
+    (moduleMetadata.providers ?? []).forEach((provider: Provider) => {
+      this.register(provider);
+    });
+
+    (moduleMetadata.imports ?? []).forEach((importedModule: Constructor<any>) => {
+      this.registerModuleDependencies(importedModule);
+    });
+  }
+  private createControllerInstance(controller: Constructor<any>) {
+    const dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, controller) || [];
+    const resolvedDeps = dependencies.map((dep: any) => this.resolve(dep.param));
+    return new controller(...resolvedDeps);
+  }
+  public initializeModule(rootModule: Constructor<any>) {
+    const moduleMetadata = Reflector.get(ModuleMetadataKeys.MODULE, rootModule);
+    if (!moduleMetadata) {
+      throw new Error(`The provided class is not a valid module. Ensure it is decorated with @Module.`);
+    }
+    this.registerModuleDependencies(rootModule);
+
+    const controllers = moduleMetadata.controllers || [];
+    controllers.forEach((controller: Constructor<any>) => {
+      const controllerPrefix = Reflector.get(RouterMetadataKeys.CONTROLLER_PREFIX, controller);
+      const routes = Reflector.get(RouterMetadataKeys.ROUTES, controller) || [];
+      const controllerInstance = this.createControllerInstance(controller);
+      routes.forEach((route: RouteDefinition) => {
+        route.path = `${controllerPrefix}${route.path}`;
+        route.action = route.action.bind(controllerInstance);
+      });
+    });
   }
 }

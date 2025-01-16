@@ -13,6 +13,7 @@ export class Context {
     this.ctx.send = this.send.bind(this);
     this.ctx.status = this.status;
     this.ctx.language = this.lang;
+    this.ctx.redirect = this.redirect.bind(this);
   }
   get status() {
     return this.ctx.res.statusCode;
@@ -105,5 +106,10 @@ export class Context {
         encoding,
       );
     }
+  }
+  redirect(url: string, status: HttpStatus = HttpStatus.MOVED_PERMANENTLY): void {
+    this.status = status;
+    this.res.setHeader('Location', url);
+    this.res.end();
   }
 }
