@@ -25,7 +25,6 @@ export function Inject(token?: InjectionToken): PropertyDecorator & ParameterDec
   const injectCallHasArguments = arguments.length > 0;
   return (target: object, key: string | symbol | undefined, index?: number) => {
     let type = token || Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, target, key!);
-    console.log('type', type);
 
     if (!type && !injectCallHasArguments) {
       type = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, target, key!)?.[index!];

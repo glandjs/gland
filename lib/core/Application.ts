@@ -205,51 +205,11 @@ export class Application {
     return this.settings[key];
   }
 
-  // Create the application instance
   static create(rootModule: Constructor<any>, config?: AppConfig) {
-    const moduleMetadata = Reflector.get(ModuleMetadataKeys.MODULE, rootModule);
-    if (!moduleMetadata) {
-      throw new Error(`The provided class is not a valid module. Ensure it is decorated with @Module.`);
-    }
     const app = new Application(config);
-    // Initialize the injector
+
     const injector = Application.injector;
-    // Register all providers from the root module
-    this.registerModuleProviders(rootModule, injector);
-
-    // Resolve and instantiate controllers
-    const controllers = moduleMetadata.controllers || [];
-    controllers.forEach((controller: Constructor<any>) => {
-      const controllerPrefix = Reflector.get(RouterMetadataKeys.CONTROLLER_PREFIX, controller);
-      const routes = Reflector.get(RouterMetadataKeys.ROUTES, controller) || [];
-      const controllerInstance = Application.instantiateController(controller, injector);
-      routes.forEach((route: RouteDefinition) => {
-        route.path = `${controllerPrefix}${route.path}`;
-        route.action = route.action.bind(controllerInstance);
-      });
-    });
+    injector.initializeModule(rootModule);
     return app;
-  }
-  /**
-   * Recursively register providers from the module and its imports.
-   */
-  private static registerModuleProviders(module: Constructor<any>, injector: Injector) {
-    const moduleMetadata = Reflector.get(ModuleMetadataKeys.MODULE, module);
-    if (!moduleMetadata) return;
-
-    // Register module's own providers
-    (moduleMetadata.providers ?? []).forEach((provider: Provider) => {
-      injector.register(provider);
-    });
-
-    // Recursively register imported modules
-    (moduleMetadata.imports ?? []).forEach((importedModule: Constructor<any>) => {
-      this.registerModuleProviders(importedModule, injector);
-    });
-  }
-  private static instantiateController(controller: Constructor<any>, injector: Injector) {
-    const dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, controller) || [];
-    const resolvedDeps = dependencies.map((dep: any) => injector.resolve(dep.param));
-    return new controller(...resolvedDeps);
   }
 }
