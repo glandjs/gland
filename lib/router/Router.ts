@@ -20,7 +20,11 @@ export class Router {
       const multiLangRoutes = Reflector.get(RouterMetadataKeys.MULTI_LANG, route.constructor);
       if (multiLangRoutes) {
         const lang = ctx.language;
-        const langPath = multiLangRoutes[lang];
+        let langPath = multiLangRoutes[lang];
+        if (!langPath) {
+          langPath = multiLangRoutes.default;
+        }
+        if (!langPath) continue;
         route.path = `${this.apiPrefix}${langPath}`;
       }
       const { path: routePath, constructor } = route;
