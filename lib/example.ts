@@ -11,28 +11,15 @@ export class AppService {
     return 'Hello World!';
   }
 }
-function globalMid(ctx: ServerRequest, nxt: Function) {
-  console.log('GLobal Middleware');
-  nxt();
-}
 function routeMid(ctx: ServerRequest, nxt: Function) {
   console.log('Route:GET Middleware');
   nxt();
-}
-function auth(ctx: ServerRequest) {
-  console.log('auth guard');
 }
 @Controller('/app')
 export class AppController {
   constructor(@Inject(AppService) private readonly appService: AppService) {}
 
   @Get('/hello', [routeMid])
-  @Guard(auth)
-  @Transform((ctx) => {
-    if (ctx.body && typeof ctx.body === 'object' && !Array.isArray(ctx.body)) {
-      ctx.body.transformed = true;
-    }
-  })
   getHello(ctx: ServerRequest): void {
     const text = this.appService.getHello();
     ctx.send(text);
@@ -52,7 +39,6 @@ export class AppController {
 class AppModule {}
 
 const app = Application.create(AppModule);
-app.use(globalMid);
 app.listen(3000, 'localhost', () => {
   console.log('Server Running on port 3000');
 });
