@@ -32,7 +32,7 @@ import Reflector from '../metadata';
  * ```
  */
 export function Transform(transformFn: (ctx: TransformContext) => void): MethodDecorator {
-  return (target: any, propertyKey) => {
+  return (target, propertyKey) => {
     Reflector.define(RouterMetadataKeys.TRANSFORM, transformFn, target.constructor, propertyKey);
   };
 }

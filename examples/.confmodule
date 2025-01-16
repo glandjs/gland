@@ -1,7 +1,0 @@
-path = path.join(__dirname, 'router');
-router {
-    [0]: 'index.ts';
-    [1]: 'test.ts'
-}
-cache=true;
-watch= false;

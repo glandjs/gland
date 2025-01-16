@@ -42,8 +42,8 @@ export class BodyParser {
         // If no body content was sent, return undefined for body, bodySize, and bodyRaw
         if (chunks.length === 0) {
           return resolve({
-            body: undefined,
-            bodyRaw: undefined,
+            body: null,
+            bodyRaw: null,
             bodySize: 0,
           });
         }
@@ -52,25 +52,24 @@ export class BodyParser {
           const bodyString = rawBody.toString(this.options.encoding);
 
           let parsedBody: ParsedBody['body'];
-
           if (!contentType) {
-            parsedBody = bodyString; // Default to text/plain if no content type
+            parsedBody = { raw: bodyString };
           } else if (contentType.includes('application/json')) {
-            parsedBody = JSON.parse(bodyString);
+            parsedBody = { raw: JSON.parse(bodyString) };
           } else if (contentType.includes('text/plain')) {
-            parsedBody = bodyString;
+            parsedBody = { raw: bodyString };
           } else if (contentType.includes('application/x-www-form-urlencoded')) {
             parsedBody = this.parseUrlEncoded(bodyString);
           } else if (contentType.includes('text/html')) {
-            parsedBody = bodyString; // Treat HTML as plain text
+            parsedBody = { raw: bodyString };
           } else if (contentType.includes('image/') || contentType.includes('application/octet-stream')) {
-            parsedBody = rawBody; // Binary data for images and files
+            parsedBody = rawBody;
           } else {
-            parsedBody = bodyString; // Fallback for unknown types
+            parsedBody = { raw: bodyString };
           }
 
           resolve({
-            body: parsedBody,
+            body: parsedBody.raw,
             bodyRaw: rawBody,
             bodySize,
           });

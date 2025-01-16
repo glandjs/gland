@@ -67,12 +67,12 @@ export interface TransformContext {
   query?: ServerRequest['query'];
   body?: ServerRequest['body'];
   headers?: ServerRequest['req']['headers'];
-  method: ServerRequest['req']['method'];
-  path: RouteDefinition['path'];
-  clientIp: ServerRequest['clientIp'];
+  method?: ServerRequest['req']['method'];
+  path?: RouteDefinition['path'];
+  clientIp?: ServerRequest['clientIp'];
   userAgent?: string;
   cookies?: Record<string, string>;
-  protocol: 'http' | 'https';
+  protocol?: 'http' | 'https';
   referer?: string;
   acceptedLanguages?: string[] | string;
 }

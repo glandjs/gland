@@ -4,7 +4,7 @@ import { Controller } from './decorator/Controller';
 import { Injectable, Module, Inject } from './decorator/module/Module';
 import { Guard } from './decorator/Guards';
 import { Transform } from './decorator/Transform';
-import { ServerRequest } from './common/interfaces';
+import { ServerRequest, TransformContext } from './common/interfaces';
 @Injectable()
 export class AppService {
   getHello(): string {
@@ -28,7 +28,11 @@ export class AppController {
 
   @Get('/hello', [routeMid])
   @Guard(auth)
-  @Transform((ctx) => {})
+  @Transform((ctx) => {
+    if (ctx.body && typeof ctx.body === 'object' && !Array.isArray(ctx.body)) {
+      ctx.body.transformed = true;
+    }
+  })
   getHello(ctx: ServerRequest): void {
     const text = this.appService.getHello();
     ctx.send(text);
