@@ -1,8 +1,7 @@
 import { CoreEventType } from '../common/enums';
 import { LifecycleEvents } from '../common/interfaces';
-import { EventHandler } from '../common/types';
+import { EventHandler, EventListener } from '../common/types';
 
-type EventListener<T extends CoreEventType> = { route: string; handler: EventHandler<T> } | { handler: EventHandler<T> };
 export class EventSystem {
   private events: Partial<Record<CoreEventType, EventListener<any>[]>> = {};
   /**
@@ -76,7 +75,7 @@ export class EventSystem {
     const route = event === CoreEventType.Route ? args[0] : undefined;
 
     const onceHandler = async (...onceArgs: any[]) => {
-      this.off(event, handler, route);
+      this.off(event, onceHandler, route);
       return handler(...onceArgs);
     };
 

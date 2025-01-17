@@ -1,14 +1,13 @@
 import { IncomingMessage, ServerResponse, Server, createServer } from 'http';
-import Reflector from '../metadata';
 import { CoreModule } from './CoreModule';
 import { Router } from '../router';
 import { MiddlewareStack } from '../middleware';
 import { setPoweredByHeader } from '../utils';
 import { Context, ContextFactory } from '../context';
 import { Injector } from '../decorator';
-import { AppConfig, Constructor, LifecycleEvents, RouteDefinition } from '../common/interfaces';
-import { CoreEventType, KEY_SETTINGS, ModuleMetadataKeys, RouterMetadataKeys } from '../common/enums';
-import { AppConfigKey, AppConfigValue, EventHandler, EventType, GlobalCache, MiddlewareFn, Provider } from '../common/types';
+import { AppConfig, Constructor, LifecycleEvents } from '../common/interfaces';
+import { CoreEventType, KEY_SETTINGS } from '../common/enums';
+import { AppConfigKey, AppConfigValue, EventHandler, EventType, GlobalCache, MiddlewareFn } from '../common/types';
 export class Application {
   private readonly coreModule: CoreModule;
   private readonly router: Router;
