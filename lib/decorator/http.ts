@@ -48,13 +48,10 @@ function createDecorator(method: RequestMethod) {
         throw new Error(`@${method} decorator must be applied to a method.`);
       }
       RouteNormalizer.validateMethod(target, propertyKey);
-      const controllerPrefix = Reflector.get(RouterMetadataKeys.CONTROLLER_PREFIX, target.constructor);
-      const normalizedPath = RouteNormalizer.normalizePath(path);
-      const fullPath = RouteNormalizer.combinePaths(controllerPrefix, normalizedPath);
       const existingRoutes: RouteDefinition[] = Reflector.get(RouterMetadataKeys.ROUTES, target.constructor) ?? [];
       existingRoutes.push({
         method,
-        path: fullPath,
+        path: RouteNormalizer.normalizePath(path),
         constructor: target.constructor,
         action: descriptor.value,
         middlewares: middlewares ?? [],

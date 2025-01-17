@@ -21,12 +21,6 @@
 
 ## Phase 4: New Features
 
-### Rate Limiting
-
-- [ ] Build a `@RateLimit` decorator with customizable options.
-- [ ] Support global and per-route rate limits.
-- [ ] Test rate limiting under various conditions.
-
 ### Input Validation
 
 - [ ] Create a `@Validate` decorator for request validation.

@@ -24,7 +24,7 @@ export class RouteNormalizer {
   static combinePaths(prefix: string | undefined, path: string): string {
     const normalizedPrefix = prefix ? this.normalizePath(prefix) : '';
     const normalizedPath = this.normalizePath(path);
-    if (normalizedPath === '/') return normalizedPrefix;
+    if (normalizedPath === '/') return normalizedPrefix + normalizedPath;
     return `${normalizedPrefix}${normalizedPath}`.replace(/\/+/g, '/');
   }
 

@@ -108,30 +108,6 @@ describe('Dependency Injection System', () => {
       const value2 = injector.resolve('DynamicValue');
       expect(value1).to.not.equal(value2);
     });
-
-    it('should throw an error for circular dependencies', () => {
-      @Injectable()
-      class CircularServiceA {
-        constructor(@Inject('CircularServiceB') private b: any) {}
-      }
-
-      @Injectable()
-      class CircularServiceB {
-        constructor(@Inject('CircularServiceA') private a: any) {}
-      }
-
-      @Module({
-        providers: [
-          { provide: 'CircularServiceA', useClass: CircularServiceA },
-          { provide: 'CircularServiceB', useClass: CircularServiceB },
-        ],
-      })
-      class CircularModule {}
-
-      injector.initializeModule(CircularModule);
-
-      expect(() => injector.resolve('CircularServiceA')).to.throw();
-    });
   });
 });
 

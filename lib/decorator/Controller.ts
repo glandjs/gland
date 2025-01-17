@@ -1,4 +1,5 @@
 import { RouterMetadataKeys } from '../common/enums';
+import { RouteDefinition } from '../common/interfaces';
 import Reflector from '../metadata';
 import { RouteNormalizer, RouteValidation } from '../utils';
 /**
@@ -26,7 +27,6 @@ import { RouteNormalizer, RouteValidation } from '../utils';
  */
 export function Controller(prefix: string): ClassDecorator {
   return (target) => {
-    // Validate prefix using RouteValidation
     if (!RouteValidation.isValidPath(prefix)) {
       throw new Error(`Invalid route prefix: "${prefix}". Prefix cannot be empty or contain invalid characters.`);
     }
@@ -35,6 +35,10 @@ export function Controller(prefix: string): ClassDecorator {
     if (existingPrefix) {
       fullPrefix = RouteNormalizer.combinePaths(existingPrefix, prefix);
     }
+    const routes: RouteDefinition[] = Reflector.get(RouterMetadataKeys.ROUTES, target) ?? [];
+    routes.forEach((route) => {
+      route.path = RouteNormalizer.combinePaths(fullPrefix, route.path);
+    });
     Reflector.define(RouterMetadataKeys.CONTROLLER_PREFIX, fullPrefix, target);
   };
 }

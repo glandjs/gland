@@ -9,8 +9,10 @@ export class Router {
   constructor(private apiPrefix: string, private events: EventSystem) {}
   findMatch(ctx: ServerRequest): RouteDefinition | null {
     const allRoutes = Reflector.getRoutes();
-    const fullPath = `${this.apiPrefix}${ctx.req.url}`;
-
+    let fullPath = `${this.apiPrefix}${ctx.req.url}`;
+    if (fullPath.endsWith('/')) {
+      fullPath = fullPath.slice(0, -1); // Remove trailing slash
+    }
     return this.findRecursive(ctx, allRoutes, fullPath);
   }
   private findRecursive(ctx: ServerRequest, routes: RouteDefinition[], fullPath: string): RouteDefinition | null {
@@ -27,7 +29,11 @@ export class Router {
         if (!langPath) continue;
         route.path = `${this.apiPrefix}${langPath}`;
       }
-      const { path: routePath, constructor } = route;
+      let { path: routePath, constructor } = route;
+      // Normalize the route path by removing the trailing slash if present
+      if (routePath.endsWith('/')) {
+        routePath = routePath.slice(0, -1); // Remove trailing slash
+      }
       const paramRegex = routePath.replace(RouterUtils.PARAMETER, '([^/]+)');
       const regex = new RegExp(`^${paramRegex}$`);
       const pathWithoutQuery = fullPath.split('?')[0];
@@ -58,7 +64,8 @@ export class Router {
     if (!route) {
       return;
     }
-    const { middlewares, params, query } = route;
+    const { middlewares, params, query, constructor } = route;
+    const controllerMiddlewares = Reflector.get(RouterMetadataKeys.MIDDLEWARES, constructor) || [];
     ctx.params = params ?? {};
     ctx.clientIp = requestInfo.ip;
     ctx.query = query ?? {};
@@ -85,7 +92,7 @@ export class Router {
     await this.events.emit(CoreEventType.Route, routeContext);
 
     const middlewareExecutor = new MiddlewareStack();
-    middlewareExecutor.use(...middlewares!);
+    middlewareExecutor.use(...middlewares!, ...controllerMiddlewares);
 
     await middlewareExecutor.execute(ctx, async () => {
       await ActionHandler.wrappedAction({ ctx, route, requestInfo });
