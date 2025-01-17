@@ -1,5 +1,6 @@
 import { CoreEventType, HttpStatus } from '../enums';
 import { EventHandlers, RouteDefinition, ServerRequest } from '../interfaces';
+export type EventListener<T extends CoreEventType> = { route: string; handler: EventHandler<T> } | { handler: EventHandler<T> };
 
 export type EventHandlerMap = {
   [CoreEventType.Start]: EventHandlers['StartHandler'];
@@ -24,5 +25,5 @@ export type CommonContextProps = {
   timestamp?: Date;
   statusMessage?: keyof typeof HttpStatus;
   statusCodeClass?: '1xx' | '2xx' | '3xx' | '4xx' | '5xx' | 'Unknown';
-  ctx: ServerRequest;
+  ctx?: ServerRequest;
 };

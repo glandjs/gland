@@ -25,14 +25,15 @@ import Reflector from '../metadata';
  *       ctx.body.modified = true;
  *     }
  *   })
- *   public handleRequest() {
+ *   public handleRequest(ctx: ServerRequest) {
  *     console.log('Request handled');
+ *     ctx.res.end("Hello, World")
  *   }
  * }
  * ```
  */
 export function Transform(transformFn: (ctx: TransformContext) => void): MethodDecorator {
-  return (target: any, propertyKey) => {
+  return (target, propertyKey) => {
     Reflector.define(RouterMetadataKeys.TRANSFORM, transformFn, target.constructor, propertyKey);
   };
 }

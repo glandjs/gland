@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "mocha"],
+    "esModuleInterop": true
+  },
+  "include": [
+    "lib/**/*.ts", // Include lib directory files
+    "test/**/*.ts", // Include test directory files
+    "lib/common/types/*.d.ts" // Include type definitions
+  ],
+  "exclude": ["node_modules", "dist"]
+}

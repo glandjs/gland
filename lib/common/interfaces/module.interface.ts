@@ -25,9 +25,17 @@ export interface ExistingProvider {
   provide: InjectionToken;
   useExisting: InjectionToken; // An alias for another provider
 }
+export type ImportableModule = Constructor<any> | DynamicModule;
 
+export interface DynamicModule {
+  module: Constructor<any>;
+  providers?: Provider[];
+  exports?: InjectionToken[]; // Tokens to make available to other modules
+  imports?: ImportableModule[]; // Nested imports for the dynamic module
+}
 export interface ModuleMetadata {
   controllers?: Constructor<any>[];
-
   providers?: Provider[];
+  imports?: ImportableModule[]; // Other modules or dynamic modules imported
+  exports?: InjectionToken[];
 }
