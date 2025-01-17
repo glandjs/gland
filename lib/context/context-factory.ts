@@ -1,6 +1,6 @@
 import { RequestInfo } from '../utils';
 import { Environment } from '../common/enums';
-import { RouteDefinition, LifecycleEvents, ServerRequest, TransformContext } from '../common/interfaces';
+import { RouteDefinition, LifecycleEvents, ServerRequest, TransformContext, AppConfig } from '../common/interfaces';
 
 export class ContextFactory {
   /**
@@ -89,7 +89,7 @@ export class ContextFactory {
    * @param environment - The runtime environment (e.g., production, development)
    * @param appInfo - Application-related metadata
    */
-  static createStartContext(environment: Environment, appInfo: { serverId: string; hostname: string; version: string; nodeVersion: string }): LifecycleEvents['Start'] {
+  static createStartContext(environment: AppConfig['environment'], appInfo: { serverId: string; hostname: string; version: string; nodeVersion: string }): LifecycleEvents['Start'] {
     return {
       timestamp: new Date(),
       environment,

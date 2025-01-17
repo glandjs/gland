@@ -1,5 +1,5 @@
 import { ModuleMetadataKeys } from '../../common/enums';
-import { ModuleMetadata } from '../../common/interfaces';
+import { ClassProvider, ModuleMetadata } from '../../common/interfaces';
 import { InjectionToken } from '../../common/types';
 import Reflector from '../../metadata';
 export function Module(metadata: ModuleMetadata): ClassDecorator {
@@ -12,7 +12,7 @@ export function Module(metadata: ModuleMetadata): ClassDecorator {
   };
 }
 
-export function Injectable(options?: { scope?: string }): ClassDecorator {
+export function Injectable(options?: { scope?: ClassProvider['scope'] }): ClassDecorator {
   return (target: any) => {
     Reflector.define(ModuleMetadataKeys.INJECTABLES, true, target);
 

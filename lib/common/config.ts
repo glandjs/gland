@@ -1,11 +1,10 @@
-import { Environment } from './enums';
 import { IDManager } from './IDManager';
 import { AppConfig } from './interfaces';
 import { RouterUtils } from '../utils';
 export const defaultConfig: AppConfig = {
   app_name: 'GlandMyApp',
   app_version: '1.0.0',
-  environment: Environment.DEVELOPMENT,
+  environment: 'DEVELOPMENT',
   server_id: IDManager.generateServerId(),
 
   paths: {

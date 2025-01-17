@@ -21,9 +21,6 @@ export class Application {
     this.middleware = this.coreModule.middleware;
     // Use settings in config
     this.settings = this.coreModule.config.getAllSettings();
-    const appName = this.settings?.[KEY_SETTINGS.APP_NAME];
-    const environment = this.settings?.[KEY_SETTINGS.ENVIRONMENT];
-    this.coreModule.logger.info(`${appName} is running in ${environment} mode`);
   }
   /** Expose Cache System */
   get cache(): GlobalCache {
@@ -116,14 +113,14 @@ export class Application {
   }
 
   /** Start the server */
-  listen(port?: number, hostname?: string, listeningListener?: () => void): void {
+  listen(port?: number, hostname?: string, listeningListener?: (port: number, hostname: string) => void): void {
     // Default port and hostname
     const serverPort = port ?? 3000;
     const serverHostname = hostname ?? 'localhost';
     // Emit the start event after the application is fully initialized
     this.coreModule.events.emit(
       CoreEventType.Start,
-      ContextFactory.createStartContext(this.settings[KEY_SETTINGS.ENVIRONMENT]!, {
+      ContextFactory.createStartContext(this.settings.environment, {
         hostname: serverHostname,
         nodeVersion: process.version,
         serverId: this.settings[KEY_SETTINGS.SERVER_ID]!,
@@ -134,7 +131,7 @@ export class Application {
     // Start the server
     this._server = createServer(this.lifecycle.bind(this));
     this._server.listen(serverPort, serverHostname, () => {
-      listeningListener?.();
+      listeningListener?.(serverPort, serverHostname);
     });
   }
   /** Stop the server */

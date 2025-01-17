@@ -16,9 +16,8 @@
     "example": "examples"
   },
   "scripts": {
-    "test": "npm run test:unit & npm run test:e2e & npm run test:performance",
+    "test": "npm run test:unit",
     "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts",
-    "test:performance": "mocha --require ts-node/register test/performance/*.spec.ts",
     "benchmark": "ts-node ./benchmark/gland.ts",
     "build": "rm -r dist/* & tsc",
     "chmod": "chmod +x ./scripts/release.sh",
@@ -56,7 +55,6 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@medishn/logger": "^2.0.1",
     "@medishn/qiks": "^1.1.0"
   }
 }

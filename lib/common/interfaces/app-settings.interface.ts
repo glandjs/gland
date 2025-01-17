@@ -6,7 +6,7 @@ import { BodyParserOptions } from './app.interface';
 export interface AppConfig {
   [KEY_SETTINGS.APP_NAME]?: string;
   [KEY_SETTINGS.APP_VERSION]?: string;
-  [KEY_SETTINGS.ENVIRONMENT]?: Environment;
+  [KEY_SETTINGS.ENVIRONMENT]?: keyof typeof Environment;
   [KEY_SETTINGS.SERVER_ID]?: string;
   [KEY_SETTINGS.PATHS]?: PathConfig;
   [KEY_SETTINGS.CACHE]?: CacheConfigQiks<string>;
