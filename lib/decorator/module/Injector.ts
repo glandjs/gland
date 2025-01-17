@@ -44,11 +44,20 @@ export class Injector {
 
     throw new Error(`Invalid provider type for ${String(token)}`);
   }
-
+  private createControllerInstance(controller: Constructor<any>) {
+    const dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, controller) ?? [];
+    const resolvedDeps = dependencies.map((dep: any) => this.resolve(dep?.param));
+    return new controller(...resolvedDeps);
+  }
   private instantiate<T>(ctor: Constructor<T>): T {
-    const dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, ctor) ?? [];
-    const resolvedDeps = dependencies.map((dep: any) => this.resolve(dep.param));
-    return new ctor(...resolvedDeps);
+    const controllerInstance = this.createControllerInstance(ctor)
+    const injectedProperties = Reflector.get(ModuleMetadataKeys.INJECT_DEPENDENCY, ctor) ?? [];
+    injectedProperties.forEach(({ key, type }: any) => {
+      const value = this.resolve(type);
+      (controllerInstance as any)[key] = value;
+    });
+
+    return controllerInstance;
   }
 
   private instantiateFactory<T>(provider: FactoryProvider<T>): T | Promise<T> {
@@ -81,6 +90,7 @@ export class Injector {
   private registerModuleDependencies(moduleMetadata: ModuleMetadata, parentModule?: Constructor<any>) {
     (moduleMetadata.providers ?? []).forEach((provider: Provider) => {
       this.register(provider);
+      this.resolve(provider.provide);
     });
 
     const exportedTokens = moduleMetadata.exports ?? [];
@@ -104,7 +114,11 @@ export class Injector {
       (importedMetadata.exports ?? []).forEach((exportedToken) => {
         const provider = this.resolve(exportedToken);
         this.container.set(exportedToken, provider);
+        this.resolve(exportedToken);
       });
+    });
+    (moduleMetadata.controllers ?? []).forEach((controller: Constructor) => {
+      this.registerController(controller);
     });
   }
 
@@ -114,12 +128,14 @@ export class Injector {
     }
     return Reflector.get(ModuleMetadataKeys.MODULE, module);
   }
-
-  private createControllerInstance(controller: Constructor<any>) {
-    const dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, controller) ?? [];
-    const resolvedDeps = dependencies.map((dep: any) => this.resolve(dep?.param));
-    return new controller(...resolvedDeps);
+  private registerController<T>(controller: Constructor<T>) {
+    const routes = Reflector.get(RouterMetadataKeys.ROUTES, controller) ?? [];
+    const controllerInstance = this.createControllerInstance(controller);
+    routes.forEach((route: RouteDefinition) => {
+      route.action = route.action.bind(controllerInstance);
+    });
   }
+
   public initializeModule(rootModule: Constructor<any>) {
     const moduleMetadata = Reflector.get(ModuleMetadataKeys.MODULE, rootModule);
 
@@ -127,16 +143,5 @@ export class Injector {
       throw new Error(`The provided class is not a valid module. Ensure it is decorated with @Module.`);
     }
     this.registerModuleDependencies(moduleMetadata);
-
-    const controllers = moduleMetadata.controllers ?? [];
-    controllers.forEach((controller: Constructor<any>) => {
-      const controllerPrefix = Reflector.get(RouterMetadataKeys.CONTROLLER_PREFIX, controller);
-      const routes = Reflector.get(RouterMetadataKeys.ROUTES, controller) ?? [];
-      const controllerInstance = this.createControllerInstance(controller);
-      routes.forEach((route: RouteDefinition) => {
-        route.path = `${controllerPrefix}${route.path}`;
-        route.action = route.action.bind(controllerInstance);
-      });
-    });
   }
 }

@@ -156,14 +156,7 @@ export class ActionHandler {
     if (ctx.res.writableEnded) return;
 
     if (result !== undefined) {
-      if (typeof result === 'object') {
-        ctx.res.setHeader('Content-Type', 'application/json');
-        ctx.send({ statusCode: HttpStatus.OK, message: 'OK', data: result });
-      } else {
-        ctx.send({ statusCode: HttpStatus.OK, message: 'OK', data: result });
-      }
-    } else {
-      ctx.send({ statusCode: HttpStatus.NO_CONTENT, message: 'No Content' });
+      ctx.send(result);
     }
   }
   static async wrappedAction({ ctx, route, requestInfo }: { ctx: ServerRequest; route: RouteDefinition; requestInfo: RequestInfo }) {
