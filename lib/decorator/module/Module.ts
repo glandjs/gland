@@ -24,20 +24,20 @@ export function Injectable(options?: { scope?: string }): ClassDecorator {
 export function Inject(token?: InjectionToken): PropertyDecorator & ParameterDecorator {
   const injectCallHasArguments = arguments.length > 0;
   return (target: object, key: string | symbol | undefined, index?: number) => {
-    let type = token || Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, target, key!);
+    let type = token ?? Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, target, key!);
 
     if (!type && !injectCallHasArguments) {
       type = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, target, key!)?.[index!];
     }
     if (typeof index === 'number') {
-      let dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, target) || [];
+      let dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, target) ?? [];
 
       dependencies = [...dependencies, { index, param: type }];
       Reflector.define(ModuleMetadataKeys.PARAM_DEPENDENCIES, dependencies, target);
       return;
     }
 
-    let properties = Reflector.get(ModuleMetadataKeys.INJECT_DEPENDENCY, target.constructor) || [];
+    let properties = Reflector.get(ModuleMetadataKeys.INJECT_DEPENDENCY, target.constructor) ?? [];
 
     properties = [...properties, { key, type }];
     Reflector.define(ModuleMetadataKeys.INJECT_DEPENDENCY, properties, target.constructor);

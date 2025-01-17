@@ -1,5 +1,5 @@
 import { ModuleMetadataKeys, RouterMetadataKeys } from '../../common/enums';
-import { ClassProvider, ValueProvider, FactoryProvider, ExistingProvider, Constructor, RouteDefinition } from '../../common/interfaces';
+import { ClassProvider, ValueProvider, FactoryProvider, ExistingProvider, Constructor, RouteDefinition, ModuleMetadata, ImportableModule, DynamicModule } from '../../common/interfaces';
 import { InjectionToken, Provider } from '../../common/types';
 import Reflector from '../../metadata';
 
@@ -18,9 +18,9 @@ export class Injector {
     }
 
     if (this.isClassProvider(provider)) {
-      const instance = this.instantiate(provider.useClass);
+      const instance = this.scopeContainer.has(token) ? this.scopeContainer.get(token) : this.instantiate(provider.useClass);
 
-      if (provider.scope === 'singleton') {
+      if (!this.scopeContainer.has(token) && provider.scope !== 'transient') {
         this.scopeContainer.set(token, instance);
       }
       return instance;
@@ -35,33 +35,32 @@ export class Injector {
     }
 
     if (this.isExistingProvider(provider)) {
-      return this.resolve(provider.useExisting);
+      const existingInstance = this.resolve(provider.useExisting);
+      if (!this.scopeContainer.has(token)) {
+        this.scopeContainer.set(token, existingInstance);
+      }
+      return existingInstance;
     }
 
     throw new Error(`Invalid provider type for ${String(token)}`);
   }
 
   private instantiate<T>(ctor: Constructor<T>): T {
-    const dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, ctor) || [];
+    const dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, ctor) ?? [];
     const resolvedDeps = dependencies.map((dep: any) => this.resolve(dep.param));
     return new ctor(...resolvedDeps);
   }
 
   private instantiateFactory<T>(provider: FactoryProvider<T>): T | Promise<T> {
     const dependencies = provider.inject?.map((dep) => this.resolve(dep));
-    return provider.useFactory(...(dependencies || []));
+    return provider.useFactory(...(dependencies ?? []));
   }
 
   register(provider: Provider) {
-    if (this.isClassProvider(provider)) {
-      this.container.set(provider.provide, provider);
-    } else if (this.isValueProvider(provider)) {
-      this.container.set(provider.provide, provider);
-    } else if (this.isFactoryProvider(provider)) {
-      this.container.set(provider.provide, provider);
-    } else if (this.isExistingProvider(provider)) {
-      this.container.set(provider.provide, provider);
+    if (!this.isClassProvider(provider) && !this.isValueProvider(provider) && !this.isFactoryProvider(provider) && !this.isExistingProvider(provider)) {
+      throw new Error(`Invalid provider type for ${String((provider as any).provide)}`);
     }
+    this.container.set(provider.provide, provider);
   }
 
   private isClassProvider(provider: Provider): provider is ClassProvider {
@@ -79,34 +78,60 @@ export class Injector {
   private isExistingProvider(provider: Provider): provider is ExistingProvider {
     return (provider as ExistingProvider).useExisting !== undefined;
   }
-  private registerModuleDependencies(module: Constructor<any>) {
-    const moduleMetadata = Reflector.get(ModuleMetadataKeys.MODULE, module);
-    if (!moduleMetadata) return;
-
+  private registerModuleDependencies(moduleMetadata: ModuleMetadata, parentModule?: Constructor<any>) {
     (moduleMetadata.providers ?? []).forEach((provider: Provider) => {
       this.register(provider);
     });
 
-    (moduleMetadata.imports ?? []).forEach((importedModule: Constructor<any>) => {
-      this.registerModuleDependencies(importedModule);
+    const exportedTokens = moduleMetadata.exports ?? [];
+    exportedTokens.forEach((token) => {
+      const provider = this.container.get(token);
+      if (!provider) {
+        throw new Error(`Cannot export unknown provider: ${String(token)}`);
+      }
+
+      this.container.set(token, provider);
+    });
+
+    (moduleMetadata.imports ?? []).forEach((importedModule: ImportableModule) => {
+      const importedMetadata = this.getModuleMetadata(importedModule);
+      if (!importedMetadata) {
+        throw new Error(`Invalid imported module: ${String(importedModule)}`);
+      }
+
+      this.registerModuleDependencies(importedMetadata);
+
+      (importedMetadata.exports ?? []).forEach((exportedToken) => {
+        const provider = this.resolve(exportedToken);
+        this.container.set(exportedToken, provider);
+      });
     });
   }
+
+  private getModuleMetadata(module: ImportableModule): ModuleMetadata | null {
+    if ('module' in module) {
+      return Reflector.get(ModuleMetadataKeys.MODULE, module.module);
+    }
+    return Reflector.get(ModuleMetadataKeys.MODULE, module);
+  }
+
   private createControllerInstance(controller: Constructor<any>) {
-    const dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, controller) || [];
-    const resolvedDeps = dependencies.map((dep: any) => this.resolve(dep.param));
+    const dependencies = Reflector.get(ModuleMetadataKeys.PARAM_DEPENDENCIES, controller) ?? [];
+    const resolvedDeps = dependencies.map((dep: any) => this.resolve(dep?.param));
     return new controller(...resolvedDeps);
   }
   public initializeModule(rootModule: Constructor<any>) {
     const moduleMetadata = Reflector.get(ModuleMetadataKeys.MODULE, rootModule);
+
     if (!moduleMetadata) {
       throw new Error(`The provided class is not a valid module. Ensure it is decorated with @Module.`);
     }
-    this.registerModuleDependencies(rootModule);
+    this.registerModuleDependencies(moduleMetadata);
 
-    const controllers = moduleMetadata.controllers || [];
+    const controllers = moduleMetadata.controllers ?? [];
     controllers.forEach((controller: Constructor<any>) => {
       const controllerPrefix = Reflector.get(RouterMetadataKeys.CONTROLLER_PREFIX, controller);
-      const routes = Reflector.get(RouterMetadataKeys.ROUTES, controller) || [];
+      const routes = Reflector.get(RouterMetadataKeys.ROUTES, controller) ?? [];
       const controllerInstance = this.createControllerInstance(controller);
       routes.forEach((route: RouteDefinition) => {
         route.path = `${controllerPrefix}${route.path}`;
