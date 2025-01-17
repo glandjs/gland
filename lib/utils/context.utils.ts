@@ -87,17 +87,8 @@ export function calculateContentLength(chunk: ResponseBody<any>, encoding: Buffe
       len = chunk.length;
     } else if (typeof chunk === 'string') {
       len = Buffer.byteLength(chunk, encoding);
-    } else if (chunk && 'data' in chunk) {
-      const data = chunk;
-
-      if (Buffer.isBuffer(data)) {
-        len = data.length;
-      } else if (typeof data === 'string') {
-        len = Buffer.byteLength(data, encoding);
-      } else if (chunk && 'data' in chunk) {
-        const jsonString = JSON.stringify(chunk);
-        len = Buffer.byteLength(jsonString, encoding);
-      }
+    } else {
+      len = Buffer.byteLength(JSON.stringify(chunk), encoding);
     }
   }
   return len;

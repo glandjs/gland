@@ -1,11 +1,11 @@
 import { IncomingMessage } from 'http';
-import { Environment } from '../enums';
 import { CommonContextProps, ParsedBody } from '../types';
 import { RouteDefinition } from './router.interface';
+import { AppConfig } from './app-settings.interface';
 
 export interface LifecycleEvents {
   Start: Pick<CommonContextProps, 'timestamp'> & {
-    environment?: Environment;
+    environment?: AppConfig['environment'];
     serverId?: string;
     hostname?: string;
     version?: string;

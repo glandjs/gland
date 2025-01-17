@@ -1,9 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { Buffer } from 'buffer';
 import { Qiks } from '@medishn/qiks';
-import { Logger } from '@medishn/logger';
 import { CacheConfigQiks } from '@medishn/qiks/dist/types/CacheTypes';
-import { Options } from '@medishn/logger/dist/types';
 import { AppConfig, BodyParserOptions } from '../common/interfaces';
 import { KEY_SETTINGS } from '../common/enums';
 import { ParsedBody } from '../common/types';
@@ -98,11 +96,6 @@ export class BodyParser {
 export class MemoryCacheStore<K, V> extends Qiks<K, V> {
   constructor(options?: CacheConfigQiks<K>) {
     super(options);
-  }
-}
-export class Glogger extends Logger {
-  constructor(opts?: Options) {
-    super(opts);
   }
 }
 

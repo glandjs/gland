@@ -11,8 +11,7 @@ export class RouteNormalizer {
    */
   static normalizePath(path: string): string {
     if (!path) throw new Error('Path cannot be empty.');
-
-    // Remove extra slashes and ensure the path starts with '/'
+    if (path === '/') return '/';
     return `/${path}`.replace(/\/+/g, '/').replace(/\/$/, '');
   }
 
@@ -25,6 +24,7 @@ export class RouteNormalizer {
   static combinePaths(prefix: string | undefined, path: string): string {
     const normalizedPrefix = prefix ? this.normalizePath(prefix) : '';
     const normalizedPath = this.normalizePath(path);
+    if (normalizedPath === '/') return normalizedPrefix;
     return `${normalizedPrefix}${normalizedPath}`.replace(/\/+/g, '/');
   }
 

@@ -1,4 +1,3 @@
-import { Stream } from 'stream';
 import { IncomingMessage, ServerResponse } from 'http';
 import { HttpStatus } from '../enums';
 import { GlobalCache, ParsedBody } from '../types';
@@ -25,24 +24,8 @@ export type ServerRequest = {
   send<T = any>(body: ResponseBody<T>): void;
 };
 
-// Success response type
-export interface SuccessResponse<T = any> {
-  status?: 'success';
-  data: T | null;
-  message?: string;
-  statusCode?: HttpStatus;
-}
-// Error response type
-export interface ErrorResponse {
-  status?: 'error';
-  message?: string;
-  statusCode: HttpStatus;
-  stack?: string;
-  error?: string;
-}
-
 // General ResponseBody Type
-export type ResponseBody<T = any> = SuccessResponse<T> | ErrorResponse | string | Buffer | Stream;
+export type ResponseBody<T = any> = any;
 
 /**
  * @interface TransformContext
