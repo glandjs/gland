@@ -13,7 +13,9 @@ export class ProductController {
   @Post('/')
   createProduct(ctx: ServerRequest): void {
     const productData = ctx.body;
-    const newProduct = this.productService.createProduct(productData);
-    ctx.send(newProduct);
+    return this.productService.createProduct(productData);
+    /**
+    curl -X POST http://localhost:4000/products -H "Content-Type: application/json" -d '{"name": "Product C","price": 200 }'
+    */
   }
 }
