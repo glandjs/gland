@@ -21,3 +21,4 @@ export type ValidationOperator =
   | 'matches' // Value must match a specific regex
   | 'notMatches'; // Value must not match a specific regex
 export type NestedSchemas<T> = Record<string, { schemaClass: Constructor<T>; options: ValidationOptions<T> }>;
+export type ValidationSchema = 'body' | 'query' | 'headers' | 'params';
