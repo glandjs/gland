@@ -1,2 +1,2 @@
 export * from './Injector';
-export * from './Module';
+export * from './Module.decorator';
