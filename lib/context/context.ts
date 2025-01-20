@@ -56,10 +56,8 @@ export class Context {
 
       let len: number | undefined = calculateContentLength(chunk, encoding);
       if (len !== undefined) {
-        if (!this.ctx.bodySize) {
-          this.ctx.bodySize = len;
-        }
-        res.setHeader('Content-Length', this.ctx.bodySize ?? len);
+        this.ctx.bodySize = len;
+        res.setHeader('Content-Length', len);
       }
       handleETag(this.ctx, chunk, len, res);
 

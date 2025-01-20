@@ -4,3 +4,4 @@ export * from './method.enum';
 export * from './status.enum';
 export * from './router.enum';
 export * from './decorator.enum';
+export * from './validator.enum';

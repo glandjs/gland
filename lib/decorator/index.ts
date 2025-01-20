@@ -6,3 +6,4 @@ export * from './Transform';
 export * from './http';
 export * from './module';
 export * from './Middleware';
+export * from './Validator';

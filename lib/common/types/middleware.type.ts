@@ -1,3 +1,3 @@
 import { ServerRequest } from '../interfaces';
-
-export type MiddlewareFn = (ctx: ServerRequest, next: Function) => void | Promise<void>;
+export type NextFunction = () => void | Promise<void>;
+export type MiddlewareFn = (ctx: ServerRequest, next: NextFunction) => void | Promise<void>;
