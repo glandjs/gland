@@ -4,34 +4,32 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 import { EventSystem } from '../../../dist/events/EventSystem';
 import { RouteDefinition, ServerRequest } from '../../../dist/common/interfaces';
-import Reflector from '../../../dist/metadata';
 import { HttpStatus } from '../../../dist/common/enums';
 import { MiddlewareFn } from '../../../dist/common/types';
 import { ContextFactory } from '../../../dist/context/context-factory';
 import { ActionHandler } from '../../../dist/utils';
+import { createMockReflector } from '../../mocks/reflector.mock';
 
 describe('Router', () => {
   let router: Router;
   let mockEvents: sinon.SinonStubbedInstance<EventSystem>;
-  let mockReflector: sinon.SinonStubbedInstance<typeof Reflector>;
-
+  let mockReflector: ReturnType<typeof createMockReflector>['mockReflector'];
+  let restoreReflector: ReturnType<typeof createMockReflector>['restore'];
+  let defineStub: sinon.SinonStub;
+  let getStub: sinon.SinonStub;
   beforeEach(() => {
     mockEvents = sinon.createStubInstance(EventSystem);
+    const mock = createMockReflector();
+    mockReflector = mock.mockReflector;
+    restoreReflector = mock.restore;
+    defineStub = mockReflector.define;
+    getStub = mockReflector.get;
 
-    mockReflector = {
-      getRoutes: sinon.stub(),
-      get: sinon.stub(),
-      update: sinon.stub(),
-    } as any;
-
-    // Override Reflector with the stubbed version
-    Reflector.getRoutes = mockReflector.getRoutes;
-    Reflector.get = mockReflector.get;
-    Reflector.update = mockReflector.update;
     router = new Router('', mockEvents);
   });
   afterEach(() => {
     sinon.restore();
+    restoreReflector();
   });
   describe('findMatch()', () => {
     it('should return matched route based on method and path', () => {

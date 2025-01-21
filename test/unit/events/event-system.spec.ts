@@ -13,6 +13,7 @@ describe('EventSystem', () => {
 
   afterEach(() => {
     eventSystem.clear();
+    sinon.restore();
   });
 
   describe('on()', () => {

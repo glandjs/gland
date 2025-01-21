@@ -1,24 +1,26 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import Reflector from '../../../dist/metadata/index';
 import { MiddlewareFn } from '../../../dist/common/types';
-import { Get, Delete, Head, Options, Patch, Post, Put, Search } from '../../../dist/decorator/http';
+import { Get, Delete, Head, Options, Patch, Post, Put, Search } from '../../../dist/decorator';
 import { RouteDefinition } from '../../../dist/common/interfaces';
-import { RequestMethod, RouterMetadataKeys } from '../../../dist/common/enums';
-
+import { RequestMethod } from '../../../dist/common/enums';
+import { createMockReflector } from '../../mocks/reflector.mock';
 describe('Decorators - HTTP Method Decorators', () => {
-  let defineSpy: sinon.SinonStub;
-  let getStub: sinon.SinonStub;
+  let mockReflector: ReturnType<typeof createMockReflector>['mockReflector'];
+  let restoreReflector: ReturnType<typeof createMockReflector>['restore'];
+
+  let defineStub: sinon.SinonStub;
 
   beforeEach(() => {
-    defineSpy = sinon.stub(Reflector, 'define');
-    getStub = sinon.stub(Reflector, 'get');
+    const mock = createMockReflector();
+    mockReflector = mock.mockReflector;
+    restoreReflector = mock.restore;
+    defineStub = mockReflector.define;
   });
 
   afterEach(() => {
-    defineSpy.restore();
-    getStub.restore();
     sinon.restore();
+    restoreReflector();
   });
 
   it('should create a decorator for a specific HTTP method (GET)', () => {
@@ -30,7 +32,7 @@ describe('Decorators - HTTP Method Decorators', () => {
       public getTest() {}
     }
 
-    const routes = defineSpy.getCall(0)?.args[1];
+    const routes = defineStub.getCall(0)?.args[1];
     const route = routes?.find((route: RouteDefinition) => route.method === RequestMethod.Get && route.path === '/test');
 
     expect(route).to.exist;
@@ -58,7 +60,7 @@ describe('Decorators - HTTP Method Decorators', () => {
       public getTest() {}
     }
 
-    const routes = defineSpy.getCall(0).args[1];
+    const routes = defineStub.getCall(0).args[1];
     const route = routes.find((route: RouteDefinition) => route.method === RequestMethod.Get && route.path === '/test');
 
     expect(route).to.exist;
@@ -73,7 +75,7 @@ describe('Decorators - HTTP Method Decorators', () => {
       public getTest() {}
     }
 
-    const routes = defineSpy.getCall(0).args[1];
+    const routes = defineStub.getCall(0).args[1];
     const route = routes.find((route: RouteDefinition) => route.method === RequestMethod.Get && route.path === '/test');
     expect(route).to.exist;
     expect(route.path).to.equal('/test');
@@ -82,7 +84,7 @@ describe('Decorators - HTTP Method Decorators', () => {
   it('should generate all HTTP method decorators correctly', () => {
     const routesMock: any = [];
 
-    defineSpy.callsFake((metadataKey, metadataValue, target) => {
+    defineStub.callsFake((metadataKey, metadataValue, target) => {
       if (metadataKey === 'router:routes') {
         routesMock.push(...metadataValue);
       }
@@ -139,7 +141,7 @@ describe('Decorators - HTTP Method Decorators', () => {
       public getTest() {}
     }
 
-    const routes = defineSpy.getCall(0).args[1];
+    const routes = defineStub.getCall(0).args[1];
     const route = routes.find((route: RouteDefinition) => route.method === RequestMethod.Get && route.path === '/test');
 
     expect(route).to.exist;
