@@ -1,19 +1,26 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import Reflector from '../../../dist/metadata/index';
-import { Controller } from '../../../dist/decorator/Controller';
+import { Controller } from '../../../dist/decorator';
+import { createMockReflector } from '../../mocks/reflector.mock';
 
 describe('Controller Decorator', () => {
+  let mockReflector: ReturnType<typeof createMockReflector>['mockReflector'];
+  let restoreReflector: ReturnType<typeof createMockReflector>['restore'];
+
   let defineStub: sinon.SinonStub;
   let getStub: sinon.SinonStub;
 
   beforeEach(() => {
-    defineStub = sinon.stub(Reflector, 'define');
-    getStub = sinon.stub(Reflector, 'get');
+    const mock = createMockReflector();
+    mockReflector = mock.mockReflector;
+    restoreReflector = mock.restore;
+    defineStub = mockReflector.define;
+    getStub = mockReflector.get;
   });
 
   afterEach(() => {
     sinon.restore();
+    restoreReflector();
   });
 
   it('should define the correct prefix with no existing prefix', () => {

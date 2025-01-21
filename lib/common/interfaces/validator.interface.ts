@@ -1,5 +1,5 @@
 import { ValidationSchema } from '../types';
-import { RuleString, RuleType, ValidationOperator } from '../types/validator.type';
+import { RuleString, ValidationMessages, ValidationOperator } from '../types/validator.type';
 import { Constructor } from './module.interface';
 export interface ValidationField {
   /**
@@ -10,7 +10,7 @@ export interface ValidationField {
   /**
    * Custom error messages for specific rule types.
    */
-  messages?: Partial<Record<RuleType, string>>;
+  messages?: ValidationMessages;
   /**
    * Additional options for the validation field.
    */
@@ -53,11 +53,6 @@ export interface ValidationOptions<T> {
      * The schema class to validate if the condition is met.
      */
     schema: Constructor<any>;
-
-    /**
-     * Custom error message to show if the condition is not met.
-     */
-    message: string;
   }[];
 }
 export interface SchemaOptions {

@@ -70,9 +70,10 @@ export class RuleAction {
   static filter<T>(schemaClass: Constructor<T>, pick?: (keyof T)[], omit?: (keyof T)[]): Record<string, ValidationField> {
     const rules: Record<string, ValidationField> = Reflector.get(ValidationMetadataKey.RULES, schemaClass) ?? {};
     const filteredRules: Record<string, ValidationField> = {};
+
     if (pick) {
       for (const key of pick) {
-        if (rules[key as string]) {
+        if (key in rules) {
           filteredRules[key as string] = rules[key as string];
         }
       }

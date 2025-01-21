@@ -22,3 +22,7 @@ export type ValidationOperator =
   | 'notMatches'; // Value must not match a specific regex
 export type NestedSchemas<T> = Record<string, { schemaClass: Constructor<T>; options: ValidationOptions<T> }>;
 export type ValidationSchema = 'body' | 'query' | 'headers' | 'params';
+/** Validation messages for each rule type */
+export type ValidationMessages = Partial<Record<RuleType | 'custom' | 'dependsOn', string>> & {
+  dependsOnRules?: Record<ValidationOperator, string>;
+};

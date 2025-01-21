@@ -19,7 +19,7 @@
     "test": "npm run test:unit",
     "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts",
     "benchmark": "ts-node ./benchmark/gland.ts",
-    "build": "rm -r dist/* & tsc",
+    "build": "tsc",
     "chmod": "chmod +x ./scripts/release.sh",
     "release": "npm run chmod && ./scripts/release.sh"
   },

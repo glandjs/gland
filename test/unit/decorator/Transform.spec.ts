@@ -1,20 +1,28 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import Reflector from '../../../lib/metadata/index';
-import { TransformContext } from '../../../lib/common/interfaces';
-import { Transform } from '../../../lib/decorator/Transform';
-import { RouterMetadataKeys } from '../../../lib/common/enums';
+import Reflector from '../../../dist/metadata/index';
+import { TransformContext } from '../../../dist/common/interfaces';
+import { Transform } from '../../../dist/decorator';
+import { RouterMetadataKeys } from '../../../dist/common/enums';
 import { afterEach, beforeEach, describe, it } from 'mocha';
+import { createMockReflector } from '../../mocks/reflector.mock';
 
 describe('Decorators - @Transform Decorator', () => {
-  let defineSpy: sinon.SinonSpy;
+  let mockReflector: ReturnType<typeof createMockReflector>['mockReflector'];
+  let restoreReflector: ReturnType<typeof createMockReflector>['restore'];
+
+  let defineStub: sinon.SinonStub;
 
   beforeEach(() => {
-    defineSpy = sinon.spy(Reflector, 'define');
+    const mock = createMockReflector();
+    mockReflector = mock.mockReflector;
+    restoreReflector = mock.restore;
+    defineStub = mockReflector.define;
   });
 
   afterEach(() => {
-    defineSpy.restore();
+    restoreReflector();
+    sinon.restore();
   });
 
   it('should apply transformation function to method metadata', () => {
@@ -30,7 +38,7 @@ describe('Decorators - @Transform Decorator', () => {
       }
     }
 
-    const metadata = defineSpy.getCall(0).args;
+    const metadata = defineStub.getCall(0).args;
     const target = ExampleController;
     const propertyKey = 'handleRequest';
 

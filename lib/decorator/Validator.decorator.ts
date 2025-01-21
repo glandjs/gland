@@ -1,7 +1,8 @@
 import Reflector from '../metadata';
 import { ValidationMetadataKey } from '../common/enums';
 import { SchemaOptions, ValidationField, ValidationOptions } from '../common/interfaces';
-import { ValidationMessages } from '../validator/config';
+import { isClass } from '../utils';
+import { ValidationMessages } from '../common/types';
 export function Rule(options?: { messages?: ValidationMessages; options?: ValidationField['options'] }): PropertyDecorator {
   return function (target, propertyKey) {
     const instance = new (target.constructor as any)();
@@ -25,7 +26,7 @@ export function NestedSchema<T = any>(options?: ValidationOptions<T>): PropertyD
   return function (target, propertyKey) {
     const instance = new (target.constructor as any)();
     let schemaClass: any = instance[propertyKey].constructor;
-    if (schemaClass.toString().includes('[native code]')) {
+    if (isClass(schemaClass)) {
       schemaClass = instance[propertyKey];
     }
     const nestedSchemas = Reflector.get(ValidationMetadataKey.NESTED, target.constructor) ?? {};

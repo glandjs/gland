@@ -1,19 +1,26 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { MultiLanguageContext } from '../../../dist/common/interfaces';
-import Reflector from '../../../dist/metadata';
-import { MultiLanguage } from '../../../dist/decorator/MultiLang';
+import { MultiLanguage } from '../../../dist/decorator';
 import { RouterMetadataKeys } from '../../../dist/common/enums';
+import { createMockReflector } from '../../mocks/reflector.mock';
 
 describe('Decorators - @MultiLanguage Decorator', () => {
-  let defineSpy: sinon.SinonSpy;
+  let mockReflector: ReturnType<typeof createMockReflector>['mockReflector'];
+  let restoreReflector: ReturnType<typeof createMockReflector>['restore'];
+
+  let defineStub: sinon.SinonStub;
 
   beforeEach(() => {
-    defineSpy = sinon.spy(Reflector, 'define');
+    const mock = createMockReflector();
+    mockReflector = mock.mockReflector;
+    restoreReflector = mock.restore;
+    defineStub = mockReflector.define;
   });
 
   afterEach(() => {
-    defineSpy.restore();
+    restoreReflector();
+    sinon.restore();
   });
 
   it('should register the correct translations with Reflector', () => {
@@ -28,7 +35,7 @@ describe('Decorators - @MultiLanguage Decorator', () => {
       public handleRequest() {}
     }
 
-    const metadata = defineSpy.getCall(0).args;
+    const metadata = defineStub.getCall(0).args;
 
     expect(metadata[0]).to.equal(RouterMetadataKeys.MULTI_LANGUAGE);
     expect(metadata[1]).to.deep.equal(translations);
