@@ -1,8 +1,5 @@
-import { RuleType, ValidationOperator } from '../common/types/';
-/** Validation messages for each rule type */
-export type ValidationMessages = Partial<Record<RuleType | 'custom' | 'dependsOn', string>> & {
-  dependsOnRules?: Record<ValidationOperator, string>;
-};
+import { ValidationMessages } from '../common/types';
+
 /** Default error messages for validation rules */
 export const DefaultMessages: ValidationMessages = {
   // Core validation messages
