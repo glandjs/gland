@@ -23,16 +23,9 @@
 
 ### Input Validation
 
-- [ ] Create a `@Validate` decorator for request validation.
-- [ ] Implement validation rules for body, query, and headers.
-- [ ] Support custom validation rules and error handling.
-
-### CLI Tool
-
-- [ ] Develop a CLI tool for scaffolding and server management.
-- [ ] Add commands for generating controllers, middlewares, and modules.
-- [ ] Include server start, stop, and monitoring capabilities.
-- [ ] Add debugging tools to identify misconfigurations.
+- [x] Create a `@Validate` decorator for request validation.
+- [x] Implement validation rules for body, query, and headers.
+- [x] Support custom validation rules and error handling.
 
 ### Global Guards
 
@@ -43,16 +36,15 @@
 - [x] Support configurable `ttl` and custom cache stores.
 - [x] Integrate with `@medishn/qiks` for advanced caching options.
 
-### Event System
+### Phase 5: New Features
 
-- [x] Enhance the built-in event system for route and application-level events.
-- [x] Provide APIs for custom event handling.
+#### Error Management
 
-## Phase 5: Advanced Router Features
-
-- [ ] Implement request-response lifecycle hooks for extensibility.
-- [ ] Introduce grouped routes with shared middleware and guards.
-- [ ] Create a powerful and expressive query builder or ORM (optional).
+- [ ] Design structured error objects.
+- [ ] Enhance error middleware for async errors.
+- [ ] Allow user-defined error handlers.
+- [ ] Write tests for various error scenarios.
+- [ ] Document custom error handling.
 
 ## Phase 6: Testing and Documentation
 
