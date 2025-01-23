@@ -1,20 +1,20 @@
-import { ValidationMessages } from '../common/types';
+import { RuleMessages } from '@medishn/gland/common/types';
 
 /** Default error messages for validation rules */
-export const DefaultMessages: ValidationMessages = {
+export const DefaultMessages: RuleMessages = {
+  message: '',
   // Core validation messages
   required: 'The {field} field is required and cannot be left blank.',
   string: 'The {field} field must contain a valid string.',
   boolean: 'The {field} field must be either true or false.',
   array: 'The {field} field must be an array of values.',
-  email: 'The {field} field must contain a valid email address.',
-  url: 'The {field} field must contain a valid URL.',
   optional: '', // No message for optional fields
   integer: 'The {field} field must be a valid integer.',
-  date: 'The {field} field must contain a valid date.',
   min: 'The {field} field must have a value of at least {value}.',
   max: 'The {field} field must not exceed a value of {value}.',
-  regex: 'The {field} field must match the pattern: {pattern}.',
+  alpha: 'The {field} field must contain only alphabetic characters (A-Z, a-z).',
+  alphanumeric: 'The {field} field must contain only alphanumeric characters (A-Z, a-z, 0-9).',
+  float: 'The {field} field must be a valid floating-point number.',
 
   // Custom validation messages
   custom: 'The {field} field has failed custom validation.',
