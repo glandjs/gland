@@ -1,6 +1,6 @@
-import { ServerRequest } from '../common/interfaces';
+import { Context } from '@medishn/gland/common/interfaces';
 
-export function generateCacheKey(ctx: ServerRequest): string {
+export function generateCacheKey(ctx: Context): string {
   return `${ctx.req.method}:${ctx.req.url}`;
 }
 export class RouteNormalizer {

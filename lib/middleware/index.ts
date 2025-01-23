@@ -1,30 +1,33 @@
-import { ServerRequest } from '../common/interfaces';
-import { MiddlewareFn } from '../common/types';
+import { Context } from '@medishn/gland/common/interfaces';
+import { MiddlewareFunction, NextFunction } from '@medishn/gland/common/types';
 
-export class MiddlewareStack {
-  private readonly middlewares: MiddlewareFn[] = [];
+export class MiddlewarePipeline {
+  private readonly middlewares: MiddlewareFunction[] = [];
 
-  use(...middlewares: MiddlewareFn[]): void {
+  add(...middlewares: MiddlewareFunction[]): void {
     if (!middlewares || middlewares.some((mw) => typeof mw !== 'function')) {
       throw new Error('Invalid middleware provided. Each middleware must be a function.');
     }
-    this.middlewares.push(...middlewares);
+    for (const middleware of middlewares) {
+      if (!this.middlewares.includes(middleware)) {
+        this.middlewares.push(middleware);
+      }
+    }
   }
-  async execute(ctx: ServerRequest, action: Function): Promise<void> {
+  async execute(ctx: Context, finalHandler: (ctx: Context) => void | Promise<void>): Promise<void> {
+    if (typeof finalHandler !== 'function') {
+      throw new Error('Final handler must be a valid function.');
+    }
     let index = 0;
-    const next = async () => {
+    const executeNext: NextFunction = async () => {
       if (index < this.middlewares.length) {
         const middleware = this.middlewares[index++];
-        await middleware(ctx, next);
+        await middleware(ctx, executeNext);
       } else {
-        await action(ctx);
+        await finalHandler(ctx);
       }
     };
 
-    await next();
-  }
-
-  getStack(): MiddlewareFn[] {
-    return [...this.middlewares];
+    await executeNext();
   }
 }

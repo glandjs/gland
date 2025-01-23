@@ -2,9 +2,9 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { Buffer } from 'buffer';
 import { Qiks } from '@medishn/qiks';
 import { CacheConfigQiks } from '@medishn/qiks/dist/types/CacheTypes';
-import { AppConfig, BodyParserOptions } from '../common/interfaces';
-import { KEY_SETTINGS } from '../common/enums';
-import { ParsedBody } from '../common/types';
+import { AppConfig, BodyParserOptions } from '@medishn/gland/common/interfaces';
+import { KEY_SETTINGS } from '@medishn/gland/common/enums';
+import { ParsedBody } from '@medishn/gland/common/types';
 
 export class BodyParser {
   private req: IncomingMessage;

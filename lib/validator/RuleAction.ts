@@ -1,35 +1,38 @@
-import { ValidationMetadataKey } from '../common/enums';
-import { Constructor, ValidationField } from '../common/interfaces';
+import { ValidationMetadataKey } from '@medishn/gland/common/enums';
+import { Constructor, ValidationField } from '@medishn/gland/common/interfaces';
+import { RuleOperator, RuleType } from '@medishn/gland/common/types';
 import Reflector from '../metadata';
 
 export class RuleAction {
-  static applyRule({ param, ruleName }: { ruleName: string; param: string }, value: any): boolean {
+  static applyRule({ param, ruleName }: { ruleName: RuleType; param: string }, value: any): boolean {
     switch (ruleName) {
       case 'required':
         return value !== undefined && value !== null && value !== '';
       case 'string':
         return typeof value === 'string';
       case 'integer':
-        return Number.isInteger(value);
+        return Number.isSafeInteger(value);
       case 'boolean':
         return typeof value === 'boolean';
-      case 'email':
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
       case 'min':
-        return typeof value === 'string' && value.length >= parseInt(param);
+        return value.length >= parseInt(param);
       case 'max':
-        return typeof value === 'string' && value.length <= parseInt(param);
+        return value.length <= parseInt(param);
       case 'array':
         return Array.isArray(value);
-      case 'regex':
-        return new RegExp(param).test(value);
-      case 'url':
-        return /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/.test(value);
+      case 'alpha':
+        return /^[A-Za-z]+$/.test(value);
+      case 'alphanumeric':
+        return /^[A-Za-z0-9]+$/.test(value);
+      case 'float':
+        return typeof value === 'number' && !Number.isSafeInteger(value) && !isNaN(value);
+      case 'optional':
+        return value === undefined || value === null || value === '';
       default:
         return true;
     }
   }
-  static applyDependencyRule({ operator, dependencyValue }: { operator: string; dependencyValue?: any }, dependentFieldValue: any): boolean {
+  static applyDependencyRule({ operator, dependencyValue }: { operator: RuleOperator; dependencyValue?: any }, dependentFieldValue: string): boolean {
     switch (operator) {
       case 'equal':
         return dependentFieldValue === dependencyValue;

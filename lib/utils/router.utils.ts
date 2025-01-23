@@ -2,9 +2,7 @@ import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from 'http';
 import { TLSSocket } from 'tls';
 import Reflector from '../metadata';
 import { ContextFactory } from '../context';
-import { RouteDefinition, ServerRequest, TransformContext } from '../common/interfaces';
-import { ParsedBody } from '../common/types';
-import { HttpStatus, KEY_SETTINGS, RouterMetadataKeys } from '../common/enums';
+import { RouteDefinition, Context, TransformContext, ParsedBody, KEY_SETTINGS, RouterMetadataKeys } from '@medishn/gland/common';
 /**
  * The RouterUtils object contains utility constants and regular expressions used in routing and request handling.
  * It provides configurations such as API prefix, cache size limits, and language parameters, which assist in routing logic.
@@ -22,7 +20,7 @@ export class RequestInfo {
   private req: IncomingMessage;
   private res: ServerResponse;
 
-  constructor(private ctx: ServerRequest) {
+  constructor(private ctx: Context) {
     this.req = ctx.req;
     this.res = ctx.res;
   }
@@ -131,7 +129,7 @@ export class RequestInfo {
  * applying transformations, and finally invoking the actual route action.
  */
 export class ActionHandler {
-  static async executeTransform(transformFn: Function, ctx: ServerRequest, route: RouteDefinition, requestInfo: RequestInfo): Promise<void> {
+  static async executeTransform(transformFn: Function, ctx: Context, route: RouteDefinition, requestInfo: RequestInfo): Promise<void> {
     const transformContext: TransformContext = ContextFactory.createTransformContext(ctx, route, requestInfo);
 
     transformFn(transformContext);
@@ -144,14 +142,14 @@ export class ActionHandler {
     }
   }
 
-  static async executeGuards(guards: Function[], ctx: ServerRequest): Promise<void> {
+  static async executeGuards(guards: Function[], ctx: Context): Promise<void> {
     for (const guard of guards) {
       await guard(ctx);
       if (ctx.res.writableEnded) return;
     }
   }
 
-  static async handleAction(action: Function, ctx: ServerRequest): Promise<void> {
+  static async handleAction(action: Function, ctx: Context): Promise<void> {
     const result = await action(ctx);
     if (ctx.res.writableEnded) return;
 
@@ -159,11 +157,14 @@ export class ActionHandler {
       ctx.send(result);
     }
   }
-  static async wrappedAction({ ctx, route, requestInfo }: { ctx: ServerRequest; route: RouteDefinition; requestInfo: RequestInfo }) {
-    const guards = Reflector.get(RouterMetadataKeys.GUARDS, route.constructor, route.action.name.split(' ')[1]);
+  static async wrappedAction({ ctx, route, requestInfo }: { ctx: Context; route: RouteDefinition; requestInfo: RequestInfo }) {
+    const guards = Reflector.get(RouterMetadataKeys.GUARD, route.constructor, route.action.name.split(' ')[1]);
     if (guards) await ActionHandler.executeGuards(guards, ctx);
     const transformFn = Reflector.get(RouterMetadataKeys.TRANSFORM, route.constructor, route.action.name);
     if (transformFn) await ActionHandler.executeTransform(transformFn, ctx, route, requestInfo);
     await ActionHandler.handleAction(route.action, ctx);
   }
+}
+export function normalizePath(path: string): string {
+  return path.endsWith('/') ? path.slice(0, -1) : path;
 }

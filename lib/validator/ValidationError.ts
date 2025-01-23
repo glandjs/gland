@@ -1,8 +1,13 @@
+import { SectionErrors } from '@medishn/gland/common/types';
 export class ValidationError {
-  errors: Record<string, Record<string, string[]>> = {};
+  errors: SectionErrors = {};
   addError(section: string, field: string, message: string[]): void {
-    if (!this.errors[section]) this.errors[section] = {};
-    if (!this.errors[section][field]) this.errors[section][field] = [];
+    if (!this.errors[section]) {
+      this.errors[section] = {};
+    }
+    if (!this.errors[section][field]) {
+      this.errors[section][field] = [];
+    }
     this.errors[section][field].push(...message);
   }
   /** Check if there are any errors */
