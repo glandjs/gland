@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { ResponseBody, ServerRequest } from '../common/interfaces';
+import { ResponseBody, Context } from '@medishn/gland/common/interfaces';
 import { RouterUtils } from './router.utils';
 export function setCharset(contentType: string, charset: string): string {
   const hasCharset = /charset=([a-zA-Z0-9-]+)/.test(contentType);
@@ -96,7 +96,7 @@ export function calculateContentLength(chunk: ResponseBody<any>, encoding: Buffe
 export function generateETag(body: string): string {
   return require('crypto').createHash('sha256').update(body).digest('hex');
 }
-export function handleETag(ctx: ServerRequest, chunk: ResponseBody<any>, len: number | undefined, res: any): void {
+export function handleETag(ctx: Context, chunk: ResponseBody<any>, len: number | undefined, res: any): void {
   const etagFn = ctx.settings?.['etag'];
   const generateETagFunction = typeof etagFn === 'function' ? etagFn : generateETag;
 
