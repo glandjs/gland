@@ -1,7 +1,4 @@
-import { RouterMetadataKeys } from '../common/enums';
-import { RouteDefinition } from '../common/interfaces';
-import Reflector from '../metadata';
-import { RouteNormalizer, RouteValidation } from '../utils';
+import Reflector from '@gland/metadata';
 /**
  * A decorator to define a controller with a route prefix.
  * It combines the provided prefix with any existing controller prefix and ensures the final prefix is normalized.
@@ -30,15 +27,15 @@ export function Controller(prefix: string): ClassDecorator {
     if (!RouteValidation.isValidPath(prefix)) {
       throw new Error(`Invalid route prefix: "${prefix}". Prefix cannot be empty or contain invalid characters.`);
     }
-    const existingPrefix = Reflector.get(RouterMetadataKeys.CONTROLLER_PREFIX, target);
+    const existingPrefix = Reflector.getMetadata(ROUTER_METADATA.CONTROLLER_PREFIX_METADATA, target);
     let fullPrefix = RouteNormalizer.normalizePath(prefix);
     if (existingPrefix) {
       fullPrefix = RouteNormalizer.combinePaths(existingPrefix, prefix);
     }
-    const routes: RouteDefinition[] = Reflector.get(RouterMetadataKeys.ROUTES, target) ?? [];
+    const routes: RouteDefinition[] = Reflector.getMetadata(ROUTER_METADATA.ROUTES_METADATA, target) ?? [];
     routes.forEach((route) => {
       route.path = RouteNormalizer.combinePaths(fullPrefix, route.path);
     });
-    Reflector.define(RouterMetadataKeys.CONTROLLER_PREFIX, fullPrefix, target);
+    Reflector.defineMetadata(ROUTER_METADATA.CONTROLLER_PREFIX_METADATA, fullPrefix, target);
   };
 }
