@@ -4,7 +4,7 @@ import { MetadataStorage } from '../interface/metadata.interface';
 import { MetadataKey, MetadataTarget, MetadataValue } from '../types/metadata.types';
 
 class ReflectStorage implements MetadataStorage {
-  private storage = new MemoryCacheStore<string, Map<MetadataKey, MetadataValue>>();
+  private storage = new MemoryCacheStore<string, Map<MetadataKey, MetadataValue<any>>>();
   constructor() {
     this.storage = new MemoryCacheStore({
       policy: 'LRU',
@@ -20,22 +20,22 @@ class ReflectStorage implements MetadataStorage {
     return `instance:${target.constructor.name}`;
   }
 
-  private ensureMetadataMap(target: MetadataTarget): Map<MetadataKey, MetadataValue> {
+  private ensureMetadataMap<K extends MetadataKey, V>(target: MetadataTarget): Map<MetadataKey<K>, MetadataValue<V>> {
     const targetKey = this.getTargetIdentifier(target);
     let metadataMap = this.storage.get(targetKey);
     if (!(metadataMap instanceof Map)) {
-      metadataMap = new Map<MetadataKey, MetadataValue>();
+      metadataMap = new Map<MetadataKey, MetadataValue<V>>();
       this.storage.set(targetKey, metadataMap);
     }
-    return metadataMap;
+    return metadataMap as Map<K, V>;
   }
-  get(target: MetadataTarget): Map<MetadataKey, MetadataValue> {
+  get<K extends MetadataKey, V>(target: MetadataTarget): Map<MetadataKey<K>, MetadataValue<V>> {
     const targetKey = this.getTargetIdentifier(target);
     const metadataMap = this.storage.get(targetKey);
-    return metadataMap instanceof Map ? metadataMap : new Map<MetadataKey, MetadataValue>();
+    return metadataMap instanceof Map ? (metadataMap as Map<K, V>) : new Map<MetadataKey<K>, MetadataValue<V>>();
   }
 
-  set(target: MetadataTarget, key: MetadataKey, value: MetadataValue): void {
+  set<K extends MetadataKey, V>(target: MetadataTarget, key: MetadataKey<K>, value: MetadataValue<V>): void {
     const metadataMap = this.ensureMetadataMap(target);
     metadataMap.set(key, value);
     const targetKey = this.getTargetIdentifier(target);
@@ -64,28 +64,16 @@ class ReflectStorage implements MetadataStorage {
     this.storage.delete(targetKey);
   }
 
-  list(target: MetadataTarget): Map<MetadataKey, MetadataValue> | null {
+  list<K extends MetadataKey, V>(target: MetadataTarget): Map<MetadataKey<K>, MetadataValue<V>> | null {
     const targetKey = this.getTargetIdentifier(target);
     const metadataMap = this.storage.get(targetKey);
     if (metadataMap instanceof Map) {
-      return metadataMap;
+      return metadataMap as Map<K, V>;
     }
     return null;
   }
   keys(): string[] {
     return Array.from(this.storage.keys());
-  }
-
-  allList(): Map<string, Map<MetadataKey, MetadataValue>> {
-    const entries = this.storage.get('*', { pattern: true, withTuples: true }) as [string, Map<MetadataKey, MetadataValue>][];
-    const allMetadata = new Map<string, Map<MetadataKey, MetadataValue>>();
-
-    for (const [key, value] of entries) {
-      if (value instanceof Map) {
-        allMetadata.set(key, value);
-      }
-    }
-    return allMetadata;
   }
 }
 

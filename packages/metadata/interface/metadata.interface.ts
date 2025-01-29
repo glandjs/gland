@@ -1,12 +1,11 @@
 import { MetadataKey, MetadataTarget, MetadataValue } from '../types/metadata.types';
 
 export interface MetadataStorage {
-  get(target: MetadataTarget): Map<MetadataKey, MetadataValue>;
-  set(target: MetadataTarget, key: MetadataKey, value: MetadataValue): void;
+  get<K extends MetadataKey, V>(target: MetadataTarget): Map<MetadataKey<K>, MetadataValue<V>>;
+  set<K extends MetadataKey, V>(target: MetadataTarget, key: MetadataKey<K>, value: MetadataValue<V>): void;
   has(target: MetadataTarget, key: MetadataKey): boolean;
   delete(target: MetadataTarget, key: MetadataKey): boolean;
   clear(target: MetadataTarget): void;
   keys(): string[];
-  list(target: MetadataTarget): Map<MetadataKey, MetadataValue> | null;
-  allList(): Map<string, Map<MetadataKey, MetadataValue>>;
+  list<K extends MetadataKey, V>(target: MetadataTarget): Map<MetadataKey<K>, MetadataValue<V>> | null;
 }

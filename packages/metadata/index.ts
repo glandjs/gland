@@ -1,6 +1,6 @@
-import { Decorator, MetadataKey, MetadataParameterIndex, MetadataTarget, MetadataValue } from './types/metadata.types';
+import { Decorator, MetadataKey, MetadataParameterIndex, MetadataScopeType, MetadataTarget, MetadataValue } from './types/metadata.types';
 import ReflectStorage from './storage/storage-metadata';
-import { constructKey, MetadataScope, MetadataScopeType, resolveTargetClass } from './utils/metadta.utils';
+import { constructMetadataKey, identifyTargetType, parseMetadataEntries } from './utils/metadta.utils';
 export * from './interface/metadata.interface';
 export * from './types/metadata.types';
 class Reflector {
@@ -12,25 +12,35 @@ class Reflector {
   /**
    * Define metadata for a target and optional property.
    */
-  defineMetadata<T extends MetadataValue>(metadataKey: MetadataKey, value: T, target: MetadataTarget, propertyKey?: MetadataKey, parameterIndex?: MetadataParameterIndex): void {
-    const key = constructKey(metadataKey, propertyKey, parameterIndex);
-    const actualTarget = resolveTargetClass(target);
-    this.storage.set(actualTarget!, key, value);
+  defineMetadata<T>(metadataKey: MetadataKey, value: MetadataValue<T>, target: MetadataTarget, propertyKey?: MetadataKey, parameterIndex?: MetadataParameterIndex): void {
+    const actualTarget = identifyTargetType(target);
+    const key = constructMetadataKey(metadataKey, actualTarget, propertyKey, parameterIndex);
+    this.storage.set(actualTarget.target, key, value);
   }
 
   /**
    * Retrieve metadata for a target and optional property.
    */
-  getMetadata<T = MetadataValue>(metadataKey: MetadataKey, target: MetadataTarget, propertyKey?: MetadataKey, parameterIndex?: MetadataParameterIndex): T | unknown {
-    const key = constructKey(metadataKey, propertyKey, parameterIndex);
-    let currentTarget = resolveTargetClass(target);
-    while (currentTarget) {
-      const metadataMap = this.storage.get(currentTarget);
+  getMetadata<V>(metadataKey: MetadataKey, target: MetadataTarget, propertyKey?: MetadataKey, parameterIndex?: MetadataParameterIndex): MetadataValue<V> | undefined {
+    let resolvedTarget = identifyTargetType(target);
+    const metadataKeyFormatted = constructMetadataKey(metadataKey, resolvedTarget, propertyKey, parameterIndex);
 
-      if (metadataMap && metadataMap.has(key)) {
-        return metadataMap.get(key);
+    while (resolvedTarget) {
+      const metadataMap = this.storage.get(resolvedTarget.target);
+      if (metadataMap && metadataMap.has(metadataKeyFormatted.toString())) {
+        return metadataMap.get(metadataKeyFormatted) as V | undefined;
       }
-      currentTarget = Object.getPrototypeOf(currentTarget);
+
+      const parentPrototype = Object.getPrototypeOf(resolvedTarget.target);
+      if (!parentPrototype) {
+        break;
+      }
+
+      resolvedTarget.target = parentPrototype;
+    }
+    const parentPrototype = Object.getPrototypeOf(target);
+    if (parentPrototype) {
+      return this.getMetadata(metadataKey, parentPrototype, propertyKey, parameterIndex);
     }
     return undefined;
   }
@@ -39,34 +49,35 @@ class Reflector {
    * Check if metadata exists for a target and optional property.
    */
   hasMetadata(metadataKey: MetadataKey, target: MetadataTarget, propertyKey?: MetadataKey, parameterIndex?: MetadataParameterIndex): boolean {
-    const key = constructKey(metadataKey, propertyKey, parameterIndex);
-    return this.storage.has(target, key);
+    const actualTarget = identifyTargetType(target);
+    const key = constructMetadataKey(metadataKey, actualTarget, propertyKey, parameterIndex);
+    return this.storage.has(actualTarget.target!, key);
   }
 
   /**
    * Delete metadata for a target and optional property.
    */
   deleteMetadata(metadataKey: MetadataKey, target: MetadataTarget, propertyKey?: MetadataKey, parameterIndex?: MetadataParameterIndex): boolean {
-    const key = constructKey(metadataKey, propertyKey, parameterIndex);
-    const actualTarget = resolveTargetClass(target);
+    const actualTarget = identifyTargetType(target);
+    const key = constructMetadataKey(metadataKey, actualTarget, propertyKey, parameterIndex);
     if (!actualTarget) {
       return false;
     }
-    return this.storage.delete(actualTarget, key);
+    return this.storage.delete(actualTarget.target!, key);
   }
 
   /**
    * Clear all metadata for a target.
    */
   clearMetadata(target: MetadataTarget): void {
-    const actualTarget = resolveTargetClass(target);
-    if (!actualTarget) {
+    const actualTarget = identifyTargetType(target);
+    if (!actualTarget.target) {
       throw new Error('Unable to clear metadata: The provided target is invalid or not properly defined.');
     }
-    this.storage.clear(actualTarget);
+    this.storage.clear(actualTarget.target);
   }
   // Decorator factory
-  metadata(key: MetadataKey, value: MetadataValue): Decorator {
+  metadata<T>(key: MetadataKey, value: MetadataValue<T>): Decorator {
     return (target: MetadataTarget, propertyKey?: MetadataKey, descriptorOrIndex?: MetadataParameterIndex | TypedPropertyDescriptor<any>) => {
       if (typeof descriptorOrIndex === 'number') {
         // Parameter decorator (target, prop, index)
@@ -86,60 +97,52 @@ class Reflector {
   /**
    * List all metadata keys for a target and optional property.
    */
-  getMetadataKeys(target: MetadataTarget, scope?: MetadataScopeType, propertyName?: string, parameterIndex?: number): MetadataKey[] {
-    const resolvedTarget = resolveTargetClass(target);
-    const metadataMap = this.storage.get(resolvedTarget!);
-
+  getMetadataKeys(target: MetadataTarget, scope?: MetadataScopeType): MetadataKey[] {
+    const resolvedTarget = identifyTargetType(target);
+    const metadataMap = this.storage.get(resolvedTarget.target);
     if (!metadataMap) {
       return [];
     }
 
-    return Array.from(metadataMap.keys())
-      .filter((key) => {
-        const segments = String(key).split(':');
-        const currentScope = segments[0];
+    const keys = Array.from(metadataMap.entries());
+    const result = parseMetadataEntries(keys);
 
-        if (scope && currentScope !== MetadataScope[scope.toUpperCase()]) {
-          return false;
-        }
+    const filteredKeys = result.filter((rs) => {
+      if (scope) {
+        return rs.scopes?.includes(scope);
+      }
+      return true;
+    });
 
-        if (propertyName && segments.length > 1 && segments[1] !== propertyName) {
-          return false;
-        }
-
-        if (typeof parameterIndex === 'number') {
-          const hasParamSegment = segments.length > 3 && segments[2] === 'param';
-          const hasCorrectIndex = hasParamSegment && Number(segments[3]) === parameterIndex;
-
-          if (!hasCorrectIndex) {
-            return false;
-          }
-        }
-
-        return true;
-      })
-      .map((key) => {
-        const segments = String(key).split(':');
-        return segments[segments.length - 1];
-      });
+    return filteredKeys.map((rs) => rs.metadataKey!);
   }
 
   /**
    * List all metadata for a target.
    */
-  listMetadata<K extends MetadataKey, V extends MetadataValue>(target: MetadataTarget): Map<K, V> | null {
-    const metadataMap = this.storage.list(target);
-    if (metadataMap) {
-      return metadataMap as Map<K, V>;
+  listMetadata<K extends MetadataKey, V>(
+    target: MetadataTarget,
+  ): {
+    count: number;
+    metadata: Array<{
+      metadataKey: MetadataKey<K>;
+      metadataValue: MetadataValue<V>;
+    }>;
+  } | null {
+    const actualTarget = identifyTargetType(target);
+    const metadataMap = this.storage.list(actualTarget.target);
+    if (!metadataMap) {
+      return null;
     }
-    return null;
-  }
-
-  /**
-   * List all metadata across all targets.
-   */
-  listAllMetadata(): Map<string, Map<MetadataKey, MetadataValue>> {
-    return this.storage.allList();
+    const entries = Array.from(metadataMap.entries()) as [K, V][];
+    const parsedEntries = parseMetadataEntries<K, V>(entries).filter((entry): entry is { metadataKey: MetadataKey<K>; metadataValue: MetadataValue<V> } => entry.metadataKey !== undefined);
+    return {
+      count: parsedEntries.length,
+      metadata: parsedEntries.map((entry) => ({
+        metadataKey: entry.metadataKey,
+        metadataValue: entry.metadataValue,
+      })),
+    };
   }
 }
 
