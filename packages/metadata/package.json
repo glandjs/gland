@@ -1,7 +1,7 @@
 {
   "name": "@gland/metadata",
   "version": "1.0.0",
-  "author": "Mahdi",
+  "description": "A metadata management library for the Gland framework, offering decorators and tools to handle metadata for routes, controllers, and schemas.",
   "license": "MIT",
   "scripts": {
     "build": "tsc"
