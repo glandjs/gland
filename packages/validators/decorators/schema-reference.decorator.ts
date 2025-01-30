@@ -10,6 +10,7 @@ export function SchemaRef<T>(options?: ValidationOptions<T>): PropertyDecorator 
   return function (target, propertyKey) {
     const instance = new (target.constructor as any)();
     const schemaClass: Constructor<T> = instance[propertyKey];
+
     // Ensure schema class is assigned correctly if not set
     if (typeof schemaClass !== 'function' || !Reflector.getMetadata(VALIDATOR_METADATA.SCHEMA_METADATA_WATERMARK, schemaClass)) {
       throw new Error(`The property '${String(propertyKey)}' must reference a valid schema class.`);

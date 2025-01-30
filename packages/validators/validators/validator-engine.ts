@@ -1,4 +1,4 @@
-import { SectionErrors, Constructor, VALIDATOR_METADATA, RulesList, isNil } from '@gland/common';
+import { SectionErrors, Constructor, VALIDATOR_METADATA, RulesList, isNil, RuleCondition } from '@gland/common';
 import { FieldValidator } from './field-validator';
 import { RuleAction } from '../actions/rule-action';
 import { ValidationContainer } from './container';
@@ -45,8 +45,17 @@ export class ValidatorEngine {
   /** Validate fields and collect errors */
   static validateSchemaFields<T>(schemaClass: Constructor<T>, data: Record<string, any>, contianer: ValidationContainer, returnFirstError: boolean) {
     const rules = ValidatorEngine.getValidationRules(schemaClass);
-    const defaultRules = ValidatorEngine.getDefaultRules(schemaClass);
     const section = ValidatorEngine.getSchemaSection(schemaClass);
+
+    if (!rules) {
+      throw Error(`No validation rules found for schema: ${schemaClass.name}`);
+    }
+
+    if (!section) {
+      throw Error(`No section found for schema: ${schemaClass.name}`);
+    }
+    const defaultRules = ValidatorEngine.getDefaultRules(schemaClass);
+
     const sectionData = data[section] ?? {};
 
     for (const [field, fieldRules] of Object.entries(rules)) {
@@ -68,15 +77,15 @@ export class ValidatorEngine {
   }
 
   private static getValidationRules<T>(schemaClass: Constructor<T>): Record<string, ValidationField> {
-    return Reflector.getMetadata(VALIDATOR_METADATA.RULES_METADATA, schemaClass);
+    return Reflector.getMetadata(VALIDATOR_METADATA.RULES_METADATA, schemaClass)!;
   }
 
   private static getDefaultRules<T>(schemaClass: Constructor<T>): RulesList {
-    return Reflector.getMetadata(VALIDATOR_METADATA.RULES_DEFAULTS_METADATA, schemaClass);
+    return Reflector.getMetadata(VALIDATOR_METADATA.RULES_DEFAULTS_METADATA, schemaClass)!;
   }
 
   private static getSchemaSection<T>(schemaClass: Constructor<T>): string {
-    return Reflector.getMetadata(VALIDATOR_METADATA.SCHEMA_SECTION_METADATA, schemaClass);
+    return Reflector.getMetadata<string>(VALIDATOR_METADATA.SCHEMA_SECTION_METADATA, schemaClass)!;
   }
   private static mergeRules(fieldRules: ValidationField): ValidationField {
     return {

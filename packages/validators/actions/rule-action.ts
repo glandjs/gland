@@ -1,4 +1,4 @@
-import { Constructor, RuleOperator, RuleType, VALIDATOR_METADATA } from '@gland/common';
+import { Constructor, isNumber, RuleOperator, RuleType, VALIDATOR_METADATA } from '@gland/common';
 import Reflector from '@gland/metadata';
 import { ValidationField } from '../interface/validator.interface';
 import { ValidationRules } from '../rules/validation.rules';
@@ -62,12 +62,19 @@ export class RuleAction {
   }
 
   private static validateComparison(operator: RuleOperator, a: unknown, b: unknown): boolean {
-    const validTypes = (x: unknown) => typeof x === 'number' || x instanceof Date;
+    const validTypes = (x: unknown) => {
+      // Convert string numbers to numbers and check if the value is a valid number or Date
+      if (typeof x === 'string' && !isNaN(Number(x))) {
+        x = Number(x);
+      }
+      return typeof x === 'number' || Number.isSafeInteger(x) || x instanceof Date;
+    };
     return validTypes(a) && validTypes(b) ? (RuleAction.depValidator[operator] as <T extends number | Date>(a: T, b: T) => boolean)(a as number | Date, b as number | Date) : false;
   }
 
   static filter<T>(schemaClass: Constructor<T>, pick?: (keyof T)[], omit?: (keyof T)[]): Record<string, ValidationField> {
-    const rules: Record<string, ValidationField> = Reflector.getMetadata(VALIDATOR_METADATA.RULES_METADATA, schemaClass) ?? {};
+    const rules = Reflector.getMetadata<Record<string, ValidationField>>(VALIDATOR_METADATA.RULES_METADATA, schemaClass) ?? {};
+
     const filteredRules: Record<string, ValidationField> = {};
 
     if (pick) {
