@@ -3,7 +3,7 @@ import { RuleValidation } from '../types/rules-validation.types';
 
 export class ValidationRules implements Partial<RuleValidation> {
   required(value: unknown): value is NonNullable<unknown> {
-    return !isNil(value);
+    return !isNil(value) && value !== '';
   }
 
   string(value: unknown): value is string {
