@@ -1,6 +1,6 @@
 import { MetadataScope } from '../constant';
 export type MetadataKey<K = string | symbol> = K;
-export type MetadataValue<T extends unknown> = T;
+export type MetadataValue<T = unknown> = T;
 export type MetadataTarget = object | Function;
 export type MetadataPropertyKey = string | symbol;
 export type MetadataParameterIndex = number;

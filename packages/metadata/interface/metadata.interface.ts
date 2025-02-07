@@ -1,11 +1,18 @@
 import { MetadataKey, MetadataTarget, MetadataValue } from '../types/metadata.types';
 
-export interface MetadataStorage {
-  get<K extends MetadataKey, V>(target: MetadataTarget): Map<MetadataKey<K>, MetadataValue<V>>;
-  set<K extends MetadataKey, V>(target: MetadataTarget, key: MetadataKey<K>, value: MetadataValue<V>): void;
-  has(target: MetadataTarget, key: MetadataKey): boolean;
-  delete(target: MetadataTarget, key: MetadataKey): boolean;
+// Define the MetadataStorage interface
+export interface MetadataStorage<K extends MetadataKey, V extends MetadataValue> {
+  get(target: MetadataTarget): Map<K, V>;
+
+  set(target: MetadataTarget, key: K, value: V): void;
+
+  has(target: MetadataTarget, key: K): boolean;
+
+  delete(target: MetadataTarget, key: K): boolean;
+
   clear(target: MetadataTarget): void;
+
   keys(): string[];
-  list<K extends MetadataKey, V>(target: MetadataTarget): Map<MetadataKey<K>, MetadataValue<V>> | null;
+
+  list(target: MetadataTarget): Map<K, V> | null;
 }
