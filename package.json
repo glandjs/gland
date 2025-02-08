@@ -1,12 +1,12 @@
 {
-  "name": "@medishn/gland",
+  "name": "@gland/core",
   "version": "1.1.1",
-  "description": "Glands is a lightweight framework for Node.js designed for simplicity.",
+  "description": "Glands is a web framework for Node.js",
   "main": "dist/index.js",
+  "private": true,
   "types": "dist/index.d.ts",
   "files": [
     "dist/",
-    "LICENSE",
     "README.md"
   ],
   "directories": {
@@ -19,10 +19,14 @@
     "test": "npm run test:unit",
     "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts",
     "benchmark": "ts-node ./benchmark/gland.ts",
-    "build": "tsc",
+    "build": "tsc -b ./packages/tsconfig.build.json",
+    "start": "ts-node packages/core/index.ts",
     "chmod": "chmod +x ./scripts/release.sh",
     "release": "npm run chmod && ./scripts/release.sh"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/medishen/gland.git"
@@ -55,6 +59,6 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@medishn/qiks": "^1.1.0"
+    "@medishn/qiks": "^2.0.0"
   }
 }

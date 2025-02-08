@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./cache" },
+    { "path": "./common" },
+    { "path": "./config" },
+    { "path": "./core" },
+    { "path": "./debug" },
+    { "path": "./events" },
+    { "path": "./metadata" },
+    { "path": "./testing" },
+    { "path": "./validators" }
+  ]
+}

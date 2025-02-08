@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "removeComments": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false,
+    "allowJs": false,
+    "composite": true,
+    "declaration": true,
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "types": ["node"],
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "importHelpers": true,
+    "noLib": false,
+    "sourceMap": false,
+    "strictPropertyInitialization": false
+  }
+}
