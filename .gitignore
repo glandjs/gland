@@ -1,8 +1,12 @@
-# Node modules
+packages/*/package-lock.json
+dist
 /node_modules/
 
-# Compiled output
-/dist/
+packages/**/node_modules/
+# bundle
+packages/**/*.d.ts
+packages/**/*.js
+
 
 # Logs
 *.log

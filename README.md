@@ -1,125 +1,66 @@
 # Gland
 
-`Gland` is a lightweight and extensible web server framework for Node.js. It provides a flexible and modular approach to building web applications, including support for middleware, routing, logging, and SQL query execution.
+**Gland** is an innovative, lightweight, and extensible web framework for Node.js. Built with an object-oriented philosophy and inspired by frameworks like Angular and NestJS, Gland leverages a fully event-driven architecture, robust dependency injection, and metadata reflection to deliver unparalleled flexibility in building scalable, modular web applications.
 
-## Features
+> **Status:** Under active development – Expect breaking changes and rapid evolution as new features are integrated.
 
-- **Modular Configuration**: Load and configure modules dynamically.
-- **Middleware Support**: Easily add and manage middleware functions.
-- **Routing**: Define routes using decorators for different HTTP methods.
+## Packages Overview
 
-## Installation
+Gland is structured as a monorepo with a set of interdependent packages, each responsible for a distinct area of functionality:
 
-You can install `@medishn/gland` via npm:
+- **@gland/core:**  
+  The framework's engine, managing application bootstrapping, routing, middleware execution, and the DI container.
 
-```bash
-npm install @medishn/gland
-```
+- **@gland/common:**  
+  Shared utilities, base decorators, constants, interfaces, and helper functions used across the framework.
 
-## Basic Usage
+- **@gland/config:**  
+  Dynamic configuration management, including environment-based configuration and schema validation.
 
-To get started with `@medishn/gland`, follow these steps:
+- **@gland/debug:**  
+  Debugging tools and logging services to monitor application state and performance.
 
-1. **Create a Basic Server**
+- **@gland/events:**  
+  The backbone of Gland’s event-driven architecture, providing a unified system for emitting and listening to application events.
 
-   ```typescript
-   import path from 'path';
-   import gland from '@medishn/gland';
+- **@gland/testing:**  
+  Tools and utilities for unit and integration testing, including mocks and helper functions.
 
-   const g = new gland();
-   g.load(path.join(__dirname, '.confmodule'));
-   g.init(3000, () => {
-     console.log('Server running on port 3000');
-   });
-   ```
+- **@gland/validators:**  
+  A schema-based validation system with decorators and rules to enforce data integrity.
 
-2. **Define Routes and Handlers**
-Create a `.confmodule` file to configure your routes, caching, and file-watching behavior. This file allows you to dynamically load and configure modules in your application. Below is an example configuration file:
-
-```conf
-path = path.join(__dirname, 'router');
-router {
-    [0]: 'index.ts';
-    [1]: 'test.ts';
-}
-cache = true;
-watch = true;
-```
-
-3. **Create Router:(/router/example.ts)**
-   ```typescript
-   import { Context, Get, Route } from '@medishn/gland';
-
-   @Route('/')
-   export class Test {
-     @Get()
-     test(ctx: Context) {
-       ctx.write('hello world');
-       ctx.end();
-     }
-   }
-   ```
-
-## Middleware
-
-You can add middleware functions to your Gland instance:
-
-```typescript
-import gland, { Context,NxtFunction } from '@medishn/gland';
-
-const g = new gland();
-
-const myMiddleware = async (ctx: Context, next: NxtFunction) => {
-  // Middleware logic here
-  await next();
-};
-
-g.use(myMiddleware);
-```
-
-## Routing
-
-Define routes using decorators:
-
-```typescript
-import { Context, Get, Post, Route } from '@medishn/gland';
-
-@Route('/example')
-export class Example {
-  @Get()
-  getExample(ctx: Context) {
-    ctx.write('GET request');
-    ctx.end();
-  }
-
-  @Post()
-  postExample(ctx: Context) {
-    ctx.write('POST request');
-    ctx.end();
-  }
-}
-```
+- **@gland/cache:**  
+  Caching mechanisms and strategies (e.g., in-memory, Redis) to improve application performance.
 
 ## Contributing
 
-We welcome contributions to the Gland project. Please follow these steps:
+We welcome contributions to help shape Gland into a robust, production-ready framework. To contribute:
 
 1. Fork the repository.
-2. Clone your fork and create a new branch.
-3. Make your changes and write tests.
-4. Commit your changes with a descriptive message.
-5. Push your changes and create a pull request.
+2. Create a new branch for your feature or bugfix.
+3. Write tests and update documentation as needed.
+4. Submit a pull request with a detailed description of your changes.
 
-For more details, see the [CONTRIBUTING.md](docs/CONTRIBUTING.md).
+Please review our [CONTRIBUTING.md](docs/CONTRIBUTING.md) guidelines before getting started.
+
+---
 
 ## Security
 
-For information on security practices and reporting vulnerabilities, please refer to [SECURITY.md](docs/SECURITY.md).
+For details on security practices and how to report vulnerabilities, please see [SECURITY.md](docs/SECURITY.md).
+
+---
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+Gland is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
 
 ## Contact
 
-For any questions or further assistance, please reach out to us at [bitsgenix@gmail.com](mailto:bitsgenix@gmail.com).
+For questions, suggestions, or further information, please contact us at [bitsgenix@gmail.com](mailto:bitsgenix@gmail.com).
+
+---
+
+> **Note:** Gland is actively under development. We appreciate your patience as we continue to improve the framework and welcome your feedback and contributions!

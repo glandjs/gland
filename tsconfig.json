@@ -1,21 +1,58 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
+    "target": "ES2020",
+    "module": "CommonJS",
     "strict": true,
     "esModuleInterop": true,
+    "removeComments": true,
+    "composite": true,
+    "declaration": true,
+    "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false,
+    "allowJs": false,
     "skipLibCheck": true,
     "moduleResolution": "node",
-    "declaration": true,
-    "rootDir": "lib",
+    "rootDir": ".",
     "outDir": "dist",
+    "baseUrl": ".",
     "types": ["node"],
-    "resolveJsonModule": true,
-    "typeRoots": ["lib/common/types", "node_modules/@types"]
+    "paths": {
+      "@gland/cache": ["./packages/cache"],
+      "@gland/cache/*": ["./packages/cache/*"],
+
+      "@gland/common": ["./packages/common"],
+      "@gland/common/*": ["./packages/common/*"],
+
+      "@gland/config": ["./packages/config"],
+      "@gland/config/*": ["./packages/config/*"],
+
+      "@gland/core": ["./packages/core"],
+      "@gland/core/*": ["./packages/core/*"],
+
+      "@gland/debug": ["./packages/debug"],
+      "@gland/debug/*": ["./packages/debug/*"],
+
+      "@gland/events": ["./packages/events"],
+      "@gland/events/*": ["./packages/events/*"],
+
+      "@gland/metadata": ["./packages/metadata"],
+      "@gland/metadata/*": ["./packages/metadata/*"],
+
+      "@gland/testing": ["packages/testing"],
+      "@gland/testing/*": ["packages/testing/*"],
+
+      "@gland/validators": ["./packages/validators"],
+      "@gland/validators/*": ["./packages/validators/*"]
+    },
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "strictPropertyInitialization": false,
+    "noLib": false
   },
-  "include": ["lib/**/*.ts", "lib/common/types/*.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["packages/**/*", "test/**/*"],
+  "preserveSymlinks": true,
+  "exclude": ["node_modules"]
 }

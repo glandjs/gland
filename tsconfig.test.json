@@ -1,13 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["node", "mocha"],
-    "esModuleInterop": true
+    "rootDir": ".",
+    "outDir": "dist-tests"
   },
-  "include": [
-    "lib/**/*.ts", // Include lib directory files
-    "test/**/*.ts", // Include test directory files
-    "lib/common/types/*.d.ts" // Include type definitions
-  ],
-  "exclude": ["node_modules", "dist"]
+  "include": ["packages/**/*.ts", "tests/**/*.ts"],
+  "exclude": ["node_modules", "dist", "dist-tests"]
 }
