@@ -2,7 +2,7 @@ import { SectionErrors, Constructor, VALIDATOR_METADATA, RulesList, isNil, RuleC
 import { FieldValidator } from './field-validator';
 import { RuleAction } from '../actions/rule-action';
 import { ValidationContainer } from './container';
-import Reflector from '@gland/metadata';
+import 'reflect-metadata';
 import { SchemaRegistry } from '../types/validator.type';
 import { ValidationField, ValidationOptions } from '../interface/validator.interface';
 import { ConditionEvaluator } from './condition-evaluator';
@@ -38,7 +38,7 @@ export class ValidatorEngine {
     }
     if (options.pick || options.omit) {
       const filteredRules = RuleAction.filter(schemaClass, options.pick, options.omit);
-      Reflector.defineMetadata(VALIDATOR_METADATA.RULES_METADATA, filteredRules, schemaClass);
+      Reflect.defineMetadata(VALIDATOR_METADATA.RULES_METADATA, filteredRules, schemaClass);
     }
   }
 
@@ -73,19 +73,19 @@ export class ValidatorEngine {
     }
   }
   private static getSchemaRegistry<T>(schemaClass: Constructor<T>): SchemaRegistry<T> {
-    return Reflector.getMetadata(VALIDATOR_METADATA.NESTED_SCHEMA_METADATA, schemaClass) ?? {};
+    return Reflect.getMetadata(VALIDATOR_METADATA.NESTED_SCHEMA_METADATA, schemaClass) ?? {};
   }
 
   private static getValidationRules<T>(schemaClass: Constructor<T>): Record<string, ValidationField> {
-    return Reflector.getMetadata(VALIDATOR_METADATA.RULES_METADATA, schemaClass)!;
+    return Reflect.getMetadata(VALIDATOR_METADATA.RULES_METADATA, schemaClass)!;
   }
 
   private static getDefaultRules<T>(schemaClass: Constructor<T>): RulesList {
-    return Reflector.getMetadata(VALIDATOR_METADATA.RULES_DEFAULTS_METADATA, schemaClass)!;
+    return Reflect.getMetadata(VALIDATOR_METADATA.RULES_DEFAULTS_METADATA, schemaClass)!;
   }
 
   private static getSchemaSection<T>(schemaClass: Constructor<T>): string {
-    return Reflector.getMetadata<string>(VALIDATOR_METADATA.SCHEMA_SECTION_METADATA, schemaClass)!;
+    return Reflect.getMetadata(VALIDATOR_METADATA.SCHEMA_SECTION_METADATA, schemaClass)!;
   }
   private static mergeRules(fieldRules: ValidationField): ValidationField {
     return {
