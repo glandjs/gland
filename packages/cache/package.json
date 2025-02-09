@@ -10,6 +10,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@medishn/qiks": "2.0.0"
+    "@medishn/qiks": "2.0.0",
+    "reflect-metadata": "^0.2.2"
   }
 }

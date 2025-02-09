@@ -18,6 +18,7 @@
   "scripts": {
     "test": "npm run test:unit",
     "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts",
+    "test:integration": "mocha --require ts-node/register test/integration/**/*.spec.ts",
     "benchmark": "ts-node ./benchmark/gland.ts",
     "build": "tsc -b ./packages/tsconfig.build.json",
     "start": "ts-node packages/core/index.ts",
@@ -59,6 +60,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@medishn/qiks": "^2.0.0"
+    "@medishn/qiks": "^2.0.0",
+    "reflect-metadata": "^0.2.2"
   }
 }

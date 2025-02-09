@@ -1,5 +1,5 @@
-import { Constructor, isNumber, RuleOperator, RuleType, VALIDATOR_METADATA } from '@gland/common';
-import Reflector from '@gland/metadata';
+import 'reflect-metadata';
+import { Constructor, RuleOperator, RuleType, VALIDATOR_METADATA } from '@gland/common';
 import { ValidationField } from '../interface/validator.interface';
 import { ValidationRules } from '../rules/validation.rules';
 import { DependencyValidators } from '../rules/dependency-validators.rules';
@@ -73,7 +73,7 @@ export class RuleAction {
   }
 
   static filter<T>(schemaClass: Constructor<T>, pick?: (keyof T)[], omit?: (keyof T)[]): Record<string, ValidationField> {
-    const rules = Reflector.getMetadata<Record<string, ValidationField>>(VALIDATOR_METADATA.RULES_METADATA, schemaClass) ?? {};
+    const rules = Reflect.getMetadata(VALIDATOR_METADATA.RULES_METADATA, schemaClass) ?? {};
 
     const filteredRules: Record<string, ValidationField> = {};
 

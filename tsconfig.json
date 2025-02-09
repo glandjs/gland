@@ -38,9 +38,6 @@
       "@gland/events": ["./packages/events"],
       "@gland/events/*": ["./packages/events/*"],
 
-      "@gland/metadata": ["./packages/metadata"],
-      "@gland/metadata/*": ["./packages/metadata/*"],
-
       "@gland/testing": ["packages/testing"],
       "@gland/testing/*": ["packages/testing/*"],
 

@@ -1,10 +1,10 @@
 import sinon from 'sinon';
-import Reflector from '../../packages/metadata';
+import 'reflect-metadata';
 import { MockBase } from './base-mock';
-export class ReflectorMock extends MockBase<typeof Reflector> {
-  private methods: (keyof typeof Reflector)[] = ['clearMetadata', 'defineMetadata', 'deleteMetadata', 'getMetadata', 'getMetadataKeys', 'hasMetadata', 'listMetadata', 'metadata'];
+export class ReflectorMock extends MockBase<typeof Reflect> {
+  private methods: (keyof typeof Reflect)[] = ['defineMetadata', 'deleteMetadata', 'getMetadata', 'getMetadataKeys', 'hasMetadata', 'metadata'];
   constructor() {
-    super(Reflector);
+    super(Reflect);
   }
   setup(): void {
     this.createStubs(this.methods);
@@ -13,7 +13,6 @@ export class ReflectorMock extends MockBase<typeof Reflector> {
     this.stub.getMetadata.returns(undefined);
     this.stub.deleteMetadata.returns(false);
     this.stub.getMetadataKeys.returns([]);
-    this.stub.listMetadata.returns(null);
   }
   restore(): void {
     this.restoreMethods(this.methods);

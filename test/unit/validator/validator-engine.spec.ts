@@ -1,4 +1,4 @@
-import {  RulesList, VALIDATOR_METADATA } from '@gland/common';
+import { RulesList, VALIDATOR_METADATA } from '@gland/common';
 import { ValidatorEngine } from '../../../packages/validators';
 import { FieldValidator } from '../../../packages/validators/validators/field-validator';
 import { expect } from 'chai';
@@ -9,13 +9,11 @@ import { ConditionEvaluator } from '../../../packages/validators/validators/cond
 describe('ValidatorEngine', () => {
   let reflectorMock: ReflectorMock;
   let getMetadataStub: sinon.SinonStub;
-  let defineMetadataStub: sinon.SinonStub;
 
   beforeEach(() => {
     reflectorMock = new ReflectorMock();
     reflectorMock.setup();
     getMetadataStub = reflectorMock.stub.getMetadata;
-    defineMetadataStub = reflectorMock.stub.defineMetadata;
   });
 
   afterEach(() => {
