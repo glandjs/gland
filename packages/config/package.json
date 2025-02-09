@@ -1,0 +1,15 @@
+{
+  "name": "@gland/config",
+  "version": "1.0.0",
+  "author": "Mahdi",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@gland/common": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
