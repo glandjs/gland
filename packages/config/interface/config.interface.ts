@@ -1,6 +1,13 @@
-import { CorsOptions, Environment, EtagIdentifier, TtlIdentifier } from '@gland/common';
+import { Environment, EtagIdentifier, TtlIdentifier } from '@gland/common';
 import { TrustProxyOption } from '../types/config.types';
-export interface CookieConfig {
+
+export interface ProxyServiceConfig {
+  trustProxy?: TrustProxyOption;
+  proxyTrustCount?: number;
+  proxyIpHeader?: string;
+}
+
+export interface CookieOptions {
   secure?: boolean;
   httpOnly?: boolean;
   sameSite?: 'Strict' | 'Lax' | 'None';
@@ -8,43 +15,14 @@ export interface CookieConfig {
   path?: string;
   maxAge?: number;
 }
-export interface IConfigSettings {
-  etag?: EtagIdentifier;
-  subdomainOffset?: number;
 
-  maxIpsCount?: number;
-
-  poweredBy?: string | boolean;
-
-  cors?: CorsOptions;
-}
-
-export interface IConfigCache {
-  ttl: TtlIdentifier;
-}
-
-export interface IConfigEngines {
+export interface ViewsEnginesOptions {
   engine: 'ejs' | 'hbs' | 'pug';
   cacheTemplates?: boolean;
 }
 
-export interface IConfigCore {
+export interface GlobalSettings {
   env?: Environment;
-  caching?: IConfigCache;
-  proxy?: boolean;
-  cookies?: CookieConfig;
-  views?: {
-    directory: string | string[];
-    engine?: IConfigEngines;
-  };
-  trustProxy?: TrustProxyOption;
-  proxyIpHeader?: string;
-  proxyTrustCount?: number;
-}
-/**
- * Defines the overall structure for the configuration object.
- */
-export interface ConfigOptions {
-  settings?: IConfigSettings;
-  core?: IConfigCore;
+  etag?: EtagIdentifier;
+  poweredBy?: string | boolean;
 }
