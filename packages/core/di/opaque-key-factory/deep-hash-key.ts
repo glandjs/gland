@@ -24,11 +24,16 @@ export class DeepHashedModuleOpaqueKeyFactory implements ModuleOpaqueKeyFactory 
 
   private serializeModuleMetadata<T>(metadata: ModuleMetadata<T>): string {
     const { imports, providers, controllers, exports } = metadata;
+    const sortedImports = imports?.map((imp) => this.createImportSignature(imp)).sort();
+    const sortedProviders = providers?.map((prov) => this.createProviderSignature(prov)).sort();
+    const sortedControllers = controllers?.map((c) => c.name).sort();
+    const sortedExports = exports?.map((e) => String(e)).sort();
+
     return JSON.stringify({
-      imports: imports?.map((imp) => this.createImportSignature(imp)),
-      providers: providers?.map((prov) => this.createProviderSignature(prov)),
-      controllers: controllers?.map((c) => c.name),
-      exports: exports?.map((e) => String(e)),
+      imports: sortedImports,
+      providers: sortedProviders,
+      controllers: sortedControllers,
+      exports: sortedExports,
     });
   }
 

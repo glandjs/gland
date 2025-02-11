@@ -1,7 +1,7 @@
-import { ModuleMetadata, DynamicModule, Constructor, MODULE_METADATA } from '@gland/common';
+import { ModuleMetadata, DynamicModule, Constructor, MODULE_METADATA, ModuleType } from '@gland/common';
 import { ModuleTokenFactory } from '../opaque-key-factory';
 import { isDynamicModule, validateProvider } from '../../utils';
-import { isClassModule } from '../../utils/modules/module.utils';
+import { isClassModule, isModuleMetadata } from '../../utils/modules/module.utils';
 
 export interface CompiledModule<T = any> {
   token: string;
@@ -13,9 +13,10 @@ export class ModuleCompiler {
   constructor(private readonly moduleTokenFactory: ModuleTokenFactory) {}
 
   public compile<T>(module: Constructor<T>): Omit<CompiledModule<T>, 'dynamicMetadata'>;
-  public compile<T>(module: DynamicModule<T>): CompiledModule<T>;
   public compile<T>(module: ModuleMetadata<T>): Omit<CompiledModule<T>, 'dynamicMetadata'>;
-  public compile<T>(module: Constructor<T> | DynamicModule<T> | ModuleMetadata<T>): CompiledModule<T> {
+  public compile<T>(module: DynamicModule<T>): CompiledModule<T>;
+
+  public compile<T>(module: ModuleType<T>): CompiledModule<T> {
     if (isDynamicModule(module)) {
       return this.compileDynamicModule(module);
     }
@@ -24,13 +25,14 @@ export class ModuleCompiler {
       return this.compileClassModule(module);
     }
 
-    if (typeof module === 'object' && module !== null) {
+    if (isModuleMetadata(module)) {
       this.validateMetadata(module);
       return {
         token: this.moduleTokenFactory.create(module),
         metadata: module,
       };
     }
+
     throw new Error(`Unrecognized module type: ${typeof module}`);
   }
 
