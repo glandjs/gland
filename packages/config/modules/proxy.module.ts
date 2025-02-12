@@ -1,6 +1,6 @@
-import { DynamicModule, Module } from '@gland/common';
+import { DynamicModule, ensureObject, Module } from '@gland/common';
 import { PROXY_METADATA } from '../constant';
-import { ProxyServiceConfig } from '../interface/config.interface';
+import { ProxyOptions } from '../interface/config.interface';
 import { ProxyService } from '../services/proxy.service';
 /**
  * @module ProxyModule
@@ -8,14 +8,15 @@ import { ProxyService } from '../services/proxy.service';
  */
 @Module({})
 export class ProxyModule {
-  static forRoot(options?: ProxyServiceConfig): DynamicModule {
+  static forRoot(options?: ProxyOptions): DynamicModule {
     return {
       module: ProxyModule,
       providers: [
         {
           provide: PROXY_METADATA.PROXY_WATERMARK,
-          useValue: options ?? {},
+          useValue: ensureObject(options),
         },
+        ProxyService,
       ],
       exports: [ProxyService],
     };

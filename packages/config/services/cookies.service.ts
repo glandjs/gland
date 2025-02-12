@@ -5,22 +5,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 
 @Injectable()
 export class CookiesService {
-  constructor(@Inject(COOKIES_METADATA.COOKIES_WATERMARK) private readonly options: CookieOptions) {
-    this.options = this.normalizeCookieConfig(options);
-  }
-  /**
-   * Normalizes the cookie configuration to ensure consistent behavior.
-   */
-  private normalizeCookieConfig(config: CookieOptions): CookieOptions {
-    return {
-      secure: config.secure ?? false,
-      httpOnly: config.httpOnly ?? true,
-      sameSite: config.sameSite ?? 'Lax',
-      domain: config.domain ?? undefined,
-      path: config.path ?? '/',
-      maxAge: config.maxAge ?? undefined,
-    };
-  }
+  constructor(@Inject(COOKIES_METADATA.COOKIES_WATERMARK) private readonly options: CookieOptions) {}
 
   public setCookie(res: ServerResponse, name: string, value: string, options: CookieOptions = {}): void {
     const cookieOptions = { ...this.options, ...options };
@@ -72,7 +57,7 @@ export class CookiesService {
       const [name, value] = cookie.trim().split('=');
       cookies[name] = decodeURIComponent(value);
       return cookies;
-    }, {} as Record<string, string>);
+    }, {});
   }
 
   /**
