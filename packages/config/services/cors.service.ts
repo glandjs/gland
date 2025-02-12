@@ -1,14 +1,15 @@
-import { CorsOptions, CorsOptionsDelegate, CustomOrigin, Inject, Injectable, StaticOrigin } from '@gland/common';
+import { Inject, Injectable, isBoolean, isFunction, isString } from '@gland/common';
 import { CORS_METADATA } from '../constant';
 import { IncomingMessage, ServerResponse } from 'http';
-import { CorsServiceConfig } from '../types/config.types';
+import { CorsConfig, StaticOrigin } from '../types';
+import { CorsOptions } from '../interface';
 /**
  * @service CorsService
  * @description Service for handling Cross-Origin Resource Sharing (CORS) headers
  */
 @Injectable()
-export class CorsService<T> {
-  constructor(@Inject(CORS_METADATA.CORS_WATERMARK) private readonly options: CorsServiceConfig<T>) {}
+export class CorsService {
+  constructor(@Inject(CORS_METADATA.CORS_WATERMARK) private readonly options: CorsConfig) {}
 
   enableCors(res: ServerResponse) {
     if (!this.options) return;
@@ -33,7 +34,7 @@ export class CorsService<T> {
     if (typeof this.options === 'boolean') {
       callback(this.options ? {} : null);
     } else if (typeof this.options === 'function') {
-      (this.options as CorsOptionsDelegate<IncomingMessage>)(req, (err, options) => {
+      this.options(req, (err, options) => {
         callback(err ? null : options);
       });
     } else {
@@ -50,9 +51,9 @@ export class CorsService<T> {
     const originOption = options.origin;
     if (!originOption || originOption === '*') return '*';
 
-    if (typeof originOption === 'function') {
+    if (isFunction(originOption)) {
       let result: StaticOrigin | null = null;
-      (originOption as CustomOrigin)(requestOrigin, (err, origin) => {
+      originOption(requestOrigin, (err, origin) => {
         if (!err && origin) result = origin;
       });
       return this.validateOrigin(requestOrigin, result!);
@@ -62,8 +63,8 @@ export class CorsService<T> {
   }
 
   private validateOrigin(requestOrigin: string, option: StaticOrigin): string | null {
-    if (option === true) return requestOrigin || '*';
-    if (typeof option === 'string') return option === requestOrigin ? option : null;
+    if (isBoolean(option)) return requestOrigin ?? '*';
+    if (isString(option)) return option === requestOrigin ? option : null;
     if (option instanceof RegExp) return option.test(requestOrigin) ? requestOrigin : null;
     if (Array.isArray(option)) {
       return option.some((o) => (o instanceof RegExp ? o.test(requestOrigin) : o === requestOrigin)) ? requestOrigin : null;

@@ -1,19 +1,21 @@
-import { DynamicModule, Module } from '@gland/common';
+import { DynamicModule, ensureObject, Module } from '@gland/common';
 import { COOKIES_METADATA } from '../constant';
 import { CookieOptions } from '../interface/config.interface';
+import { CookiesService } from '../services/cookies.service';
 
 @Module({})
-export class CookieModule {
+export class CookiesModule {
   static forRoot(options: CookieOptions): DynamicModule {
     return {
-      module: CookieModule,
+      module: CookiesModule,
       providers: [
         {
           provide: COOKIES_METADATA.COOKIES_WATERMARK,
-          useValue: options,
+          useValue: ensureObject(options),
         },
+        CookiesService,
       ],
-      exports: [CookieModule],
+      exports: [CookiesService],
     };
   }
 }
