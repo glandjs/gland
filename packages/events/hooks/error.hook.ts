@@ -1,6 +1,6 @@
 import { EventContext } from '../core';
 import { EventBus } from '../core/event-bus';
-import { EventPhase, EventType } from '../enums';
+import { EventPhase, EventType } from '@gland/common';
 import { EventHook } from '../interface';
 import { Event, Listener } from '../types';
 export class ErrorHook implements EventHook {

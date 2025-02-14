@@ -31,7 +31,7 @@ export class EventManager {
         return new ImmediateStrategy();
     }
   }
-  async publish<T extends QualifiedEvent, D>(qualified: T, data: D): Promise<void> {
+  async publish<T extends string, D>(qualified: QualifiedEvent<T>, data: D): Promise<void> {
     const { phase, type } = EventMapper.parseQualifiedType(qualified);
 
     const event: Event<typeof type, typeof phase, D> = {
@@ -45,21 +45,21 @@ export class EventManager {
     await this.bus.emit(event);
   }
 
-  subscribe<T extends QualifiedEvent>(qualified: T, listener: Listener): () => void {
+  subscribe<T extends string>(qualified: QualifiedEvent<T>, listener: Listener): () => void {
     const { phase, type } = EventMapper.parseQualifiedType(qualified);
     this.eventRegistry.register(type, listener);
 
     return () => this.eventRegistry.unregister(type, listener);
   }
-  unsubscribe<T extends QualifiedEvent, D>(qualified: T, listener: Listener): void {
+  unsubscribe<T extends string, D>(qualified: QualifiedEvent<T>, listener: Listener): void {
     const { phase, type } = EventMapper.parseQualifiedType(qualified);
     this.eventRegistry.unregister(type, listener);
   }
 
-  batchSubscribe<T extends QualifiedEvent, D>(listeners: { qualified: T; listener: Listener }[]): (() => void)[] {
+  batchSubscribe<T extends string, D>(listeners: { qualified: QualifiedEvent<T>; listener: Listener }[]): (() => void)[] {
     return listeners.map(({ qualified, listener }) => this.subscribe(qualified, listener));
   }
-  batchUnsubscribe<T extends QualifiedEvent, D>(listeners: { qualified: T; listener: Listener }[]): void {
+  batchUnsubscribe<T extends string, D>(listeners: { qualified: QualifiedEvent<T>; listener: Listener }[]): void {
     listeners.forEach(({ qualified, listener }) => this.unsubscribe(qualified, listener));
   }
 }

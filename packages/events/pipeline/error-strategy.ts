@@ -1,5 +1,5 @@
 import { EventContext } from '../core/event-context';
-import { EventPhase } from '../enums';
+import { EventPhase } from '@gland/common';
 import { Event } from '../types';
 
 export class ErrorStrategy {

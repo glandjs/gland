@@ -7,7 +7,7 @@ import { OnHandlers } from './handlers';
 import { EventOnClassOptions, EventOnMethodOptions } from '../interface';
 type EventOptions<T> = T extends Constructor<infer _> ? EventOnClassOptions : EventOnMethodOptions;
 
-function OnEvent<T>(event: QualifiedEvent, options?: EventOptions<T>): MethodDecorator & ClassDecorator {
+function OnEvent<Q extends string, T>(event: QualifiedEvent<Q>, options?: EventOptions<T>): MethodDecorator & ClassDecorator {
   return function (target: any, propertyKey?: string | symbol, descriptor?: PropertyDescriptor) {
     const eventManager = Reflect.getMetadata(EVENTS_METADATA.EVENT_MANAGER, EventManager);
     if (!eventManager) {
@@ -33,11 +33,11 @@ function OnEvent<T>(event: QualifiedEvent, options?: EventOptions<T>): MethodDec
 }
 
 // Method-specific decorator
-function OnMethod<T extends Function>(event: QualifiedEvent, options?: EventOptions<T>): MethodDecorator {
-  return OnEvent<T>(event, options);
+function OnMethod<Q extends string, T extends Function>(event: QualifiedEvent<Q>, options?: EventOptions<T>): MethodDecorator {
+  return OnEvent<Q, T>(event, options);
 }
 // Class-specific decorator
-function OnClass<T extends Constructor>(event: QualifiedEvent, options?: EventOptions<T>): ClassDecorator {
-  return OnEvent<T>(event, options);
+function OnClass<Q extends string, T extends Constructor>(event: QualifiedEvent<Q>, options?: EventOptions<T>): ClassDecorator {
+  return OnEvent<Q, T>(event, options);
 }
 export { OnClass, OnMethod };
