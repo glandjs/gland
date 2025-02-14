@@ -1,9 +1,15 @@
-import { EventPhase, EventType } from '../enums';
+import { EventPhase, EventType } from '@gland/common';
+
 export type IEventPhase = (typeof EventPhase)[keyof typeof EventPhase];
 
 export type IEventType = (typeof EventType)[keyof typeof EventType];
 
-export type QualifiedEvent = `${IEventType}` | `${IEventType}:${IEventPhase}`;
+type QualifiedEventMap = {
+  [K in IEventType]: K | `${K}:${IEventPhase}` | `${IEventType}`;
+};
+
+export type QualifiedEvent<T extends string = string> = `${QualifiedEventMap[keyof QualifiedEventMap]}` | `${T}:${IEventPhase}` | T;
+
 /**
  * Represents an event in Gland's event-driven system.
  * @template T - The event type (e.g., "server:start").

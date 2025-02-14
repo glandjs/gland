@@ -1,4 +1,4 @@
-import { EventPhase } from '../enums';
+import { EventPhase } from '@gland/common';
 import { QualifiedEvent, IEventType, IEventPhase, Event } from '../types';
 
 /**

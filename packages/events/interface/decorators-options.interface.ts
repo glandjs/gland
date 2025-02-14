@@ -25,9 +25,7 @@ export interface EventOnClassOptions {
 }
 
 // Emit Decorators Options
-export interface EventEmitMethodOptions {
-  
-
+export interface EventEmitMethodOptions<D> {
   /**
    * Automatically retries the event publication if the decorated method fails.
    * - max: Maximum retry attempts.
@@ -36,8 +34,6 @@ export interface EventEmitMethodOptions {
   retry?: { max: number; delay: number };
 }
 export interface EventEmitClassOptions<D> {
-  data:D
-
   /**
    * If true, the class will inherit all the events of its parent.
    */
