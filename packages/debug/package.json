@@ -1,0 +1,12 @@
+{
+  "name": "@gland/debug",
+  "version": "1.0.0",
+  "author": "Mahdi",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
