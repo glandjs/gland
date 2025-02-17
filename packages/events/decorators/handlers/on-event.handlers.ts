@@ -1,6 +1,7 @@
 import { EventOnClassOptions, EventOnMethodOptions } from '../../interface';
 import { EventManager } from '../../core';
 import { Event, IEventType, QualifiedEvent } from '../../types';
+import { isFunction, isString, isSymbol } from '@gland/common';
 
 export namespace OnHandlers {
   /**
@@ -25,13 +26,6 @@ export namespace OnHandlers {
     if (options?.pick && options?.omit) {
       throw new Error("Invalid decorator usage: You cannot use both 'pick' and 'omit' together.");
     }
-    // Handle inheritance first
-    if (options?.inherit) {
-      const parent = Object.getPrototypeOf(target.prototype).constructor;
-      if (parent !== Object) {
-        classDecorator(parent, qualified, eventManager, options);
-      }
-    }
 
     // Normalize pick/omit to arrays
     const pickArray = options?.pick ? (Array.isArray(options.pick) ? options.pick : [options.pick]) : [];
@@ -39,11 +33,11 @@ export namespace OnHandlers {
     const omitArray = options?.omit ? (Array.isArray(options.omit) ? options.omit : [options.omit]) : [];
 
     Reflect.ownKeys(prototype).forEach((propertyKey) => {
-      if (typeof propertyKey !== 'string' && typeof propertyKey !== 'symbol') return;
+      if (!isString(propertyKey) && !isSymbol(propertyKey)) return;
       if (propertyKey === 'constructor') return;
 
       const handler = prototype[propertyKey];
-      if (typeof handler !== 'function' || handler.__sub__) {
+      if (!isFunction(handler) || handler.__sub__) {
         return;
       }
 
@@ -53,7 +47,7 @@ export namespace OnHandlers {
       const isExplicitlyOmitted = omitArray.includes(methodName);
 
       if (isExplicitlyPicked && !isExplicitlyOmitted) {
-        eventManager.subscribe(qualified, handler.bind(prototype));
+        eventManager.on(qualified, handler.bind(prototype));
         handler.__sub__ = true;
       }
     });
@@ -83,7 +77,7 @@ export namespace OnHandlers {
             try {
               return await originalMethod.call(this, transformedEvent);
             } catch (error) {
-              // attempt++;
+              attempt++;
               if (options.retry.delay > 0) {
                 await new Promise((resolve) => setTimeout(resolve, options.retry!.delay));
               }
@@ -102,6 +96,6 @@ export namespace OnHandlers {
     };
 
     descriptor.value.__sub__ = true;
-    eventManager.subscribe(qualified, descriptor.value.bind(target));
+    eventManager.on(qualified, descriptor.value.bind(target));
   }
 }

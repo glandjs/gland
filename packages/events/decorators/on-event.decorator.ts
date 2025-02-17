@@ -33,11 +33,10 @@ function OnEvent<Q extends string, T>(event: QualifiedEvent<Q>, options?: EventO
 }
 
 // Method-specific decorator
-function OnMethod<Q extends string, T extends Function>(event: QualifiedEvent<Q>, options?: EventOptions<T>): MethodDecorator {
+export function On<Q extends string, T extends Function>(event: QualifiedEvent<Q>, options?: EventOptions<T>): MethodDecorator {
   return OnEvent<Q, T>(event, options);
 }
 // Class-specific decorator
-function OnClass<Q extends string, T extends Constructor>(event: QualifiedEvent<Q>, options?: EventOptions<T>): ClassDecorator {
+export function Listen<Q extends string, T extends Constructor>(event: QualifiedEvent<Q>, options?: EventOptions<T>): ClassDecorator {
   return OnEvent<Q, T>(event, options);
 }
-export { OnClass, OnMethod };

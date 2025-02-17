@@ -1,11 +1,12 @@
 import { EventPhase } from '@gland/common';
 import { QualifiedEvent, IEventType, IEventPhase, Event } from '../types';
+import { CorrelationIdFactory } from '../core/correlation-id-factory';
 
 /**
  * Utility class for event transformation and type mapping
  */
 export class EventMapper {
-  static parseQualifiedType(qualified: QualifiedEvent): {
+  static parseQualifiedEvent(qualified: QualifiedEvent): {
     type: IEventType;
     phase: IEventPhase;
   } {
@@ -27,11 +28,19 @@ export class EventMapper {
   }
 
   static registryQualified(qualified: QualifiedEvent): QualifiedEvent {
-    const { phase, type } = this.parseQualifiedType(qualified);
-    const event = {
-      phase,
+    const event = EventMapper.createEvent(qualified, {});
+    return this.createQualifiedEvent(event);
+  }
+  static createEvent<T extends string, D>(qualified: QualifiedEvent<T>, data?: D): Event {
+    const correlationIdFactory = new CorrelationIdFactory();
+    const correlationId = correlationIdFactory.create();
+    const { phase, type } = EventMapper.parseQualifiedEvent(qualified);
+    return {
+      correlationId,
+      data,
       type,
+      phase,
+      timestamp: Date.now(),
     };
-    return this.createQualifiedEvent(event as any);
   }
 }
