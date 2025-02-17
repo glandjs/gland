@@ -31,13 +31,13 @@ export class EventManager {
         return new ImmediateStrategy();
     }
   }
-  async publish<T extends string, D>(qualified: QualifiedEvent<T>, data: D): Promise<void> {
+  async publish<T extends string, D>(qualified: QualifiedEvent<T>, data?: D): Promise<void> {
     const { phase, type } = EventMapper.parseQualifiedType(qualified);
 
     const event: Event<typeof type, typeof phase, D> = {
       type,
       phase,
-      data,
+      data: data ?? ({} as D),
       lifecycle: {
         startedAt: new Date(),
       },
