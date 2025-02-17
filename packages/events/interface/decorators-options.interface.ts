@@ -17,11 +17,6 @@ export interface EventOnClassOptions {
   pick?: string[] | string;
 
   omit?: string[] | string;
-
-  /**
-   * If true, the class will inherit all the events of its parent.
-   */
-  inherit?: boolean;
 }
 
 // Emit Decorators Options
@@ -32,10 +27,4 @@ export interface EventEmitMethodOptions<D> {
    * - delay: Time (ms) between retries.
    */
   retry?: { max: number; delay: number };
-}
-export interface EventEmitClassOptions<D> {
-  /**
-   * If true, the class will inherit all the events of its parent.
-   */
-  inherit?: boolean;
 }

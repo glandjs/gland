@@ -3,6 +3,7 @@ import { IEventType, Listener } from '../types';
 export class EventRegistry {
   private static instance: EventRegistry;
   private listeners = new Map<IEventType, Listener<any>[]>();
+  private hasHadListeners = new Set<string>();
 
   private constructor() {}
 
@@ -18,6 +19,7 @@ export class EventRegistry {
     listeners.push(listener);
 
     this.listeners.set(type, listeners);
+    this.hasHadListeners.add(type);
   }
 
   unregister(type: IEventType, listener: Listener): void {
@@ -31,5 +33,13 @@ export class EventRegistry {
 
   hasListeners(event: IEventType): boolean {
     return !!this.listeners.get(event)?.length;
+  }
+
+  hasEverHadListeners(type: string): boolean {
+    return this.hasHadListeners.has(type);
+  }
+
+  markHasListeners(type: string): void {
+    this.hasHadListeners.add(type);
   }
 }

@@ -9,16 +9,8 @@ export class PhaseManager {
     const listeners = this.registry.getListeners(event.type);
 
     try {
-      const start = event.lifecycle?.startedAt;
-      const end = new Date();
-      event.lifecycle!.finishedAt = end;
-      event.lifecycle!.durationMs = end.getTime() - (start?.getTime() || end.getTime());
-      event.isSuccess = true;
-      event.isFailure = false;
       await this.strategy.execute(event, listeners);
     } catch (error) {
-      event.isFailure = true;
-      event.isSuccess = false;
       throw error;
     }
   }
