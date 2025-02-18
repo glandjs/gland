@@ -1,5 +1,6 @@
 import { LoggerService } from '../interfaces/logger.interfaces';
 import { LogLevel } from '../types/logger.types';
+import { isFunction } from '@gland/common';
 const DEFAULT_LOGGER = console;
 
 export class Logger implements LoggerService {
@@ -69,11 +70,11 @@ export class Logger implements LoggerService {
     if (!Logger.isLevelEnabled(level)) return;
 
     const logger = Logger.staticInstance;
-    const context = this.context || Logger.defaultContext;
+    const context = this.context ?? Logger.defaultContext;
     const timestamp = this.options.timestamp ? `[${Logger.getTimestamp()}] ` : '';
 
     const formattedMessage = `${timestamp}[${context}] ${message}`;
-    if (typeof logger[level] === 'function') {
+    if (isFunction(logger[level])) {
       logger[level](formattedMessage, ...params);
     } else {
       logger.log(formattedMessage, ...params);
