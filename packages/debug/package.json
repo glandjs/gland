@@ -6,6 +6,9 @@
   "scripts": {
     "build": "tsc"
   },
+  "dependencies": {
+    "@gland/common": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.5.4"
   }
