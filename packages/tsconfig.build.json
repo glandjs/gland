@@ -1,14 +1,16 @@
 {
   "files": [],
   "references": [
-    { "path": "./cache" },
-    { "path": "./common" },
-    { "path": "./config" },
+    // core
     { "path": "./core" },
+    { "path": "./common" },
+    // http layer
+    // event system
+    // path: "./reactors"
+    // Advanced
+    { "path": "./validators" },
+    { "path": "./config" },
     { "path": "./debug" },
-    { "path": "./events" },
-    { "path": "./metadata" },
-    { "path": "./testing" },
-    { "path": "./validators" }
+    { "path": "./testing" }
   ]
 }
