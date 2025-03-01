@@ -61,7 +61,7 @@
   },
   "dependencies": {
     "@medishn/qiks": "^2.0.0",
-    "@medishn/toolkit": "^1.0.1",
+    "@medishn/toolkit": "^1.0.3",
     "reflect-metadata": "^0.2.2"
   }
 }
