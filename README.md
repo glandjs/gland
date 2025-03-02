@@ -1,66 +1,72 @@
-# Gland
+<p align="center">
+  <a href="#" target="blank"><img src="./docs/logo.svg" width="120" alt="Gland Logo" /></a>
+</p>
 
-**Gland** is an innovative, lightweight, and extensible web framework for Node.js. Built with an object-oriented philosophy and inspired by frameworks like Angular and NestJS, Gland leverages a fully event-driven architecture, robust dependency injection, and metadata reflection to deliver unparalleled flexibility in building scalable, modular web applications.
+<p align="center">
+  <a href="https://npmjs.com/package/@gland/core" target="_blank"><img src="https://img.shields.io/npm/v/@gland/core.svg" alt="NPM Version" /></a>
+  <a href="https://npmjs.com/package/@gland/core" target="_blank"><img src="https://img.shields.io/npm/l/@gland/core.svg" alt="Package License" /></a>
+  <a href="https://npmjs.com/package/@gland/core" target="_blank"><img src="https://img.shields.io/npm/dm/@gland/core.svg" alt="NPM Downloads" /></a>
+</p>
 
-> **Status:** Under active development – Expect breaking changes and rapid evolution as new features are integrated.
+<h1 align="center">Gland</h1>
 
-## Packages Overview
+<p align="center">A progressive, event-driven Node.js framework for building efficient and scalable server-side applications.</p>
 
-Gland is structured as a monorepo with a set of interdependent packages, each responsible for a distinct area of functionality:
+## Description
 
-- **@gland/core:**  
-  The framework's engine, managing application bootstrapping, routing, middleware execution, and the DI container.
+**Gland** is a lightweight, extensible web framework built for modern JavaScript and TypeScript applications. With its unique event-driven architecture (EDS), it offers unparalleled flexibility in creating modular, scalable server-side applications.
 
-- **@gland/common:**  
-  Shared utilities, base decorators, constants, interfaces, and helper functions used across the framework.
+Inspired by frameworks like Angular and NestJS, Gland integrates an object-oriented design pattern, minimalistic dependency injection (DI), and powerful event-driven communication, allowing developers to efficiently build and maintain complex applications.
 
-- **@gland/config:**  
-  Dynamic configuration management, including environment-based configuration and schema validation.
+## Philosophy
 
-- **@gland/debug:**  
-  Debugging tools and logging services to monitor application state and performance.
+Gland is designed to solve the challenges of modern web development by embracing **event-driven design** and **modularity**. Traditional frameworks often rely on tightly coupled components, which can make applications harder to scale and maintain. Gland flips this paradigm by using events to connect components, allowing developers to build systems that are:
 
-- **@gland/events:**  
-  The backbone of Gland’s event-driven architecture, providing a unified system for emitting and listening to application events.
+- **Decoupled**: Components communicate through events, reducing direct dependencies.
+- **Scalable**: Events can be processed asynchronously, making it easier to handle high loads.
+- **Flexible**: Developers can choose when to wait for responses and when to fire-and-forget.
 
-- **@gland/testing:**  
-  Tools and utilities for unit and integration testing, including mocks and helper functions.
+## Why Gland?
 
-- **@gland/validators:**  
-  A schema-based validation system with decorators and rules to enforce data integrity.
+Gland is designed with flexibility and scalability in mind. Whether you're building small APIs or large-scale applications, Gland provides the tools to help you structure your codebase efficiently and maintainably. Its event-driven approach helps in decoupling components and improving testability, while its object-oriented philosophy ensures clear and consistent code organization.
 
-- **@gland/cache:**  
-  Caching mechanisms and strategies (e.g., in-memory, Redis) to improve application performance.
+## Documentation
+
+For full documentation on how to use Gland, including guides, examples, and API references, check out the following resources:
+
+- [Official Documentation](#)
+- [API Reference](#/api)
+- [Contributing Guide](./docs/CONTRIBUTING.md)
 
 ## Contributing
 
-We welcome contributions to help shape Gland into a robust, production-ready framework. To contribute:
+We welcome contributions to help improve Gland and shape it into a robust, production-ready framework. Here's how you can get involved:
 
 1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Write tests and update documentation as needed.
+2. Create a new branch for your feature or bug fix.
+3. Write tests to cover your changes.
 4. Submit a pull request with a detailed description of your changes.
 
-Please review our [CONTRIBUTING.md](docs/CONTRIBUTING.md) guidelines before getting started.
-
----
+Please review our [CONTRIBUTING.md](./docs/CONTRIBUTING.md) guidelines before starting.
 
 ## Security
 
-For details on security practices and how to report vulnerabilities, please see [SECURITY.md](docs/SECURITY.md).
-
----
+For details on our security practices and how to report vulnerabilities, please visit [SECURITY.md](./docs/SECURITY).
 
 ## License
 
 Gland is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
----
+## Sponsors
 
-## Contact
-
-For questions, suggestions, or further information, please contact us at [bitsgenix@gmail.com](mailto:bitsgenix@gmail.com).
+Gland is an open-source project, and its continued development is made possible by our amazing sponsors and backers. If you'd like to support us, consider becoming a sponsor on [OpenCollective](https://opencollective.com/gland).
 
 ---
 
-> **Note:** Gland is actively under development. We appreciate your patience as we continue to improve the framework and welcome your feedback and contributions!
+> **Note:** Gland is under active development. We appreciate your patience as we continue to enhance the framework. Your feedback and contributions are invaluable!
+
+---
+
+<p align="center">
+  <a href="https://opencollective.com/gland/sponsor" target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+</p>

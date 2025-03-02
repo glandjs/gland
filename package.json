@@ -1,19 +1,15 @@
 {
   "name": "@gland/core",
-  "version": "1.1.1",
+  "version": "1.0.0",
   "description": "Glands is a web framework for Node.js",
-  "main": "dist/index.js",
-  "private": true,
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist/",
-    "README.md"
-  ],
-  "directories": {
-    "doc": "docs",
-    "lib": "lib",
-    "test": "tests",
-    "example": "examples"
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/gland"
+  },
+  "author": "Mahdi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/medishen/gland/issues"
   },
   "scripts": {
     "test": "npm run test:unit",
@@ -42,10 +38,12 @@
   "engines": {
     "node": ">= 20"
   },
-  "author": "Mahdi",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/medishen/gland/issues"
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/nest",
+    "donation": {
+      "text": "Become a partner:"
+    }
   },
   "homepage": "https://github.com/medishen/gland#readme",
   "devDependencies": {
@@ -61,7 +59,7 @@
   },
   "dependencies": {
     "@medishn/qiks": "^2.0.0",
-    "@medishn/toolkit": "^1.0.1",
+    "@medishn/toolkit": "^1.0.3",
     "reflect-metadata": "^0.2.2"
   }
 }

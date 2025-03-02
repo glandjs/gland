@@ -20,29 +20,11 @@
     "baseUrl": ".",
     "types": ["node"],
     "paths": {
-      "@gland/cache": ["./packages/cache"],
-      "@gland/cache/*": ["./packages/cache/*"],
-
       "@gland/common": ["./packages/common"],
       "@gland/common/*": ["./packages/common/*"],
 
-      "@gland/config": ["./packages/config"],
-      "@gland/config/*": ["./packages/config/*"],
-
       "@gland/core": ["./packages/core"],
-      "@gland/core/*": ["./packages/core/*"],
-
-      "@gland/debug": ["./packages/debug"],
-      "@gland/debug/*": ["./packages/debug/*"],
-
-      "@gland/events": ["./packages/events"],
-      "@gland/events/*": ["./packages/events/*"],
-
-      "@gland/testing": ["packages/testing"],
-      "@gland/testing/*": ["packages/testing/*"],
-
-      "@gland/validators": ["./packages/validators"],
-      "@gland/validators/*": ["./packages/validators/*"]
+      "@gland/core/*": ["./packages/core/*"]
     },
     "noImplicitAny": false,
     "noUnusedLocals": false,
