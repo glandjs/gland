@@ -30,5 +30,4 @@
   <circle cx="250" cy="250" r="150" fill="none" stroke="url(#glowGradient)" stroke-width="1" opacity="0.15" />
   <circle cx="250" cy="250" r="170" fill="none" stroke="url(#glowGradient)" stroke-width="0.5" opacity="0.1" />
 
-  <text x="250" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="url(#glowGradient)" opacity="0.8">GLAND</text>
 </svg>
