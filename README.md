@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="#" target="blank"><img src="./docs/logo.svg" width="250" alt="Gland Logo" /></a>
+  <a href="#" target="blank"><img src="./docs/logo.svg" width="120" alt="Gland Logo" /></a>
 </p>
 
 <p align="center">
