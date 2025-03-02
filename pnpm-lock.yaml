@@ -12,8 +12,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       '@medishn/toolkit':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.0.3
+        version: 1.0.3
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -46,16 +46,6 @@ importers:
         specifier: ^5.5.4
         version: 5.5.4
 
-  packages/cache:
-    dependencies:
-      '@medishn/qiks':
-        specifier: 2.0.0
-        version: 2.0.0
-    devDependencies:
-      typescript:
-        specifier: ^5.5.4
-        version: 5.5.4
-
   packages/common:
     dependencies:
       reflect-metadata:
@@ -84,51 +74,12 @@ importers:
       '@gland/config':
         specifier: workspace:*
         version: link:../config
-      '@gland/debug':
-        specifier: workspace:*
-        version: link:../debug
       '@medishn/toolkit':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.0.3
+        version: 1.0.3
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
-    devDependencies:
-      typescript:
-        specifier: ^5.5.4
-        version: 5.5.4
-
-  packages/debug:
-    dependencies:
-      '@gland/common':
-        specifier: workspace:*
-        version: link:../common
-    devDependencies:
-      typescript:
-        specifier: ^5.5.4
-        version: 5.5.4
-
-  packages/events:
-    dependencies:
-      '@gland/cache':
-        specifier: workspace:*
-        version: link:../cache
-      '@gland/common':
-        specifier: workspace:*
-        version: link:../common
-    devDependencies:
-      typescript:
-        specifier: ^5.5.4
-        version: 5.5.4
-
-  packages/metadata:
-    dependencies:
-      '@gland/cache':
-        specifier: workspace:*
-        version: link:../cache
-      '@gland/common':
-        specifier: workspace:*
-        version: link:../common
     devDependencies:
       typescript:
         specifier: ^5.5.4
@@ -167,12 +118,8 @@ packages:
     resolution: {integrity: sha512-0F/ENg/mq1BdYmNWVvLvsR13CeWSs24zJVj4PGQMqOb9nKdtCm2YM9EHY4IWYOy3+D1w210l4mETYqObVIByeQ==}
     engines: {node: '>= 20'}
 
-  '@medishn/toolkit@1.0.0':
-    resolution: {integrity: sha512-LQl/vvVzD5DarLlObAmn24W+UN3Dm83CZd/sHdEOVx9q9oKo6Sj/XZl35fsymJkpPdppWcb11/WVvsh9v9UNrg==}
-    engines: {node: '>= 20'}
-
-  '@medishn/toolkit@1.0.1':
-    resolution: {integrity: sha512-omKvurVGGTUqvl7XlLIUXAT7OUuVUi8S2+jfxOPvJXVbSwN8n12R3nWuQywEeqA0ofYkR7cSXXwj115NBxX7Zg==}
+  '@medishn/toolkit@1.0.3':
+    resolution: {integrity: sha512-o9f0qiUXq+gt++FoFH3CDk4VGxiajbjt089uhX0/oypIiZZBMMwSARY6QSEYxu6TnKZC7SoiR2QrbGgmIXdu/g==}
     engines: {node: '>= 20'}
 
   '@sinonjs/commons@3.0.1':
@@ -616,9 +563,7 @@ snapshots:
 
   '@medishn/qiks@2.0.0': {}
 
-  '@medishn/toolkit@1.0.0': {}
-
-  '@medishn/toolkit@1.0.1': {}
+  '@medishn/toolkit@1.0.3': {}
 
   '@sinonjs/commons@3.0.1':
     dependencies:
