@@ -1,0 +1,16 @@
+{
+  "name": "@gland/common",
+  "version": "1.0.0",
+  "author": "Mahdi",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@medishn/toolkit": "^1.0.3",
+    "reflect-metadata": "^0.2.2"
+  }
+}

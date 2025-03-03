@@ -1,5 +1,6 @@
+import { Listener } from '@gland/common/types';
+
 export interface EventChannel<D, R> {
-  emit<T>(data: T);
-  request(data: D);
-  respond(handler: (data: D) => Promise<R> | R): () => void;
+  emit<T>(data: T): void;
+  on<R>(listener: Listener<R>): any;
 }
