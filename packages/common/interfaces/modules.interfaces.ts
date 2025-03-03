@@ -1,11 +1,11 @@
 import { Constructor } from '@medishn/toolkit';
-import { ImportableModule, InjectionToken, Streams } from '../types';
+import { ApiChannel, ApiController, ImportableModule, InjectionToken } from '../types';
 
 export interface ModuleMetadata<T = any> {
   imports?: ImportableModule<T>[];
-  gateways?: Constructor<T>[];
-  streams?: Streams<T>[];
-  shareds?: InjectionToken<T>[];
+  controllers?: ApiController<T>[];
+  channels?: ApiChannel<T>[];
+  exports?: InjectionToken<T>[];
 }
 export interface DynamicModule<T = any> extends ModuleMetadata<T> {
   module: Constructor<any>;

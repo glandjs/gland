@@ -114,9 +114,14 @@ export interface CookieOptions {
    * @default false
    */
   signed?: boolean;
+
+  /**
+   * @default 'default-cookie-secret'
+   */
+  secret: string;
 }
 
-export type ViewsConfig = {
+export type ViewsOptions = {
   /**
    * Directory or directories to serve static files from.
    * @default views
@@ -141,7 +146,7 @@ export type ViewsConfig = {
   };
 };
 
-export interface SettingsConfig {
+export interface SettingsOptions {
   /**
    * Application environment (e.g., 'development', 'production').
    * @default 'development'
@@ -158,7 +163,7 @@ export interface SettingsConfig {
    * Whether to include the 'X-Powered-By' header.
    * @default Gland
    */
-  poweredBy?: boolean | string;
+  poweredBy?: string;
 
   /**
    * Whether to enable strict routing (case-sensitive routes).
@@ -191,45 +196,51 @@ export interface SettingsConfig {
   globalPrefix?: string;
 }
 
-export interface JsonBodyOptions {
-  /**
-   * Maximum request body size (e.g., '1mb', '100kb').
-   * @default '1mb'
-   */
-  limit?: string;
-
-  /**
-   * Whether to only accept arrays & objects.
-   * If false, will accept JSON primitives (e.g., strings, numbers, booleans).
-   * @default true
-   */
-  strict?: boolean;
+interface JsonParserOptions {
+  strict: boolean;
+  reviver?: (key: string, value: any) => any;
 }
 
-export interface UrlEncodedBodyOptions {
-  /**
-   * Maximum request body size (e.g., '1mb', '100kb').
-   * @default '1mb'
-   */
-  limit?: string;
+interface UrlEncodedParserOptions {
+  extended: boolean;
+}
+export interface BodyParserOptions {
+  limit: number;
+  encoding: string;
+  json: JsonParserOptions;
+  urlencoded: UrlEncodedParserOptions;
 }
 
-export interface RawBodyOptions {
+export interface ShutdownOptions {
   /**
-   * Maximum request body size (e.g., '1mb', '100kb').
-   * @default '1mb'
+   * Whether to force close connections on shutdown.
+   * @default false
    */
-  limit?: string;
-
-  /**
-   * Encoding of the raw body.
-   * @default null
-   */
-  encoding?: BufferEncoding | null;
+  forceCloseConnections?: boolean;
 }
+export interface HttpsOptions {
+  pfx?: any;
 
-/**
- * Force close connections configuration.
- * A simple boolean flag without additional options.
- */
-export type ForceCloseConnectionsOptions = boolean;
+  key?: any;
+  passphrase?: string;
+
+  cert?: any;
+
+  ca?: any;
+
+  crl?: any;
+
+  ciphers?: string;
+
+  honorCipherOrder?: boolean;
+
+  requestCert?: boolean;
+
+  rejectUnauthorized?: boolean;
+
+  NPNProtocols?: any;
+
+  SNICallback?: (servername: string, cb: (err: Error, ctx: any) => any) => any;
+
+  secureOptions?: number;
+}

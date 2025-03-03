@@ -1,5 +1,5 @@
+import { Constructor } from '@medishn/toolkit';
 import { Context } from './application';
-import { Constructor } from './constructor.interface';
 import { IncomingMessage, ServerResponse } from 'http';
 export type NextFunction = () => Promise<void>;
 

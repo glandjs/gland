@@ -1,11 +1,11 @@
 import { CorsConfig } from '@gland/common';
-import { SettingsConfig, HttpsOptions, ProxyOptions, JsonBodyOptions, UrlEncodedBodyOptions, RawBodyOptions, ForceCloseConnectionsOptions, ViewsConfig, CookieOptions } from '.';
+import { HttpsOptions, ProxyOptions, ViewsOptions, CookieOptions, SettingsOptions, BodyParserOptions, ShutdownOptions } from '.';
 
 export interface ApplicationOptions {
   /**
    * Global application settings.
    */
-  settings?: SettingsConfig;
+  settings?: SettingsOptions;
 
   /**
    * Proxy configuration.
@@ -32,39 +32,15 @@ export interface ApplicationOptions {
   /**
    * Body parsing configuration with security limits
    */
-  body?: {
-    /**
-     * JSON body parsing options.
-     * @default { limit: '1mb', strict: true }
-     */
-    json?: JsonBodyOptions;
-
-    /**
-     * URL-encoded body parsing options.
-     * @default { limit: '1mb', extended: true }
-     */
-    urlencoded?: UrlEncodedBodyOptions;
-
-    /**
-     * Raw body parsing options.
-     * @default {limit: '1mb', encoding: null }
-     */
-    rawBody?: RawBodyOptions;
-  };
+  body?: BodyParserOptions;
 
   /**
    * Graceful shutdown configuration
    */
-  shutdown?: {
-    /**
-     * Whether to force close connections on shutdown.
-     * @default false
-     */
-    forceCloseConnections?: ForceCloseConnectionsOptions;
-  };
+  shutdown?: ShutdownOptions;
 
   /**
    * Views Config
    */
-  views?: ViewsConfig;
+  views?: ViewsOptions;
 }

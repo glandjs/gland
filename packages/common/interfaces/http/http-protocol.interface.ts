@@ -1,4 +1,5 @@
-import { HttpStatus, RequestMethod } from '../../enums';
+import { RequestMethod } from '@gland/common';
+import { HttpStatus } from '@medishn/toolkit';
 
 export interface IHttpProtocol {
   send<T>(body: T): void;
