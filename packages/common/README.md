@@ -36,7 +36,7 @@ For full documentation on how to use Gland, including guides, examples, and API 
 
 - [Official Documentation](#)
 - [API Reference](#/api)
-- [Contributing Guide](./docs/CONTRIBUTING.md)
+- [Contributing Guide](https://github.com/medishen/gland/blob/main/docs/CONTRIBUTING.md)
 
 ## Contributing
 
@@ -47,15 +47,15 @@ We welcome contributions to help improve Gland and shape it into a robust, produ
 3. Write tests to cover your changes.
 4. Submit a pull request with a detailed description of your changes.
 
-Please review our [CONTRIBUTING.md](./docs/CONTRIBUTING.md) guidelines before starting.
+Please review our [CONTRIBUTING.md](https://github.com/medishen/gland/blob/main/docs/CONTRIBUTING.md) guidelines before starting.
 
 ## Security
 
-For details on our security practices and how to report vulnerabilities, please visit [SECURITY.md](./docs/SECURITY).
+For details on our security practices and how to report vulnerabilities, please visit [SECURITY.md](https://github.com/medishen/gland/blob/main/docs/SECURITY).
 
 ## License
 
-Gland is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+Gland is licensed under the MIT License. See the [LICENSE](https://github.com/medishen/gland/blob/main/LICENSE) file for details.
 
 ## Sponsors
 
