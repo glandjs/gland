@@ -1,5 +1,6 @@
-import { Event, Listener } from '../../types/events';
+import { Callback } from '@medishn/toolkit';
+import { Event } from '../../types/';
 
 export interface EventStrategy {
-  execute<E extends Event>(event: E, listeners: Listener<E>[]): any;
+  execute<E extends Event>(event: E, listeners: Callback[]): any;
 }

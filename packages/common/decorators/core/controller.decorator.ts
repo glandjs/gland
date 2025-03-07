@@ -1,4 +1,4 @@
-import { PATH_METADATA } from '@gland/common/constant';
+import { PATH_METADATA } from '../../constant';
 
 /**
  * @publicApi

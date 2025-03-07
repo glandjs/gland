@@ -1,2 +1,2 @@
-export * from './event-strategy.interface';
 export * from './event.interface';
+export * from './event-strategy.interface';
