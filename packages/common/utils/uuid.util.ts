@@ -1,6 +1,6 @@
 import { randomFillSync, randomUUID } from 'node:crypto';
 
-type UUID = string;
+export type UUID = string;
 type BufferLike = Uint8Array | Buffer;
 type UUIDOptions = {
   buffer?: BufferLike;

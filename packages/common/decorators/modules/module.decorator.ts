@@ -1,7 +1,7 @@
-import { MODULE_METADATA } from '@gland/common/constant';
-import { ModuleMetadata } from '@gland/common/interfaces';
+import { MODULE_METADATA } from '../../constant';
+import { ModuleMetadata } from '../../interfaces';
+
 /**
- * @param metadata module configuration metadata
  * @publicApi
  */
 export function Module(metadata: ModuleMetadata<any>): ClassDecorator {
