@@ -3,7 +3,6 @@ import { HttpApplicationOptions } from '../interface';
 import { ConfigContainer } from './config.container';
 import { ObjectInspector } from '@medishn/toolkit/dist/object';
 
-// Configuration events enum
 enum ConfigEvent {
   GET = 'get',
   GET_ALL = 'get_all',
@@ -17,7 +16,6 @@ enum ConfigEvent {
   GET_NESTED = 'get_nested',
 }
 
-// Main configuration channel
 export class ConfigChannel {
   constructor(private channel: HttpEventCore) {
     new ConfigContainer(this);
@@ -27,7 +25,6 @@ export class ConfigChannel {
     this.channel.responed(ConfigEvent.GET_NESTED, handler);
   }
 
-  // Response handlers
   onGet<K extends keyof HttpApplicationOptions>(handler: (key: K) => HttpApplicationOptions[K]) {
     this.channel.responed(ConfigEvent.GET, handler);
   }
@@ -40,7 +37,6 @@ export class ConfigChannel {
     this.channel.responed(ConfigEvent.HAS, handler);
   }
 
-  // Event handlers
   onSet<K extends keyof HttpApplicationOptions>(handler: (data: { key: K; value: Partial<HttpApplicationOptions[K]> }) => void) {
     this.channel.on(ConfigEvent.SET, handler);
   }
@@ -65,7 +61,6 @@ export class ConfigChannel {
     this.channel.on(ConfigEvent.UPDATE, handler);
   }
 
-  // Request methods
   get<K extends keyof HttpApplicationOptions>(key: K): HttpApplicationOptions[K] {
     return this.channel.request(ConfigEvent.GET, key);
   }
@@ -78,7 +73,6 @@ export class ConfigChannel {
     return this.channel.request(ConfigEvent.HAS, key);
   }
 
-  // Emit methods
   set<K extends keyof HttpApplicationOptions>(key: K, value: Partial<HttpApplicationOptions[K]>): void {
     const previousValue = this.get(key);
     this.channel.emit(ConfigEvent.SET, { key, value });

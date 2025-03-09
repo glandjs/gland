@@ -5,10 +5,8 @@ function generateHash(content: BinaryLike, algorithm: 'sha256' | 'md5'): string 
   if (!content) throw new Error('Content required for hash-based ETag');
   return createHash(algorithm).update(content).digest('hex');
 }
-/**
- * Generate an ETag string with the configured algorithm and strength
- */
-export function generateETag(content: BinaryLike, algorithm: EntityTagAlgorithm = 'sha256', strength: EntityTagStrength='strong'): string {
+
+export function generateETag(content: BinaryLike, algorithm: EntityTagAlgorithm = 'sha256', strength: EntityTagStrength = 'strong'): string {
   const processedContent = (isString(content) ? content : Buffer.isBuffer(content) ? content : JSON.stringify(content)) as any;
   if (!content) return '';
 

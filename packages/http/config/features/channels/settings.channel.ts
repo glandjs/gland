@@ -41,11 +41,9 @@ export class SettingsChannel extends AbstractConfigChannel<SettingsOptions, 'set
       modifiedSince: HttpHeaderValue<any, any> | undefined;
     },
   ) {
-    // Generate ETag from response body
     const serverETag = generateETag(ctx.body, this.algorithm, this.strength);
     ctx.header.set('etag', serverETag);
 
-    // ETag validation
     if (clientValidation.etag) {
       const clientETags = clientValidation.etag
         .toString()
@@ -57,7 +55,6 @@ export class SettingsChannel extends AbstractConfigChannel<SettingsOptions, 'set
       }
     }
 
-    // Last-Modified validation
     if (clientValidation.modifiedSince) {
       const lastModifiedHeader = ctx.header.get('last-modified');
       if (lastModifiedHeader) {
@@ -94,9 +91,6 @@ export class SettingsChannel extends AbstractConfigChannel<SettingsOptions, 'set
     return isNaN(date.getTime()) ? null : date;
   }
 
-  /**
-   * Compare client and server ETags for equality, handling weak/strong tags
-   */
   public compareETags(clientETag: string, serverETag: string): boolean {
     if (!clientETag || !serverETag) return false;
 
@@ -112,9 +106,6 @@ export class SettingsChannel extends AbstractConfigChannel<SettingsOptions, 'set
     return this.normalize(clientETag) === this.normalize(serverETag);
   }
 
-  /**
-   * Normalize an ETag by removing quotes and W/ prefix
-   */
   private normalize(etag: string): string {
     return etag.replace(/^W\//, '').replace(/"/g, '');
   }
@@ -141,18 +132,14 @@ export class SettingsChannel extends AbstractConfigChannel<SettingsOptions, 'set
     const subdomains = segments.slice(0, segments.length - offset);
     return subdomains.reverse();
   }
-  /**
-   * Helper method to check if a string is an IP address
-   */
+
   private _isIPAddress(str: string): boolean {
-    // IPv4 check
     const ipv4Regex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
     if (ipv4Regex.test(str)) {
       const parts = str.split('.').map((part) => parseInt(part, 10));
       return parts.every((part) => part >= 0 && part <= 255);
     }
 
-    // IPv6 check (simplified)
     const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
     return ipv6Regex.test(str);
   }

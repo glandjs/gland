@@ -30,9 +30,6 @@ export class ProxyChannel extends AbstractConfigChannel<ProxyOptions, 'proxy'> {
     });
   }
 
-  /**
-   * Middleware function to handle proxy-related logic.
-   */
   createMiddleware(): GlandMiddleware {
     return (ctx, next) => {
       ctx.ip = this.getClientIp(ctx.req);
@@ -44,10 +41,6 @@ export class ProxyChannel extends AbstractConfigChannel<ProxyOptions, 'proxy'> {
     };
   }
 
-  /**
-   * Determines the effective host from the request.
-   * It checks the 'x-forwarded-host' header (if present) and falls back to req.headers.host.
-   */
   private getHost(req: IncomingMessage): string | null {
     const remoteIp = req.socket.remoteAddress;
     const isTrusted = remoteIp && this.isTrustedProxy(remoteIp, 1);
@@ -107,7 +100,6 @@ export class ProxyChannel extends AbstractConfigChannel<ProxyOptions, 'proxy'> {
       return normalizedRemoteAddress;
     }
 
-    // Use the first non-trusted IP in the chain, or the last trusted IP if all are trusted
     const clientIpIndex = Math.min(trustedIps.length - 1, this.proxyTrustCount - 1);
     return trustedIps.length > 0 ? trustedIps[clientIpIndex] : normalizedRemoteAddress;
   }
@@ -116,17 +108,11 @@ export class ProxyChannel extends AbstractConfigChannel<ProxyOptions, 'proxy'> {
     return ips.filter((ip, index) => this.isTrustedProxy(ip, ips.length - index));
   }
 
-  /**
-   * Normalizes IP addresses, converting IPv4-mapped IPv6 addresses to IPv4 format.
-   * This solves the issue where localhost appears as '::' or '::1'.
-   */
   private normalizeIp(ip: string = ''): string {
-    // Handle localhost special cases
     if (ip === '::' || ip === '::1') {
       return '127.0.0.1';
     }
 
-    // Convert IPv4-mapped IPv6 addresses to IPv4
     for (const prefix of this.ipv4MappedPrefixes) {
       if (ip.startsWith(prefix)) {
         return ip.substring(prefix.length);

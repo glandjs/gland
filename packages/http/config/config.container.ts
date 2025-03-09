@@ -4,7 +4,6 @@ import { ConfigChannel } from './config.channel';
 import { ApplicationConfigurationDefaults } from './config-defaults';
 import { ObjectInspector } from '@medishn/toolkit/dist/object';
 
-// Configuration container that handles the actual storage
 export class ConfigContainer {
   private store: Map<keyof HttpApplicationOptions, any> = new Map();
   private logger = new Logger({ context: 'HTTP:ConfigContainer' });
@@ -61,7 +60,7 @@ export class ConfigContainer {
     this.set('settings', defaults.settings);
     this.set('shutdown', defaults.shutdown);
     this.set('views', defaults.views);
-    // Override with provided options
+
     if (options) {
       for (const key in options) {
         if (options.hasOwnProperty(key)) {
