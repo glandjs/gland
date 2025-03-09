@@ -24,7 +24,10 @@
       "@gland/common/*": ["./packages/common/*"],
 
       "@gland/core": ["./packages/core"],
-      "@gland/core/*": ["./packages/core/*"]
+      "@gland/core/*": ["./packages/core/*"],
+
+      "@gland/http": ["./packages/http"],
+      "@gland/http/*": ["./packages/http/*"]
     },
     "noImplicitAny": false,
     "noUnusedLocals": false,
