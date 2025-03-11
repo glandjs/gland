@@ -10,7 +10,7 @@ import { ConfigChannel, FeatureConfigManager } from './config';
 import { HttpEventType } from './http-events.const';
 import { CorsConfig } from './types/app-options.types';
 
-export class HttpApplication extends HttpAdapter {
+export class HttpCore extends HttpAdapter {
   private readonly _configChannel: ConfigChannel;
   private readonly _routerChannel: RouterChannel;
   private readonly _pipelineChannel: PipelineChannel;
@@ -32,9 +32,9 @@ export class HttpApplication extends HttpAdapter {
     new MiddlewareManager(this._middlewareChannel);
     new Router(this._routerChannel, this._configChannel);
     new PipelineEngine(this._pipelineChannel, this._events, this._routerChannel, this._middlewareChannel);
-    
+
     // Listen for HTTP requests
-    this._events.on<HttpContext>('request', (ctx) => {
+    this._events.once<HttpContext>('request', (ctx) => {
       this._pipelineChannel.execute(ctx);
     });
 
