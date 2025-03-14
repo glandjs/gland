@@ -1,103 +1,91 @@
 import { Event } from '@gland/common';
-import { CircularDeque } from './circular-deque';
+import { CircularDeque, nextPowerOfTwo } from './circular-deque';
+
 export class EventQueue {
   private readonly maxSize: number;
+  private readonly eventMap = new Map<number, Event>();
+  private readonly deque: CircularDeque<number>;
+  private processingFlag = 0;
+  private nextEventId = 1;
 
-  private readonly eventMap: Map<string, Event>;
-  private readonly deque: CircularDeque<Event>;
-  private processingInProgress: boolean = false;
-
-  constructor() {
-    this.maxSize = 1000;
-    this.eventMap = new Map<string, Event>();
-    this.deque = new CircularDeque<Event>(this.maxSize);
+  constructor(maxSize = 1000) {
+    this.maxSize = nextPowerOfTwo(maxSize);
+    this.deque = new CircularDeque<number>(this.maxSize);
   }
 
   get size(): number {
     return this.deque.size;
   }
 
-  public isEmpty(): boolean {
-    return this.deque.size === 0;
+  isEmpty(): boolean {
+    return this.deque.isEmpty();
   }
 
   enqueue(event: Event): void {
-    const key = this.getEventKey(event);
+    const eventId = this.nextEventId++;
+    this.deque.addFirst(eventId);
+    this.eventMap.set(eventId, { ...event });
 
-    const existingEvent = this.eventMap.get(key);
-    if (existingEvent) {
-      this.deque.remove(existingEvent);
-      this.eventMap.delete(key);
+    if (this.deque.size > this.maxSize) {
+      this.evictExcessEvents();
     }
-
-    this.deque.addFirst(event);
-    this.eventMap.set(key, event);
-
-    this.enforceMaxSize();
   }
 
   dequeue(): Event | undefined {
-    if (this.isEmpty()) {
-      return undefined;
-    }
+    const eventId = this.deque.removeLast();
+    if (eventId === undefined) return undefined;
 
-    const event = this.deque.removeLast();
-    if (event) {
-      this.eventMap.delete(this.getEventKey(event));
-    }
+    const event = this.eventMap.get(eventId);
+    this.eventMap.delete(eventId);
     return event;
   }
 
-  async process(callback: (event: Event) => void | Promise<void>): Promise<void> {
-    if (this.processingInProgress) {
-      return;
-    }
+  async process(callback: (event: Event) => Promise<void>): Promise<void> {
+    if (this.processingFlag) return;
+    this.processingFlag = 1;
 
-    try {
-      this.processingInProgress = true;
+    let batchSize = 128;
+    let processed = 0;
 
-      const events = this.deque.toArray();
-      const batchSize = 100;
+    while (!this.deque.isEmpty()) {
+      const batch: Promise<void>[] = [];
+      const start = performance.now();
 
-      for (let i = 0; i < events.length; i += batchSize) {
-        const batch = events.slice(i, i + batchSize);
-        await Promise.all(
-          batch.map((event) => {
-            try {
-              return Promise.resolve(callback(event));
-            } catch (err) {
-              console.error('Error processing event:', err);
-              return Promise.resolve();
-            }
+      while (batch.length < batchSize && !this.deque.isEmpty()) {
+        const eventId = this.deque.removeLast()!;
+        const event = this.eventMap.get(eventId)!;
+        batch.push(
+          callback(event).catch((err) => {
+            console.error(`Event processing failed [${eventId}]:`, err);
           }),
         );
+        this.eventMap.delete(eventId);
+        processed++;
       }
-    } finally {
-      this.clear();
-      this.processingInProgress = false;
+
+      await Promise.all(batch);
+
+      const duration = performance.now() - start;
+      batchSize = Math.min(1024, Math.max(64, Math.round(batchSize * (16 / duration))));
     }
   }
 
+  private evictExcessEvents(): void {
+    let excess = this.deque.size - this.maxSize;
+    while (excess-- > 0) {
+      const evictedId = this.deque.removeLast();
+      if (evictedId !== undefined) {
+        this.eventMap.delete(evictedId);
+      }
+    }
+  }
   clear(): void {
-    this.eventMap.clear();
     this.deque.clear();
-  }
-  private enforceMaxSize(): void {
-    const excessCount = this.deque.size - this.maxSize;
 
-    if (excessCount <= 0) {
-      return;
-    }
+    this.eventMap.clear();
 
-    for (let i = 0; i < excessCount; i++) {
-      const removed = this.deque.removeLast();
-      if (removed) {
-        this.eventMap.delete(this.getEventKey(removed));
-      }
-    }
-  }
+    this.nextEventId = 1;
 
-  private getEventKey(event: Event): string {
-    return `${event.type}:${event.correlationId}`;
+    this.processingFlag = 0;
   }
 }

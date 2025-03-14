@@ -1,56 +1,60 @@
+export function nextPowerOfTwo(n: number): number {
+  n--;
+  n |= n >>> 1;
+  n |= n >>> 2;
+  n |= n >>> 4;
+  n |= n >>> 8;
+  n |= n >>> 16;
+  return n + 1;
+}
+
 export class CircularDeque<T> {
-  private buffer: Array<T | undefined>;
+  private buffer: Uint32Array;
+  private dataBuffer: ArrayBuffer;
   private head: number = 0;
   private tail: number = 0;
   private _size: number = 0;
   private mask: number;
+  private readonly objectMap = new Map<number, T>();
+  private nextObjectId = 1;
 
-  constructor(private capacity: number) {
-    this.capacity = this.nextPowerOfTwo(Math.max(8, capacity));
-    this.buffer = new Array(this.capacity);
-    this.mask = this.capacity - 1;
+  constructor(capacity: number) {
+    this.mask = nextPowerOfTwo(Math.max(8, capacity)) - 1;
+    this.dataBuffer = new ArrayBuffer((this.mask + 1) * 4);
+    this.buffer = new Uint32Array(this.dataBuffer);
   }
 
   get size(): number {
     return this._size;
   }
-
   isEmpty(): boolean {
     return this._size === 0;
   }
-
   isFull(): boolean {
-    return this._size === this.capacity;
+    return this._size === this.buffer.length;
   }
 
   addFirst(item: T): void {
-    if (this._size >= this.capacity * 0.75) {
-      this.resize();
-    }
+    if (this._size >= this.buffer.length * 0.75) this.resize();
 
-    // Using bitwise operations
     this.head = (this.head - 1) & this.mask;
-    this.buffer[this.head] = item;
+    this.storeItem(this.head, item);
     this._size++;
   }
 
   addLast(item: T): void {
-    if (this._size >= this.capacity * 0.75) {
-      this.resize();
-    }
+    if (this._size >= this.buffer.length * 0.75) this.resize();
 
-    this.buffer[this.tail] = item;
+    this.storeItem(this.tail, item);
     this.tail = (this.tail + 1) & this.mask;
     this._size++;
   }
 
   removeFirst(): T | undefined {
-    if (this.isEmpty()) {
-      return undefined;
-    }
+    if (this.isEmpty()) return undefined;
 
-    const item = this.buffer[this.head];
-    this.buffer[this.head] = undefined; // Help garbage collection
+    const item = this.loadItem(this.head);
+    this.buffer[this.head] = 0;
     this.head = (this.head + 1) & this.mask;
     this._size--;
 
@@ -58,147 +62,71 @@ export class CircularDeque<T> {
   }
 
   removeLast(): T | undefined {
-    if (this.isEmpty()) {
-      return undefined;
-    }
+    if (this.isEmpty()) return undefined;
 
     this.tail = (this.tail - 1) & this.mask;
-    const item = this.buffer[this.tail];
-    this.buffer[this.tail] = undefined; // Help garbage collection
+    const item = this.loadItem(this.tail);
+    this.buffer[this.tail] = 0;
     this._size--;
 
     return item;
   }
 
-  peekFirst(): T | undefined {
-    if (this.isEmpty()) {
-      return undefined;
+  private storeItem(index: number, item: T): void {
+    let hash: number;
+
+    switch (typeof item) {
+      case 'number':
+        hash = item >>> 0;
+        break;
+
+      case 'string':
+        hash = this.fnv1a(item);
+        break;
+
+      case 'object':
+        hash = this.nextObjectId++;
+        this.objectMap.set(hash, item);
+        break;
+
+      default:
+        throw new Error('Unsupported type');
     }
-    return this.buffer[this.head];
+
+    this.buffer[index] = hash;
   }
 
-  peekLast(): T | undefined {
-    if (this.isEmpty()) {
-      return undefined;
+  private loadItem(index: number): T {
+    const hash = this.buffer[index];
+
+    switch (true) {
+      case hash === 0:
+        return undefined!;
+
+      case typeof hash === 'number' && hash <= 0xffffffff:
+        return hash as T;
+
+      case this.objectMap.has(hash):
+        return this.objectMap.get(hash)!;
+
+      default:
+        throw new Error('Data corruption detected');
     }
-    const lastIndex = (this.tail - 1) & this.mask;
-    return this.buffer[lastIndex];
   }
 
-  remove(item: T): boolean {
-    if (this.isEmpty()) {
-      return false;
+  private fnv1a(str: string): number {
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+      hash ^= str.charCodeAt(i);
+      hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
     }
-
-    const objectReferences = new WeakMap();
-    const isObject = typeof item === 'object' && item !== null;
-
-    if (isObject) {
-      objectReferences.set(item, true);
-    }
-
-    let index = this.head;
-    let count = 0;
-
-    while (count < this._size) {
-      const currentItem = this.buffer[index];
-
-      const itemMatches = isObject && currentItem !== null && typeof currentItem === 'object' ? objectReferences.has(currentItem) : currentItem === item;
-
-      if (itemMatches) {
-        this.removeAtIndex(index);
-        return true;
-      }
-
-      index = (index + 1) & this.mask;
-      count++;
-    }
-
-    return false;
-  }
-
-  toArray(): T[] {
-    const result: T[] = [];
-    if (this.isEmpty()) {
-      return result;
-    }
-
-    result.length = this._size;
-
-    let index = this.head;
-    for (let i = 0; i < this._size; i++) {
-      result[i] = this.buffer[index] as T;
-      index = (index + 1) & this.mask;
-    }
-
-    return result;
-  }
-
-  clear(): void {
-    if (this._size > 0) {
-      let index = this.head;
-      for (let i = 0; i < this._size; i++) {
-        this.buffer[index] = undefined;
-        index = (index + 1) & this.mask;
-      }
-    }
-
-    this.head = 0;
-    this.tail = 0;
-    this._size = 0;
-  }
-
-  private removeAtIndex(index: number): void {
-    // If removing from the head or tail, use the specialized methods
-    if (index === this.head) {
-      this.removeFirst();
-      return;
-    }
-
-    const lastIndex = (this.tail - 1) & this.mask;
-    if (index === lastIndex) {
-      this.removeLast();
-      return;
-    }
-
-    const distanceToHead = (index - this.head + this.capacity) & this.mask;
-    const distanceToTail = (this.tail - index - 1 + this.capacity) & this.mask;
-
-    if (distanceToHead <= distanceToTail) {
-      let current = index;
-      let previous = (current - 1) & this.mask;
-
-      while (current !== this.head) {
-        this.buffer[current] = this.buffer[previous];
-        current = previous;
-        previous = (previous - 1) & this.mask;
-      }
-
-      this.buffer[this.head] = undefined;
-      this.head = (this.head + 1) & this.mask;
-    } else {
-      let current = index;
-      let next = (current + 1) & this.mask;
-
-      while (next !== this.tail) {
-        this.buffer[current] = this.buffer[next];
-        current = next;
-        next = (next + 1) & this.mask;
-      }
-
-      this.tail = (this.tail - 1) & this.mask;
-      this.buffer[this.tail] = undefined;
-    }
-
-    this._size--;
+    return hash >>> 0;
   }
 
   private resize(): void {
-    const newCapacity = this.capacity * 2;
-    const newBuffer = new Array<T | undefined>(newCapacity);
-    const newMask = newCapacity - 1;
+    const newCapacity = nextPowerOfTwo(this.buffer.length * 2);
+    const newBuffer = new Uint32Array(newCapacity);
 
-    // Copy elements in order to the new buffer
     let oldIndex = this.head;
     for (let i = 0; i < this._size; i++) {
       newBuffer[i] = this.buffer[oldIndex];
@@ -206,21 +134,21 @@ export class CircularDeque<T> {
     }
 
     this.buffer = newBuffer;
-    this.capacity = newCapacity;
-    this.mask = newMask;
+    this.mask = newCapacity - 1;
     this.head = 0;
     this.tail = this._size;
+    this.dataBuffer = this.buffer.buffer;
   }
 
-  private nextPowerOfTwo(n: number): number {
-    // bit manipulation to find next power of 2
-    n--;
-    n |= n >>> 1;
-    n |= n >>> 2;
-    n |= n >>> 4;
-    n |= n >>> 8;
-    n |= n >>> 16;
-    n++;
-    return n;
+  clear(): void {
+    this.buffer.fill(0);
+
+    this.objectMap.clear();
+
+    this.nextObjectId = 1;
+
+    this.head = 0;
+    this.tail = 0;
+    this._size = 0;
   }
 }
