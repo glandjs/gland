@@ -1,4 +1,4 @@
-import { ProtocolType } from '@gland/common/types';
+import { ProtocolType } from '../../types';
 import { AdapterInitOptions } from './adapter-options.interface';
 
 export interface Adapter<T extends ProtocolType = ProtocolType> {

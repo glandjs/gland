@@ -1,4 +1,4 @@
-import { EventIdentifier } from '@gland/common/types';
+import { EventIdentifier } from '../../types';
 import { Callback, Noop } from '@medishn/toolkit';
 
 export interface EventChannel {
