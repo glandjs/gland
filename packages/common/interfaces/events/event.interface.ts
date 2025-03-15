@@ -19,9 +19,6 @@ export interface EventChannel {
   once<T extends any = any>(listener: Callback<[T]>): Noop;
   once<T extends any = any>(event: EventIdentifier<string>, listener: Callback<[T]>): Noop;
 
-  waitFor<T>(timeout?: number): Promise<T>;
-  waitFor<T>(event: EventIdentifier<string>, timeout?: number): Promise<T>;
-
   drain(): Promise<void>;
 
   broadcast<T extends string, D>(data?: D): void;
