@@ -26,8 +26,13 @@ export class ServerTransport {
   }
 
   listen(port: string | number, hostname: string) {
-    this._logger.info(`Server listening on ${hostname} ${port}`);
-    this._server.listen(...arguments);
+    this._logger.info(`Server listening on ${hostname}:${port}`);
+    const portNumber = Number(port);
+    if (isNaN(portNumber)) {
+      this._logger.error(`Invalid port: ${port}`);
+      return;
+    }
+    this._server.listen(portNumber, hostname);
   }
 
   public async close(): Promise<void> {
