@@ -1,6 +1,6 @@
 import { Server } from 'net';
 import { IncomingMessage, ServerResponse } from 'http';
-import { isString, Logger, Noop } from '@medishn/toolkit';
+import { isString, Logger } from '@medishn/toolkit';
 import { TransportFactory } from './transport-factory';
 import { ConnectionPool } from './connection-pool';
 import { HttpApplicationOptions } from '../interface';
@@ -34,17 +34,16 @@ export class ServerTransport {
     });
   }
 
-  public listen(port: number | string, hostname: string = 'localhost', callback?: Noop) {
+  public listen(port: number | string, hostname: string = 'localhost', message?: string) {
     const parsedPort = isString(port) ? parseInt(port, 10) : port;
 
     if (isNaN(parsedPort) || parsedPort < 0 || parsedPort > ServerTransport.MAX_PORT) {
       throw new Error(`Invalid port: ${port}`);
     }
 
-    this._logger.info(`Server listening on ${hostname}:${parsedPort}`);
-    this._server.listen(parsedPort, hostname, () => {
-      if (callback) callback();
-    });
+    const defaultMessage = `Server listening on ${hostname}:${parsedPort}`;
+    this._logger.info(message ?? defaultMessage);
+    this._server.listen(parsedPort, hostname);
   }
 
   public async close(): Promise<void> {

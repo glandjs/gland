@@ -5,7 +5,7 @@ import { ExpressLikeMiddleware, GlandMiddleware, HttpApplicationOptions, HttpCon
 import { HttpAdapter, HttpEventCore } from './adapter';
 import { PluginsManager } from './plugins';
 import { HttpEventType } from './http-events.const';
-import { CorsConfig } from './types/app-options.types';
+import { CorsConfig, type ApplicationEventMap } from './types/app-options.types';
 import { HttpChannel } from './http-channel';
 import { HttpInitializer } from './http-initializer';
 
@@ -136,6 +136,24 @@ export class HttpCore extends HttpAdapter {
   // Event Management
   public on<T>(event: HttpEventType, listener: Callback<[T]>): Noop {
     return this._events.on(event, listener);
+  }
+  public system<K extends keyof ApplicationEventMap>(event: K, listener: ApplicationEventMap[K]): void {
+    switch (event) {
+      case '$server:ready':
+        this._listen(listener['port'], listener['host'], listener['message']);
+        break;
+      case '$server:crashed':
+        this._events.on('$server:crashed', listener);
+        break;
+      case '$router:miss':
+        this._events.on('$router:miss', listener);
+        break;
+      case '$request:failed':
+        this._events.on('$request:failed', listener);
+        break;
+      default:
+        throw Error(`Unknown system event: ${event}`);
+    }
   }
 
   public emit<T>(type: EventIdentifier, data: T) {
