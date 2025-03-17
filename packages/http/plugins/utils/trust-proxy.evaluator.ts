@@ -1,4 +1,4 @@
-import { TrustProxyOption } from '@gland/common';
+import type { TrustProxyOption } from '@gland/http/types';
 import { isArray, isBoolean, isFunction, isNumber, isString } from '@medishn/toolkit';
 
 export class TrustProxyEvaluator {

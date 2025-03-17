@@ -2,6 +2,7 @@ import { Transform, TransformCallback } from 'node:stream';
 import { IncomingMessage, ServerResponse } from 'node:http';
 import { HttpHeaders } from '../interface';
 import { HeadersManager } from './managers';
+import { Maybe } from '@medishn/toolkit';
 
 type MessageEvent = {
   type?: string;
@@ -41,7 +42,7 @@ export class SSEStream extends Transform {
 
   pipe<T extends NodeJS.WritableStream>(destination: T, options?: { end?: boolean }): T {
     this.response.flushHeaders();
-    this.write('\n'); // Initial empty line to prevent client-side errors
+    this.write('\n');
     return super.pipe(destination, options);
   }
 
@@ -79,7 +80,7 @@ export class SSEStream extends Transform {
       .join('');
   }
 
-  writeMessage(message: MessageEvent, callback: (error: Error | null | undefined) => void): void {
+  writeMessage(message: MessageEvent, callback: (error: Maybe<Error>) => void): void {
     if (!this.write(message, 'utf-8')) {
       this.once('drain', () => callback(null));
     } else {
@@ -102,7 +103,7 @@ export class SSEStream extends Transform {
     });
   }
 
-  _final(callback: (error?: Error | null) => void): void {
+  _final(callback: (error?: Maybe<Error>) => void): void {
     this.close();
     callback();
   }

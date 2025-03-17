@@ -1,14 +1,26 @@
+import { Context } from '@gland/core/context';
 import { IncomingMessage, ServerResponse } from 'http';
 import { Dictionary, HttpException, HttpExceptionOptions, HttpStatus, isString, isUndefined, Maybe } from '@medishn/toolkit';
 import { TLSSocket } from 'tls';
-import { parse as parseQuery } from 'querystring';
 import { CookieOptions, HttpContext, HttpHeaderName, HttpHeaders, HttpHeaderValue, ProxyOptions, SettingsOptions } from '../interface';
 import { RequestContext } from './request-context';
 import { EventIdentifier, normalizePath, RequestMethod } from '@gland/common';
-import { Context } from '@gland/core/context';
 import { HttpEventCore } from '../adapter/http-events';
-import { generateETag, normalizeTrustProxy, TrustProxyEvaluator } from '../config/features/utils';
+import { generateETag, normalizeTrustProxy, TrustProxyEvaluator } from '../plugins/utils';
+import { parse as parseQuery } from 'querystring';
+
+/**
+ * HTTP-specific context providing access to request/response objects and utility methods.
+ *
+ * This class serves as the primary interface for handling HTTP requests and responses.
+ * It encapsulates the request (`IncomingMessage`) and response (`ServerResponse`) objects,
+ * providing a rich set of methods and properties to interact with them in a type-safe manner.
+ *
+ * @example
+ * ctx.send('Hello World');
+ */
 export class HttpServerContext extends Context<'http'> implements HttpContext {
+  mode: 'http';
   private _query: Dictionary<string | number | undefined> = {};
   private _path?: string;
   private _parsedUrl?: URL;
@@ -49,9 +61,6 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     }
   }
 
-  /**
-   * Get or lazily parse the URL
-   */
   private _getUrl(): URL {
     if (!this._parsedUrl) {
       try {
@@ -83,7 +92,11 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     return result;
   }
 
-  get responded(): boolean {
+  /**
+   * Check if a response has been sent to the client.
+   * @readonly
+   */
+  get replied(): boolean {
     return this.res.writableEnded;
   }
 
@@ -103,11 +116,6 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     return this._request.header;
   }
 
-  /**
-   * Check if request is "fresh" based on ETag and Last-Modified headers
-   * A fresh response means the client has a cached version that matches
-   * the server version, and a 304 Not Modified could be returned
-   */
   get fresh(): boolean {
     // Only GET and HEAD requests can be fresh
     const method = this.method;
@@ -129,11 +137,9 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
         return false;
       }
 
-      // Compare ETags
       return this._checkETagFreshness(noneMatch as string, etag as string);
     }
 
-    // Check If-Modified-Since header (time-based caching)
     const modifiedSince = this.req.headers['if-modified-since'];
     if (modifiedSince && this.res.getHeader('last-modified')) {
       return this._checkDateFreshness(modifiedSince as string, this.res.getHeader('last-modified') as string);
@@ -142,31 +148,19 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     return false;
   }
 
-  /**
-   * Check if the request is "stale" (opposite of fresh)
-   */
   get stale(): boolean {
     return !this.fresh;
   }
 
-  /**
-   * Check if a request indicates the client prefers a JSON response
-   */
   get xhr(): boolean {
     const header = this.req.headers['x-requested-with'];
     return header === 'XMLHttpRequest';
   }
 
-  /**
-   * Get the request original URL
-   */
   get originalUrl(): string {
     return this.req.url || '';
   }
 
-  /**
-   * Get the request URL path
-   */
   get path(): string {
     if (!this._path) {
       const url = this._getUrl();
@@ -213,8 +207,7 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     this.req.url = url;
   }
 
-  send<T>(body: T): void {
-    // Generate ETag if needed for GET requests
+  public send<T>(body: T): void {
     if (body && this.method === 'GET' && !this.header.get('ETag')) {
       const content = isString(body) ? body : JSON.stringify(body);
       const getConfig = this._events.getListeners('config:get')[0] as any;
@@ -223,7 +216,6 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
       this.header.set('etag', etag);
     }
 
-    // Check freshness and return 304 if fresh
     if (this.fresh) {
       this.status = 304;
       this._request.end();
@@ -233,11 +225,7 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     return this._request.send(body);
   }
 
-  /**
-   * redirect() sends a redirection response.
-   * Defaults to a 302 status if not provided.
-   */
-  redirect(url: string, status: HttpStatus = 302): void {
+  public redirect(url: string, status: HttpStatus = 302): void {
     const getConfig = this._events.getListeners('config:get')[0] as any;
     const settingsOptions = getConfig('settings') as SettingsOptions;
     const prefixedUrl = `${settingsOptions.globalPrefix}${normalizePath(url)}`;
@@ -245,25 +233,25 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     return this._request.redirect(prefixedUrl, status);
   }
 
-  end(cb?: () => void): this;
-  end(chunk: any, cb?: () => void): this;
-  end(chunk: any, encoding: BufferEncoding, cb?: () => void): this;
-  end(): any {
+  public end(cb?: () => void): this;
+  public end(chunk: any, cb?: () => void): this;
+  public end(chunk: any, encoding: BufferEncoding, cb?: () => void): this;
+  public end(): any {
     return this._request.end(...arguments);
   }
 
-  json<T>(body: T): void {
+  public json<T>(body: T): void {
     if (!this._request.header.get('content-type')) {
       this._request.header.set('content-type', 'application/json');
     }
     this.send(body);
   }
 
-  emit<T extends string, D>(event: EventIdentifier<T>, data?: D) {
+  public emit<T extends string, D>(event: EventIdentifier<T>, data?: D) {
     return this._events.emit(event, data);
   }
 
-  throw(status: HttpStatus, options?: HttpExceptionOptions): void {
+  public throw(status: HttpStatus, options?: HttpExceptionOptions): void {
     const exception = new HttpException(status, options);
 
     this.status = exception.status;
@@ -275,27 +263,23 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     this.send(exception.getProblemDetails());
   }
 
-  get<T extends string, XHeaders extends string>(name: HttpHeaderName<T>): HttpHeaderValue<T, XHeaders> | undefined;
-  get(name: string): string | number | string[] | undefined;
-  get(name: HttpHeaderName): any {
+  public get<T extends string, XHeaders extends string>(name: HttpHeaderName<T>): HttpHeaderValue<T, XHeaders> | undefined;
+  public get(name: string): string | number | string[] | undefined;
+  public get(name: HttpHeaderName): any {
     return this.header.get(name);
   }
 
-  deleteCookie(name: string, options?: Partial<CookieOptions>): void {
+  public deleteCookie(name: string, options?: Partial<CookieOptions>): void {
     this._request.cookies.delete(name, options);
   }
-  setCookie(name: string, value: string, options?: Partial<CookieOptions>): void {
+  public setCookie(name: string, value: string, options?: Partial<CookieOptions>): void {
     this._request.cookies.set(name, value, options);
   }
-  getCookie(name: string): Maybe<string> {
+  public getCookie(name: string): Maybe<string> {
     return this._request.cookies.get(name);
   }
 
-  /**
-   * Helper method to check ETag-based freshness
-   */
   private _checkETagFreshness(noneMatch: string, etag: string): boolean {
-    // Handle * wildcard which matches any ETag
     if (noneMatch === '*') {
       return true;
     }
@@ -314,9 +298,6 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     return false;
   }
 
-  /**
-   * Helper method to check date-based freshness
-   */
   private _checkDateFreshness(modifiedSince: string, lastModified: string): boolean {
     const lastModifiedDate = new Date(String(lastModified));
     const modifiedSinceDate = new Date(String(modifiedSince));
@@ -328,11 +309,6 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     return false;
   }
 
-  /**
-   * Perform a weak ETag comparison
-   * Weak ETags are indicated by a W/ prefix and allow for semantic equivalence
-   * rather than byte-for-byte equivalence
-   */
   private _weakETagMatch(clientETag: string, serverETag: string): boolean {
     // Remove quotes and W/ prefix for comparison
     const normalizeETag = (etag: string): string => {

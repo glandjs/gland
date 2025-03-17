@@ -1,8 +1,8 @@
 import { Logger, merge } from '@medishn/toolkit';
-import { ConfigChannel } from '..';
-import { GlandMiddleware, HttpApplicationOptions } from '../../interface';
+import { ConfigChannel } from '../config';
+import { GlandMiddleware, HttpApplicationOptions } from '../interface';
 
-export abstract class AbstractConfigChannel<X, T extends keyof HttpApplicationOptions> {
+export abstract class AbstractPlugins<X, T extends keyof HttpApplicationOptions> {
   protected logger: Logger;
   constructor(protected channel: ConfigChannel, protected configKey: T) {
     this.logger = new Logger({ context: `HTTP:${this.configKey.toUpperCase()}` });
@@ -23,8 +23,9 @@ export abstract class AbstractConfigChannel<X, T extends keyof HttpApplicationOp
   }
 
   public get<K extends keyof X>(key: K): X[K] {
-    const obj = this.channel.get(this.configKey)! as any;
-    return this.channel.getNested(obj).get(key);
+    const obj = this.channel.get(this.configKey) as any;
+    const nested = this.channel.getNested(obj);
+    return nested.get(key);
   }
 
   public set<K extends keyof X>(key: K, value: X[K]): void {

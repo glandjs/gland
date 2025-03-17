@@ -1,12 +1,12 @@
 import { IncomingMessage } from 'http';
 import { isEmpty, isString, isUndefined } from '@medishn/toolkit';
-import { AbstractConfigChannel } from '../config-channel';
+import { AbstractPlugins } from '../abstract-plugins';
 import { normalizeTrustProxy, TrustProxyEvaluator } from '../utils';
 import { GlandMiddleware } from '@gland/http/types';
 import { ProxyOptions } from '@gland/http/interface';
-import { ConfigChannel } from '../../config.channel';
+import { ConfigChannel } from '../../config/config.channel';
 
-export class ProxyChannel extends AbstractConfigChannel<ProxyOptions, 'proxy'> {
+export class ProxyChannel extends AbstractPlugins<ProxyOptions, 'proxy'> {
   private trustEvaluator: TrustProxyEvaluator;
   private proxyTrustCount: number;
   private proxyIpHeader: string;

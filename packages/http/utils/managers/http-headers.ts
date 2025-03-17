@@ -1,9 +1,7 @@
 import { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http';
 import { HttpHeaderName, HttpHeaderValue, HttpHeaders } from '../../interface';
 import { Maybe } from '@medishn/toolkit';
-/**
- * @publicApi
- */
+
 export class HeadersManager implements HttpHeaders {
   private response: ServerResponse;
 

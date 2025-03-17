@@ -1,7 +1,6 @@
 import { Logger } from '@medishn/toolkit';
 import { Server } from 'net';
 import { HttpApplicationOptions } from '../interface';
-
 export class TransportFactory {
   private static readonly _logger = new Logger({ context: 'HTTP:Transport' });
 

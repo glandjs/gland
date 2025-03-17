@@ -1,42 +1,26 @@
 import { parse } from 'node:url';
 import { Maybe } from '@medishn/toolkit';
 import { normalizePath, RequestMethod } from '@gland/common';
-import { RoutesRegistry } from './registry';
 import { HttpContext, RouteAction, RouteMatch } from '../interface';
 import { ConfigChannel } from '../config';
 import { RouterChannel } from './channel';
+import { RadixTree } from './node';
 export class Router {
-  private readonly registry: RoutesRegistry;
+  private readonly tree: RadixTree = new RadixTree();
+
   constructor(channel: RouterChannel, private readonly _config: ConfigChannel) {
-    this.registry = new RoutesRegistry();
-
     channel.onMatch((ctx) => this.match(ctx)!);
-
     channel.onRegister(({ method, path, action }) => {
       this.register(method, path, action);
     });
   }
 
-  private combinePaths(basePath: string, methodPath: string): string {
-    if (!basePath) return methodPath;
-
-    basePath = basePath.startsWith('/') ? basePath : `/${basePath}`;
-    basePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
-
-    methodPath = methodPath.startsWith('/') ? methodPath : `/${methodPath}`;
-
-    return `${basePath}${methodPath}`;
-  }
-
   public register(method: RequestMethod, path: string, action: RouteAction) {
     const normalizedPath = normalizePath(path);
-    const cachedHandler = this.registry.find(method, normalizedPath);
-    if (!cachedHandler) {
-      this.registry.set(method.toLowerCase(), normalizedPath, action);
-    }
+    const normalizedMethod = method.toLowerCase();
+    this.tree.add(normalizedMethod, normalizedPath, action);
     return this;
   }
-
   public match(ctx: HttpContext): Maybe<RouteMatch> {
     const globalPrefix = this._config.get('settings')?.globalPrefix ?? '';
     const url = ctx.url!;
@@ -45,9 +29,9 @@ export class Router {
 
     let normalizedPath = normalizePath(pathname ?? '/');
     let prefixApplied = false;
-    if (globalPrefix) {
-      const prefix = globalPrefix.startsWith('/') ? globalPrefix : `/${globalPrefix}`;
 
+    if (globalPrefix) {
+      const prefix = normalizedPath.startsWith('/') ? globalPrefix : `/${globalPrefix}`;
       if (normalizedPath.startsWith(prefix)) {
         normalizedPath = normalizedPath.substring(prefix.length) || '/';
         prefixApplied = true;
@@ -55,38 +39,49 @@ export class Router {
         return null;
       }
     }
-    let matchResult = this.registry.find(method.toLowerCase(), normalizedPath);
 
-    if (!matchResult) {
-      matchResult = this.registry.find(RequestMethod.ALL, normalizedPath);
-    }
+    const normalizedMethod = method.toLowerCase();
+    const result = this.tree.match(normalizedMethod, normalizedPath);
 
-    if (!matchResult && method === 'OPTIONS') {
-      const allMethods: RequestMethod[] = [RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH, RequestMethod.HEAD];
-      for (const m of allMethods) {
-        const methodMatch = this.registry.find(m, normalizedPath);
-        if (methodMatch) {
-          matchResult = {
-            action: this.createOptionsHandler(allMethods),
-            params: {},
-          };
-          break;
-        }
-      }
-    }
-
-    if (!matchResult) {
+    if (!result?.handler) {
       return null;
     }
 
-    const action = matchResult.action.bind(this);
-    return { action, method, params: matchResult.params, path: prefixApplied ? this.combinePaths(globalPrefix!, normalizedPath) : normalizedPath };
+    const action = result.handler.bind(this);
+
+    return {
+      action,
+      method,
+      params: result.params,
+      path: prefixApplied ? this.combinePaths(globalPrefix, normalizedPath) : normalizedPath,
+    };
   }
 
-  private createOptionsHandler(allowedMethods: RequestMethod[]): RouteAction {
-    return (ctx: HttpContext) => {
-      ctx.header.set('Allow', allowedMethods.join(', '));
-      ctx.status = 204;
-    };
+  public getAllowedMethods(path: string): RequestMethod[] {
+    const allowedMethods: RequestMethod[] = [];
+
+    for (const method of Object.values(RequestMethod)) {
+      if (method === RequestMethod.ALL) continue;
+
+      const result = this.tree.match(method, path);
+      if (result?.handler) {
+        allowedMethods.push(method);
+      }
+    }
+
+    return allowedMethods;
+  }
+
+  private combinePaths(basePath: string, methodPath: string): string {
+    if (!basePath) return methodPath;
+
+    if (basePath.startsWith('/') && methodPath.startsWith('/')) return '/';
+
+    basePath = basePath.startsWith('/') ? basePath : `/${basePath}`;
+    basePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
+
+    methodPath = methodPath.startsWith('/') ? methodPath : `/${methodPath}`;
+
+    return `${basePath}${methodPath}`;
   }
 }

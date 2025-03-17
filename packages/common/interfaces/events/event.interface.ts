@@ -1,4 +1,4 @@
-import { EventIdentifier } from '@gland/common/types';
+import { EventIdentifier } from '../../types';
 import { Callback, Noop } from '@medishn/toolkit';
 
 export interface EventChannel {
@@ -18,9 +18,6 @@ export interface EventChannel {
 
   once<T extends any = any>(listener: Callback<[T]>): Noop;
   once<T extends any = any>(event: EventIdentifier<string>, listener: Callback<[T]>): Noop;
-
-  waitFor<T>(timeout?: number): Promise<T>;
-  waitFor<T>(event: EventIdentifier<string>, timeout?: number): Promise<T>;
 
   drain(): Promise<void>;
 

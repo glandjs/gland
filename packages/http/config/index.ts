@@ -1,2 +1,2 @@
-export * from './features';
 export * from './config.channel';
+export * from './config-defaults';

@@ -1,17 +1,13 @@
 import { isNil } from '@medishn/toolkit';
-import { HttpContext, HttpHeaderValue, SettingsOptions } from '../../../interface';
-import { EntityTagAlgorithm, EntityTagStrength, GlandMiddleware } from '../../../types';
-import { AbstractConfigChannel } from '../config-channel';
-import { ConfigChannel } from '../..';
+import { HttpContext, HttpHeaderValue, SettingsOptions } from '../../interface';
+import { GlandMiddleware } from '../../types';
+import { AbstractPlugins } from '../abstract-plugins';
+import { ConfigChannel } from '../../config';
 import { generateETag } from '../utils';
 
-export class SettingsChannel extends AbstractConfigChannel<SettingsOptions, 'settings'> {
-  private readonly strength: EntityTagStrength;
-  private readonly algorithm: EntityTagAlgorithm;
+export class SettingsChannel extends AbstractPlugins<SettingsOptions, 'settings'> {
   constructor(channel: ConfigChannel) {
     super(channel, 'settings');
-    this.strength = this.get('etag')?.strength ?? 'strong';
-    this.algorithm = this.get('etag')?.algorithm ?? 'sha256';
   }
 
   createMiddleware(): GlandMiddleware {
@@ -41,7 +37,10 @@ export class SettingsChannel extends AbstractConfigChannel<SettingsOptions, 'set
       modifiedSince: HttpHeaderValue<any, any> | undefined;
     },
   ) {
-    const serverETag = generateETag(ctx.body, this.algorithm, this.strength);
+    const etag = this.get('etag');
+    const strength = etag?.strength ?? 'strong';
+    const algorithm = etag?.algorithm ?? 'sha256';
+    const serverETag = generateETag(ctx.body, algorithm, strength);
     ctx.header.set('etag', serverETag);
 
     if (clientValidation.etag) {

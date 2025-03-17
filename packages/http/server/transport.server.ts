@@ -1,20 +1,29 @@
 import { Server } from 'net';
 import { IncomingMessage, ServerResponse } from 'http';
-import { Logger } from '@medishn/toolkit';
+import { isString, Logger, Noop } from '@medishn/toolkit';
 import { TransportFactory } from './transport-factory';
 import { ConnectionPool } from './connection-pool';
 import { HttpApplicationOptions } from '../interface';
-type TIncomintRequest = (req: IncomingMessage, res: ServerResponse) => Promise<void>;
+
+type TIncomingRequest = (req: IncomingMessage, res: ServerResponse) => Promise<void>;
+/**
+ * Manages the HTTP server lifecycle, including request handling and connection management.
+ */
 export class ServerTransport {
   private readonly _logger = new Logger({ context: 'HTTP:Transport' });
   private readonly _connectionPool = new ConnectionPool();
-  private _server: Server;
+  private readonly _server: Server;
+  /**
+   * Maximum allowed port number for IPv4/IPv6.
+   * @see https://stackoverflow.com/questions/113224/what-is-the-largest-tcp-ip-network-port-number-allowable-for-ipv4
+   */
+  private static readonly MAX_PORT = 65_535;
 
-  constructor(private incomingRequest: TIncomintRequest, private readonly options?: HttpApplicationOptions) {}
+  constructor(private incomingRequest: TIncomingRequest, private readonly options?: HttpApplicationOptions) {
+    this._server = TransportFactory.create(this.options);
+  }
 
   public initialize(): void {
-    this._server = TransportFactory.create(this.options);
-
     this._server.on('request', this.incomingRequest);
     this._server.on('connection', (socket) => {
       this._connectionPool.track(socket);
@@ -25,9 +34,17 @@ export class ServerTransport {
     });
   }
 
-  listen(port: string | number, hostname: string) {
-    this._logger.info(`Server listening on ${hostname} ${port}`);
-    this._server.listen(...arguments);
+  public listen(port: number | string, hostname: string = 'localhost', callback?: Noop) {
+    const parsedPort = isString(port) ? parseInt(port, 10) : port;
+
+    if (isNaN(parsedPort) || parsedPort < 0 || parsedPort > ServerTransport.MAX_PORT) {
+      throw new Error(`Invalid port: ${port}`);
+    }
+
+    this._logger.info(`Server listening on ${hostname}:${parsedPort}`);
+    this._server.listen(parsedPort, hostname, () => {
+      if (callback) callback();
+    });
   }
 
   public async close(): Promise<void> {

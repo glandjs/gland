@@ -1,4 +1,4 @@
-import { ProtocolType } from '@gland/common/types';
+import { ProtocolType } from '../../types';
 
 /**
  * HTTP-specific arguments accessor

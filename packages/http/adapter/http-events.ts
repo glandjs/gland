@@ -3,22 +3,16 @@ import { Callback, Noop } from '@medishn/toolkit';
 export class HttpEventCore implements EventChannel {
   constructor(private readonly _channel: EventChannel) {}
 
-  responed<T, R>(listener: (data: T, respond: (result: R) => void) => void): Noop;
-  responed<T, R>(type: EventIdentifier<string>, listener: (data: T, respond: (result: R) => void) => void): Noop;
-  responed(type: any, listener?: any): Noop {
-    if (listener === undefined) {
-      return this._channel.responed(type);
-    } else {
-      return this._channel.responed(type, listener);
-    }
+  respond<T, R>(listener: (data: T, respond: (result: R) => void) => void): Noop;
+  respond<T, R>(type: EventIdentifier<string>, listener: (data: T, respond: (result: R) => void) => void): Noop;
+  respond(...args: any[]): Noop {
+    return this._channel.respond(...(args as [EventIdentifier<string>, any]));
   }
-  request<R>(data: any): R;
-  request<R>(type: EventIdentifier<string>, data: any): R;
-  request(type: string, data?: unknown) {
-    if (data === undefined) {
-      return this._channel.request(type);
-    }
-    return this._channel.request(type, data);
+
+  request<R>(type: EventIdentifier<string>, data: any, strategy?: 'first' | 'last'): R | undefined;
+  request<R>(type: EventIdentifier<string>, data: any, strategy?: 'all'): R[];
+  request<R>(type: any, data: any, strategy?: any): R | R[] | undefined {
+    return this._channel.request(type, data, strategy);
   }
 
   channel(type: EventIdentifier): HttpEventCore {
@@ -27,36 +21,39 @@ export class HttpEventCore implements EventChannel {
 
   emit<T>(type: EventIdentifier, data: T): void;
   emit<T>(data: T): void;
-  emit(type: string, data?: unknown): void {
-    if (data === undefined) {
-      this._channel.emit(type);
-    } else {
-      this._channel.emit(type, data);
-    }
+  emit(...args: any[]): void {
+    this._channel.emit(...(args as [EventIdentifier<string>, any]));
   }
 
   getListeners<T>(event: EventIdentifier<string>): T[];
   getListeners<T>(): T[];
-  getListeners(event?: unknown): Callback<any>[] {
-    return this._channel.getListeners(event as EventIdentifier<string>);
+  getListeners(...args: any[]): Callback<any>[] {
+    return this._channel.getListeners(...(args as [EventIdentifier]));
   }
 
   off<T extends any[] = any>(listener: Callback<T>): void;
   off<T extends any[] = any>(event: EventIdentifier<string>, listener: Callback<T>): void;
-  off(event: unknown, listener?: unknown): void {
-    if (listener === undefined) {
-      this._channel.off(event as Callback<any>);
-    } else {
-      this._channel.off(event as EventIdentifier<string>, listener as Callback<any>);
-    }
+  off(...args: any[]): void {
+    this._channel.off(...(args as [EventIdentifier<string>, any]));
   }
 
   on<T extends any = any>(listener: Callback<[T]>): Noop;
   on<T extends any = any>(event: EventIdentifier<string>, listener: Callback<[T]>): Noop;
-  on(event: unknown, listener?: unknown): Noop {
-    if (listener === undefined) {
-      return this._channel.on(event as Callback<any>);
-    }
-    return this._channel.on(event as EventIdentifier<string>, listener as Callback<any>);
+  on(...args: any[]): Noop {
+    return this._channel.on(...(args as [EventIdentifier<string>, any]));
+  }
+  once<T extends any = any>(listener: Callback<[T]>): Noop;
+  once<T extends any = any>(event: EventIdentifier<string>, listener: Callback<[T]>): Noop;
+  once(...args: any[]): Noop {
+    return this._channel.once(...(args as [EventIdentifier<string>, any]));
+  }
+
+  drain(): Promise<void> {
+    return this._channel.drain();
+  }
+  broadcast<T extends string, D>(data?: D): void;
+  broadcast<T extends string, D>(type: EventIdentifier<T>, data?: D): void;
+  broadcast(...args: any[]): void {
+    return this._channel.broadcast(...(args as [EventIdentifier]));
   }
 }
