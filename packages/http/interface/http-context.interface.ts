@@ -74,7 +74,7 @@ export interface HttpContext extends AdapterContext<'http'> {
   /**
    * Check if a response has been sent
    */
-  get responded(): boolean;
+  get replied(): boolean;
 
   /**
    * Check if the request is fresh (based on caching headers)

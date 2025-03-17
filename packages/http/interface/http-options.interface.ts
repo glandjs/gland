@@ -1,5 +1,5 @@
 import { Environment, RequestMethod } from '@gland/common/enums';
-import { CustomOrigin, EntityTagOptions, StaticOrigin, TrustProxyOption } from '@gland/common/types';
+import type { CustomOrigin, EntityTagOptions, StaticOrigin, TrustProxyOption } from '../types';
 
 export interface CorsOptionsCallback {
   (error: Error | null, options: CorsOptions): void;
