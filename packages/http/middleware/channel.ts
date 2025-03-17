@@ -39,7 +39,7 @@ export class MiddlewareChannel {
   }
 
   onResolve(handler: (ctx: { path: string; method?: string }) => GlandMiddleware[]) {
-    this.channel.responed(MiddlewareEvent.RESOLVE, handler);
+    this.channel.respond(MiddlewareEvent.RESOLVE, handler);
   }
 
   onExecute(handler: (ctx: { path: string; method?: string }) => void) {
@@ -67,10 +67,10 @@ export class MiddlewareChannel {
   }
 
   resolve(ctx: { path: string; method?: string }): GlandMiddleware[] {
-    return this.channel.request(MiddlewareEvent.RESOLVE, ctx);
+    return this.channel.request(MiddlewareEvent.RESOLVE, ctx, 'first')!;
   }
 
   createResolver(): MiddlewareResolver {
-    return this.channel.request(MiddlewareEvent.EXECUTE, null);
+    return this.channel.request(MiddlewareEvent.EXECUTE, null, 'first')!;
   }
 }

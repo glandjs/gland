@@ -4,8 +4,8 @@ import { MiddlewareChannel } from './channel';
 import { RouteMatcher } from './route-matcher';
 
 export class MiddlewareContainer {
-  private global = new Map<string, GlandMiddleware[]>();
-  private middlewares = new Map<string, MiddlewareConfiguration[]>();
+  private global: { [key: string]: GlandMiddleware[] } = Object.create(null);
+  private middlewares: { [key: string]: MiddlewareConfiguration[] } = Object.create(null);
 
   constructor(private _channel: MiddlewareChannel) {
     this.setupEventHandlers();
@@ -26,8 +26,8 @@ export class MiddlewareContainer {
 
   addGlobal(middleware: GlandMiddleware): void {
     const key = '*';
-    const existingMiddlewares = this.global.get(key) || [];
-    this.global.set(key, [...existingMiddlewares, middleware]);
+    const existingMiddlewares = this.global[key] || [];
+    this.global[key] = [...existingMiddlewares, middleware];
   }
 
   addMiddleware(middleware: GlandMiddleware[], routes: RouteInfo[], excluded?: RouteInfo[]): void {
@@ -38,23 +38,21 @@ export class MiddlewareContainer {
     };
     config.routes.forEach((route) => {
       const key = route.path;
-      const existingConfigs = this.middlewares.get(key) || [];
+      const existingConfigs = this.middlewares[key] || [];
       existingConfigs.push(config);
-      this.middlewares.set(key, existingConfigs);
+      this.middlewares[key] = existingConfigs;
     });
   }
 
   resolveMiddlewares(path: string, method?: string): GlandMiddleware[] {
-    const globalMidds = Array.from(this.global.values()).flat();
+    const globalMidds = Object.values(this.global).flat();
 
     const routeMidds: GlandMiddleware[] = [];
 
-    this.middlewares.forEach((configs) => {
+    Object.values(this.middlewares).forEach((configs) => {
       configs.forEach((config) => {
         const isMatch = config.routes.some((route) => RouteMatcher.match(path, route, method));
-
         const isExcluded = RouteMatcher.exclude(path, config.excludedRoutes, method);
-
         if (isMatch && !isExcluded) {
           routeMidds.push(...config.middleware);
         }
