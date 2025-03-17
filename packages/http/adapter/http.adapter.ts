@@ -2,6 +2,7 @@ import { isString, Logger } from '@medishn/toolkit';
 import { IncomingRequestServer, ServerTransport } from '../server';
 import { HttpEventCore } from './http-events';
 import { Adapter } from '@gland/common';
+import { HttpApplicationOptions } from '../interface';
 
 export class HttpAdapter implements Adapter<'http'> {
   get protocol(): 'http' {
@@ -13,13 +14,12 @@ export class HttpAdapter implements Adapter<'http'> {
 
   constructor(protected _events: HttpEventCore) {
     this._incomingServer = new IncomingRequestServer(_events);
+    this._events.once('options', this.init.bind(this));
   }
-  public async init() {
-    this._events.on('options', (options) => {
-      this.logger.info('Starting HTTP server...');
-      this._transport = new ServerTransport(this._incomingServer.IncomingRequest.bind(this._incomingServer), options);
-      this._transport.initialize();
-    });
+  public async init(options: HttpApplicationOptions) {
+    this.logger.info('Starting HTTP server...');
+    this._transport = new ServerTransport(this._incomingServer.IncomingRequest.bind(this._incomingServer), options);
+    this._transport.initialize();
   }
   public listen(port: string | number, hostname?: string): void {
     try {
