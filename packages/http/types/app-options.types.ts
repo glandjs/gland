@@ -6,19 +6,25 @@ export type StaticOrigin = boolean | string | RegExp | (string | RegExp)[];
 export type CustomOrigin = (requestOrigin: string, callback: (err: Maybe<Error>, origin?: StaticOrigin) => void) => void;
 
 export type TrustProxyOption = boolean | number | 'loopback' | 'linklocal' | 'uniquelocal' | string | string[] | ((ip: string, distance: number) => boolean);
-
 export type CorsConfig = boolean | CorsOptions | CorsOptionsDelegate<IncomingMessage>;
-export type ServerListener = {
+export type ServerListeningEvent = {
   port: number;
-  host: string;
+  host?: string;
+  message?: string;
+};
+export type ServerCrashedEvent = {
+  message: string;
+  error: Error;
+  stack: string;
+  timestamp: string;
 };
 
-export type ServerListenerCallback = (error: Error) => void;
+export type ServerListenerCallback = (error: ServerCrashedEvent) => void;
 export type ApplicationEventMap = {
-  ready: ServerListener;
-  error: ServerListenerCallback;
-  'route:not-found': (ctx: HttpContext) => Promise<void> | void;
-  'request:error': (error: any, ctx: HttpContext) => Promise<void> | void;
+  '$server:ready': ServerListeningEvent;
+  '$server:crashed': ServerListenerCallback;
+  '$router:miss': (ctx: HttpContext) => Promise<void> | void;
+  '$request:failed': (error: any, ctx: HttpContext) => Promise<void> | void;
 };
 
 export type EntityTagStrength = 'strong' | 'weak';

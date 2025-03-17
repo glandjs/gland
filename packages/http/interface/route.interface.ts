@@ -9,9 +9,3 @@ export interface RouteMatch {
   action: RouteAction;
   params: Record<string, string>;
 }
-
-export interface RouteMetadata {
-  modulePath?: string;
-  controllerPath?: string;
-  actionPath?: string;
-}

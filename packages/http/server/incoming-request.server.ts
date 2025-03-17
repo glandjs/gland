@@ -12,9 +12,16 @@ export class IncomingRequestServer {
     } catch (error) {
       context.status = HttpStatus.INTERNAL_SERVER_ERROR;
       context.error = error;
-      this._events.emit('request:error', context);
-      const errorListeners = this._events.getListeners('request:error');
-      if (errorListeners.length === 0) {
+
+      const serverevent = this._events.safeEmit('$server:crashed', {
+        message: 'Server crashed during request processing',
+        error: error,
+        stack: error.stack,
+        timestamp: new Date().toISOString(),
+      });
+      const requestevent = this._events.safeEmit('$request:failed', context);
+      const errorListeners = requestevent || serverevent;
+      if (!errorListeners) {
         throw error;
       }
     }

@@ -21,11 +21,19 @@ export class HttpAdapter implements Adapter<'http'> {
     this._transport = new ServerTransport(this._incomingServer.IncomingRequest.bind(this._incomingServer), options);
     this._transport.initialize();
   }
-  public listen(port: string | number, hostname?: string): void {
+  protected _listen(port: string | number, hostname?: string, message?: string): void {
     try {
-      this._transport.listen(port, isString(hostname) ? hostname : 'localhost');
+      this._transport.listen(port, isString(hostname) ? hostname : 'localhost', message);
     } catch (error) {
-      throw error;
+      const listener = this._events.safeEmit('$server:crashed', {
+        message: 'Failed to start HTTP server',
+        error: error,
+        stack: error.stack,
+        timestamp: new Date().toISOString(),
+      });
+      if (!listener) {
+        throw error;
+      }
     }
   }
   public shutdown(): Promise<void> {

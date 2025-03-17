@@ -56,4 +56,16 @@ export class HttpEventCore implements EventChannel {
   broadcast(...args: any[]): void {
     return this._channel.broadcast(...(args as [EventIdentifier]));
   }
+
+  safeEmit<T>(type: EventIdentifier<string>, data: T): boolean {
+    this.emit(type, data);
+
+    const listeners = this.getListeners(type);
+
+    if (listeners.length === 0) {
+      this.off(type, () => {});
+      return false;
+    }
+    return true;
+  }
 }
