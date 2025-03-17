@@ -12,7 +12,11 @@ export class IncomingRequestServer {
     } catch (error) {
       context.status = HttpStatus.INTERNAL_SERVER_ERROR;
       context.error = error;
-      throw error;
+      this._events.emit('request:error', context);
+      const errorListeners = this._events.getListeners('request:error');
+      if (errorListeners.length === 0) {
+        throw error;
+      }
     }
   }
 }
