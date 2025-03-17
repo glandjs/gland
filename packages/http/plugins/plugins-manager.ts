@@ -1,9 +1,10 @@
-import { ConfigChannel } from '..';
+import { ConfigChannel } from '../config';
+import { HttpCore } from '../http-core';
 import { BodyParserChannel, CorsChannel, ProxyChannel, SettingsChannel } from './channels';
 import { CookieParserChannel } from './channels/cookie-parser.channel';
 type OmitChannel<T> = Omit<T, 'createMiddleware'>;
 
-export class FeatureConfigManager {
+export class PluginsManager {
   private readonly settingsChannel: SettingsChannel;
   private readonly bodyParserChannel: BodyParserChannel;
   private readonly proxyChannel: ProxyChannel;
@@ -33,11 +34,11 @@ export class FeatureConfigManager {
   }
 
   public get cookies(): OmitChannel<CookieParserChannel> {
-    return this.cookieChannel
+    return this.cookieChannel;
   }
 
-  public setupMiddleware(app: any): void {
-    app.use(this.cookieChannel.createMiddleware())
+  public setupMiddleware(app: HttpCore): void {
+    app.use(this.cookieChannel.createMiddleware());
     app.use(this.proxyChannel.createMiddleware());
     app.use(this.settingsChannel.createMiddleware());
     app.use(this.bodyParserChannel.createMiddleware());

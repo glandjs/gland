@@ -1,4 +1,4 @@
-import { EntityTagAlgorithm, EntityTagStrength } from '@gland/common';
+import type { EntityTagAlgorithm, EntityTagStrength } from '@gland/http/types';
 import { isString } from '@medishn/toolkit';
 import { BinaryLike, createHash } from 'crypto';
 function generateHash(content: BinaryLike, algorithm: 'sha256' | 'md5'): string {

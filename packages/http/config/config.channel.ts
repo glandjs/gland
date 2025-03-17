@@ -22,19 +22,19 @@ export class ConfigChannel {
   }
 
   onGetNested(handler: (obj: object) => any) {
-    this.channel.responed(ConfigEvent.GET_NESTED, handler);
+    this.channel.on(ConfigEvent.GET_NESTED, handler);
   }
 
   onGet<K extends keyof HttpApplicationOptions>(handler: (key: K) => HttpApplicationOptions[K]) {
-    this.channel.responed(ConfigEvent.GET, handler);
+    this.channel.on(ConfigEvent.GET, handler);
   }
 
   onGetAll(handler: () => HttpApplicationOptions) {
-    this.channel.responed(ConfigEvent.GET_ALL, handler);
+    this.channel.on(ConfigEvent.GET_ALL, handler);
   }
 
   onHas<K extends keyof HttpApplicationOptions>(handler: (key: K) => boolean) {
-    this.channel.responed(ConfigEvent.HAS, handler);
+    this.channel.on(ConfigEvent.HAS, handler);
   }
 
   onSet<K extends keyof HttpApplicationOptions>(handler: (data: { key: K; value: Partial<HttpApplicationOptions[K]> }) => void) {
@@ -62,15 +62,19 @@ export class ConfigChannel {
   }
 
   get<K extends keyof HttpApplicationOptions>(key: K): HttpApplicationOptions[K] {
-    return this.channel.request(ConfigEvent.GET, key);
+    return this.channel.request(ConfigEvent.GET, key, 'first');
   }
 
-  getAll(): HttpApplicationOptions {
-    return this.channel.request(ConfigEvent.GET_ALL, null);
+  async getAll(): Promise<HttpApplicationOptions> {
+    return this.channel.request(ConfigEvent.GET_ALL, null, 'first')!;
   }
 
   has<K extends keyof HttpApplicationOptions>(key: K): boolean {
-    return this.channel.request(ConfigEvent.HAS, key);
+    return this.channel.request(ConfigEvent.HAS, key, 'first')!;
+  }
+
+  getNested<T extends object = object>(obj: T): ObjectInspector<T> {
+    return this.channel.request(ConfigEvent.GET_NESTED, obj, 'first')!;
   }
 
   set<K extends keyof HttpApplicationOptions>(key: K, value: Partial<HttpApplicationOptions[K]>): void {
@@ -93,8 +97,5 @@ export class ConfigChannel {
 
   update(options: Partial<HttpApplicationOptions>): void {
     this.channel.emit(ConfigEvent.UPDATE, options);
-  }
-  getNested<T extends object = object>(obj: T): ObjectInspector<T> {
-    return this.channel.request(ConfigEvent.GET_NESTED, obj);
   }
 }

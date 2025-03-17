@@ -1,7 +1,7 @@
 import { HttpStatus } from '@medishn/toolkit';
-import { CorsConfig } from '@gland/common';
 import { BodyParserOptions, CookieOptions, ProxyOptions, SettingsOptions, ViewsOptions } from '../interface';
-import { normalizeTrustProxy } from './features/utils';
+import { normalizeTrustProxy } from '../plugins/utils';
+import type { CorsConfig } from '../types';
 
 export class ApplicationConfigurationDefaults {
   private static readonly ONE_DAY_SECONDS = 86400;

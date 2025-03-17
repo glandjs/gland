@@ -1,4 +1,4 @@
-import { TrustProxyOption } from '@gland/http/types/app-options.types';
+import { TrustProxyOption } from '../../types/app-options.types';
 import { isArray, isFunction, isNumber, isString } from '@medishn/toolkit';
 export const TRUST_PROXY_DEFAULT_SYMBOL = 'trustproxy.default';
 export function normalizeTrustProxy(trustProxy?: TrustProxyOption): TrustProxyOption {

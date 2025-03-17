@@ -1,8 +1,8 @@
-import { isFalsy, isString, isUndefined } from '@medishn/toolkit';
+import { isFalsy, isNil, isObject, isString, Maybe } from '@medishn/toolkit';
 import { IncomingMessage } from 'node:http';
-import { BodyParserOptions, GlandMiddleware } from '../../../interface';
-import { AbstractConfigChannel } from '../config-channel';
-import { ConfigChannel } from '../../config.channel';
+import { BodyParserOptions, GlandMiddleware } from '../../interface';
+import { AbstractPlugins } from '../abstract-plugins';
+import { ConfigChannel } from '../../config/config.channel';
 
 const CONTENT_TYPE = 'content-type';
 const JSON_CONTENT_TYPE = 'application/json';
@@ -12,7 +12,7 @@ const TEXT_PLAIN_CONTENT_TYPE = 'text/plain';
 const CONTENT_LENGTH_EXCEEDED = 'request entity too large';
 const INVALID_JSON = 'invalid json';
 const INVALID_URL_ENCODED = 'invalid url encoded data';
-export class BodyParserChannel extends AbstractConfigChannel<BodyParserOptions, 'body'> {
+export class BodyParserChannel extends AbstractPlugins<BodyParserOptions, 'body'> {
   constructor(channel: ConfigChannel) {
     super(channel, 'body');
   }
@@ -55,7 +55,7 @@ export class BodyParserChannel extends AbstractConfigChannel<BodyParserOptions, 
     }
 
     const contentLength = this.getContentLength(req);
-    if (isUndefined(contentLength) || contentLength === 0) {
+    if (isNil(contentLength) || contentLength === 0) {
       return false;
     }
 
@@ -68,7 +68,7 @@ export class BodyParserChannel extends AbstractConfigChannel<BodyParserOptions, 
     }
     return true;
   }
-  private getContentLength(req: IncomingMessage): number | undefined {
+  private getContentLength(req: IncomingMessage): Maybe<number> {
     const header = req.headers['content-length'];
     if (!header) {
       return undefined;
@@ -86,7 +86,7 @@ export class BodyParserChannel extends AbstractConfigChannel<BodyParserOptions, 
     return new Promise((resolve, reject) => {
       const chunks: any[] = [];
       let size = 0;
-      req.on('data', (chunk: Buffer) => {
+      req.on('data', async (chunk: Buffer) => {
         chunks.push(chunk);
         size += chunk.length;
 
@@ -96,7 +96,7 @@ export class BodyParserChannel extends AbstractConfigChannel<BodyParserOptions, 
         }
       });
 
-      req.on('end', () => {
+      req.on('end', async () => {
         if (chunks.length === 0) {
           resolve('');
           return;
@@ -123,16 +123,17 @@ export class BodyParserChannel extends AbstractConfigChannel<BodyParserOptions, 
     try {
       const rawBody = await this.readBody(ctx.req);
       console.log('rawBody->', rawBody);
-      const strictMode = this.get('json')?.strict !== false;
+      const jsonConfig = this.get('json');
+      const strictMode = jsonConfig?.strict !== false;
       console.log('strictMode->', strictMode);
 
       if (isFalsy(rawBody)) {
         ctx.body = {};
         return;
       }
-      ctx.body = JSON.parse(rawBody, this.get('json')?.reviver);
+      ctx.body = JSON.parse(rawBody, jsonConfig?.reviver);
 
-      if (this.get('json').strict && (ctx.body === null || typeof ctx.body !== 'object')) {
+      if (jsonConfig.strict && (isNil(ctx.body) || !isObject(ctx.body))) {
       }
     } catch (error) {
       if (error.message === CONTENT_LENGTH_EXCEEDED) {

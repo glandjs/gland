@@ -1,14 +1,14 @@
 import { Dictionary, isArray, isUndefined, Maybe, merge } from '@medishn/toolkit';
 import { createHash } from 'node:crypto';
-import { AbstractConfigChannel } from '../config-channel';
+import { AbstractPlugins } from '../abstract-plugins';
 import { CookieOptions, GlandMiddleware, HttpContext } from '@gland/http/interface';
-import { ConfigChannel } from '../../config.channel';
+import { ConfigChannel } from '../../config/config.channel';
 
-export class CookieParserChannel extends AbstractConfigChannel<CookieOptions, 'cookies'> {
+export class CookieParserChannel extends AbstractPlugins<CookieOptions, 'cookies'> {
   constructor(channel: ConfigChannel) {
     super(channel, 'cookies');
   }
-  public createMiddleware(): GlandMiddleware {
+  createMiddleware(): GlandMiddleware {
     return async (ctx, next) => {
       this.attachCookieMethods(ctx);
 
@@ -73,7 +73,7 @@ export class CookieParserChannel extends AbstractConfigChannel<CookieOptions, 'c
    * Attach cookie methods to the context
    */
   private attachCookieMethods(ctx: HttpContext): void {
-    ctx.getCookie = this.getCookie.bind(this, ctx);
+    ctx.getCookie = this.getCookie.bind(this, ctx) as any;
     ctx.setCookie = this.setCookie.bind(this, ctx);
     ctx.deleteCookie = this.deleteCookie.bind(this, ctx);
   }

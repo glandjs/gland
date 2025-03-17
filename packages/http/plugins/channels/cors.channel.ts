@@ -1,16 +1,16 @@
 import { isArray, isBoolean, isFunction, isRegExp, isString, Maybe } from '@medishn/toolkit';
 import { IncomingMessage, ServerResponse } from 'http';
-import { AbstractConfigChannel } from '../config-channel';
-import { ConfigChannel } from '../../config.channel';
-import { CorsConfig, GlandMiddleware, StaticOrigin } from '../../../types';
-import { CorsOptions, CorsOptionsDelegate, HttpContext } from '../../../interface';
+import { AbstractPlugins } from '../abstract-plugins';
+import { ConfigChannel } from '../../config/config.channel';
+import { CorsConfig, GlandMiddleware, StaticOrigin } from '../../types';
+import { CorsOptions, CorsOptionsDelegate, HttpContext } from '../../interface';
 
-export class CorsChannel extends AbstractConfigChannel<CorsConfig, 'cors'> {
+export class CorsChannel extends AbstractPlugins<CorsConfig, 'cors'> {
   constructor(channel: ConfigChannel) {
     super(channel, 'cors');
   }
 
-  public createMiddleware(): GlandMiddleware {
+  createMiddleware(): GlandMiddleware {
     return async (ctx, next) => {
       this.enable(ctx);
 
