@@ -14,13 +14,13 @@ export class ConnectionPool {
 
     socket.once('close', () => {
       delete this._active[id];
-      this._logger.info(`Connection ${id} closed. Remaining: ${this._active.size}`);
+      this._logger.info(`Connection ${id} closed. Remaining: ${Object.keys(this._active).length}`);
     });
     socket.on('error', (err) => {
       this._logger.error(`Connection ${id} error:`, err);
       socket.destroy();
     });
-    this._logger.info(`New connection ${id}. Total: ${this._active.size}`);
+    this._logger.info(`New connection ${id}. Total: ${Object.keys(this._active).length}`);
   }
 
   public async closeAll(): Promise<void> {
