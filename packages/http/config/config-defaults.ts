@@ -65,7 +65,11 @@ export class ApplicationConfigurationDefaults {
         reviver: undefined,
       },
       urlencoded: {
-        extended: true,
+        extended: false,
+        parameterLimit: 1000,
+      },
+      text: {
+        defaultCharset: 'utf-8',
       },
     };
   }
