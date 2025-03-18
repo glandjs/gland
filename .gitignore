@@ -23,3 +23,5 @@ packages/**/*.js
 
 # Mac files
 .DS_Store
+.idea/
+.vscode/
