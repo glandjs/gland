@@ -1,15 +1,5 @@
-export function nextPowerOfTwo(n: number): number {
-  n--;
-  n |= n >>> 1;
-  n |= n >>> 2;
-  n |= n >>> 4;
-  n |= n >>> 8;
-  n |= n >>> 16;
-  return n + 1;
-}
-
 export class CircularDeque<T> {
-  private buffer: Uint32Array;
+  public buffer: Uint32Array;
   private dataBuffer: ArrayBuffer;
   private head: number = 0;
   private tail: number = 0;
@@ -31,22 +21,14 @@ export class CircularDeque<T> {
     return this._size === 0;
   }
   isFull(): boolean {
-    return this._size === this.buffer.length;
+    return this._size >= this.buffer.length * 0.75;
   }
 
   addFirst(item: T): void {
-    if (this._size >= this.buffer.length * 0.75) this.resize();
+    if (this.isFull()) this.resize();
 
     this.head = (this.head - 1) & this.mask;
     this.storeItem(this.head, item);
-    this._size++;
-  }
-
-  addLast(item: T): void {
-    if (this._size >= this.buffer.length * 0.75) this.resize();
-
-    this.storeItem(this.tail, item);
-    this.tail = (this.tail + 1) & this.mask;
     this._size++;
   }
 
@@ -124,7 +106,7 @@ export class CircularDeque<T> {
   }
 
   private resize(): void {
-    const newCapacity = nextPowerOfTwo(this.buffer.length * 2);
+    const newCapacity = this.nextPowerOfTwo(this.buffer.length * 2);
     const newBuffer = new Uint32Array(newCapacity);
 
     let oldIndex = this.head;
@@ -150,5 +132,14 @@ export class CircularDeque<T> {
     this.head = 0;
     this.tail = 0;
     this._size = 0;
+  }
+  private nextPowerOfTwo(n: number): number {
+    n--;
+    n |= n >>> 1;
+    n |= n >>> 2;
+    n |= n >>> 4;
+    n |= n >>> 8;
+    n |= n >>> 16;
+    return n + 1;
   }
 }
