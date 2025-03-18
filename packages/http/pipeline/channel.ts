@@ -2,7 +2,6 @@ import { HttpContext } from '../interface';
 import { HttpEventCore } from '../adapter';
 enum PipelineEvent {
   EXECUTE = 'execute',
-  REGISTER = 'register',
 }
 
 export class PipelineChannel {
