@@ -3,11 +3,7 @@ import { HttpHeaderName, HttpHeaderValue, HttpHeaders } from '../../interface';
 import { Maybe } from '@medishn/toolkit';
 
 export class HeadersManager implements HttpHeaders {
-  private response: ServerResponse;
-
-  constructor(response: ServerResponse, private request: IncomingMessage) {
-    this.response = response;
-  }
+  constructor(private response: ServerResponse, private request: IncomingMessage) {}
 
   set<T extends string, XHeaders extends string>(name: HttpHeaderName<T>, value: HttpHeaderValue<T, XHeaders>): void;
   set(name: HttpHeaderName, value: any): void {
@@ -17,7 +13,7 @@ export class HeadersManager implements HttpHeaders {
   get<T extends string, XHeaders extends string>(name: HttpHeaderName<T>): Maybe<HttpHeaderValue<T, XHeaders>>;
   get(name: string): Maybe<string | number | string[]>;
   get(name: HttpHeaderName) {
-    return this.response.getHeader(name);
+    return this.response.getHeader(name) || this.request.headers[name];
   }
 
   has(name: HttpHeaderName): boolean {

@@ -1,5 +1,6 @@
 import { Environment, RequestMethod } from '@gland/common/enums';
 import type { CustomOrigin, EntityTagOptions, StaticOrigin, TrustProxyOption } from '../types';
+import type { HttpContext } from './http-context.interface';
 
 export interface CorsOptionsCallback {
   (error: Error | null, options: CorsOptions): void;
@@ -204,12 +205,20 @@ interface JsonParserOptions {
 
 interface UrlEncodedParserOptions {
   extended: boolean;
+  parameterLimit?: number;
 }
+
+export interface TextParserOptions {
+  defaultCharset?: string;
+}
+
 export interface BodyParserOptions {
   limit: number;
   encoding: string;
   json: JsonParserOptions;
   urlencoded: UrlEncodedParserOptions;
+  text?: TextParserOptions;
+  verify?: (ctx: HttpContext, buf: Buffer, encoding: string) => void;
 }
 
 export interface ShutdownOptions {
