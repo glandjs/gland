@@ -21,10 +21,10 @@ export type ServerCrashedEvent = {
 
 export type ServerListenerCallback = (error: ServerCrashedEvent) => void;
 export type ApplicationEventMap = {
-  '$server:ready': ServerListeningEvent;
-  '$server:crashed': ServerListenerCallback;
-  '$router:miss': (ctx: HttpContext) => Promise<void> | void;
-  '$request:failed': (error: any, ctx: HttpContext) => Promise<void> | void;
+  ready: ServerListeningEvent;
+  crashed: ServerListenerCallback;
+  'router:miss': (ctx: HttpContext) => Promise<void> | void;
+  'request:failed': (error: any, ctx: HttpContext) => Promise<void> | void;
 };
 
 export type EntityTagStrength = 'strong' | 'weak';

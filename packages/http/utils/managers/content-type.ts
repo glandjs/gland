@@ -25,13 +25,6 @@ export class ContentTypeManager {
     const match = contentType.match(/charset=([a-zA-Z0-9-]+)/);
     return match ? match[1] : undefined;
   }
-  getLength(): number {
-    const length = this.header.get('content-length');
-    if (isString(length)) {
-      return parseInt(length, 10);
-    }
-    return isNumber(length) ? length : 0;
-  }
   setLength(length: number): void {
     if (!isNumber(length) || length < 0) {
       throw new Error('Content-Length must be a non-negative number');

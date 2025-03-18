@@ -5,4 +5,3 @@ export * from './pipeline.interface';
 export * from './route.interface';
 export * from './app-options.interface';
 export * from './http-options.interface';
-export * from './listener.interface';
