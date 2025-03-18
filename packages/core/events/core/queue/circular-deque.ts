@@ -9,7 +9,7 @@ export class CircularDeque<T> {
   private nextObjectId = 1;
 
   constructor(capacity: number) {
-    this.mask = nextPowerOfTwo(Math.max(8, capacity)) - 1;
+    this.mask = this.nextPowerOfTwo(Math.max(8, capacity)) - 1;
     this.dataBuffer = new ArrayBuffer((this.mask + 1) * 4);
     this.buffer = new Uint32Array(this.dataBuffer);
   }
