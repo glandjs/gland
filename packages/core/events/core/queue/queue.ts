@@ -1,12 +1,11 @@
-import { Event } from '@gland/common';
 import { CircularDeque } from './circular-deque';
 
 export class EventQueue {
-  private readonly deque: CircularDeque<Event>;
+  private readonly deque: CircularDeque<string>;
   private processingFlag = 0;
 
   constructor(maxSize = 1000) {
-    this.deque = new CircularDeque<Event>(maxSize);
+    this.deque = new CircularDeque<string>(maxSize);
   }
 
   get size(): number {
@@ -15,7 +14,7 @@ export class EventQueue {
   isEmpty(): boolean {
     return this.deque.isEmpty();
   }
-  enqueue(event: Event): void {
+  enqueue(event: string): void {
     this.deque.addFirst(event);
 
     if (this.deque.isFull()) {
@@ -23,7 +22,7 @@ export class EventQueue {
     }
   }
 
-  async process(callback: (event: Event) => Promise<void>): Promise<void> {
+  async process(callback: (event: string) => Promise<void>): Promise<void> {
     if (this.processingFlag) return;
     this.processingFlag = 1;
 
@@ -33,7 +32,6 @@ export class EventQueue {
 
       while (!this.deque.isEmpty()) {
         const batch: Promise<void>[] = [];
-        const start = performance.now();
 
         while (batch.length < batchSize && !this.deque.isEmpty()) {
           const event = this.deque.removeLast();
@@ -49,9 +47,7 @@ export class EventQueue {
 
         await Promise.all(batch);
 
-        const duration = performance.now() - start;
-
-        batchSize = Math.min(1024, Math.max(64, Math.round(batchSize * (16 / duration))));
+        batchSize = Math.min(1024, Math.max(64, Math.round(batchSize * 16)));
       }
     } finally {
       this.processingFlag = 0;

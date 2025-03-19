@@ -1,10 +1,10 @@
 export class CircularDeque<T> {
   public buffer: Uint32Array;
   private dataBuffer: ArrayBuffer;
-  private head: number = 0;
+  public head: number = 0;
   private tail: number = 0;
   private _size: number = 0;
-  private mask: number;
+  public mask: number;
   private readonly objectMap = new Map<number, T>();
   private nextObjectId = 1;
 
@@ -78,7 +78,7 @@ export class CircularDeque<T> {
     this.buffer[index] = hash;
   }
 
-  private loadItem(index: number): T {
+  public loadItem(index: number): T {
     const hash = this.buffer[index];
 
     switch (true) {
