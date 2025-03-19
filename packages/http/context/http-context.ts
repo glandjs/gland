@@ -4,7 +4,7 @@ import { Dictionary, HttpException, HttpExceptionOptions, HttpStatus, isString, 
 import { TLSSocket } from 'tls';
 import { CookieOptions, HttpContext, HttpHeaderName, HttpHeaders, HttpHeaderValue, ProxyOptions, SettingsOptions } from '../interface';
 import { RequestContext } from './request-context';
-import { EventIdentifier, normalizePath, RequestMethod } from '@gland/common';
+import { normalizePath, RequestMethod, EventType } from '@gland/common';
 import { HttpEventCore } from '../adapter/http-events';
 import { generateETag, normalizeTrustProxy, TrustProxyEvaluator } from '../plugins/utils';
 import { parse as parseQuery } from 'querystring';
@@ -247,7 +247,7 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     this.send(body);
   }
 
-  public emit<T extends string, D>(event: EventIdentifier<T>, data?: D) {
+  public emit<D>(event: EventType, data?: D) {
     return this._events.emit(event, data);
   }
 

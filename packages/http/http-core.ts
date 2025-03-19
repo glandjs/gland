@@ -1,5 +1,5 @@
 import { Callback, isFunction, isString, Noop } from '@medishn/toolkit';
-import { EventIdentifier, RequestMethod } from '@gland/common';
+import { EventType, RequestMethod } from '@gland/common';
 import { EventBroker } from '@gland/core';
 import { ExpressLikeMiddleware, GlandMiddleware, HttpApplicationOptions, HttpContext, RouteAction, type BodyParserOptions } from './interface';
 import { HttpAdapter, HttpEventCore } from './adapter';
@@ -141,7 +141,15 @@ export class HttpCore extends HttpAdapter {
   public on<T>(event: HttpEventType, listener: Callback<[T]>): Noop {
     return this._events.on(event, listener);
   }
-  public hook<K extends keyof ApplicationEventMap>(event: K, listener: ApplicationEventMap[K]): void {
+  public emit<T>(type: EventType, data: T) {
+    this._events.emit(type, data);
+  }
+
+  public off<T>(event: HttpEventType, listener: Callback<[T]>): void {
+    this._events.off(event, listener);
+  }
+
+  public system<K extends keyof ApplicationEventMap>(event: K, listener: ApplicationEventMap[K]): void {
     switch (event) {
       case 'ready':
         this._listen(listener['port'], listener['host'], listener['message']);
@@ -158,13 +166,5 @@ export class HttpCore extends HttpAdapter {
       default:
         throw Error(`Unknown system event: ${event}`);
     }
-  }
-
-  public emit<T>(type: EventIdentifier, data: T) {
-    this._events.emit(type, data);
-  }
-
-  public off<T>(event: HttpEventType, listener: Callback<[T]>): void {
-    this._events.off(event, listener);
   }
 }
