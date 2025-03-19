@@ -28,10 +28,6 @@ export abstract class AbstractPlugins<X, T extends keyof HttpApplicationOptions>
     return nested.get(key);
   }
 
-  public set<K extends keyof X>(key: K, value: X[K]): void {
-    this.update({ [key]: value } as any);
-  }
-
   private update<K extends keyof X>(options: K): void {
     this.channel.update({ [this.configKey]: options });
   }

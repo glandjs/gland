@@ -88,14 +88,6 @@ export class SSEStream extends Transform {
     }
   }
 
-  addComment(comment: string): void {
-    this.push(`: ${comment}\n\n`);
-  }
-
-  setRetry(delay: number): void {
-    this.writeMessage({ retry: delay }, () => {});
-  }
-
   close(): void {
     this.end(() => {
       if (this.response.writableEnded) return;

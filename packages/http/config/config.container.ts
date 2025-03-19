@@ -17,24 +17,8 @@ export class ConfigContainer {
       return this.get(key);
     });
 
-    this._channel.onGetAll(() => {
-      return this.getAll();
-    });
-
-    this._channel.onHas((key) => {
-      return this.has(key);
-    });
-
     this._channel.onSet(({ key, value }) => {
       this.set(key, value);
-    });
-
-    this._channel.onDelete((key) => {
-      this.delete(key);
-    });
-
-    this._channel.onClear(() => {
-      this.clear();
     });
 
     this._channel.onInitialize((options) => {
@@ -74,14 +58,6 @@ export class ConfigContainer {
     return this.store.get(key);
   }
 
-  private getAll(): HttpApplicationOptions {
-    const config: Partial<HttpApplicationOptions> = {};
-    for (const [key, value] of this.store.entries()) {
-      config[key] = value;
-    }
-    return config as HttpApplicationOptions;
-  }
-
   private set<K extends keyof HttpApplicationOptions>(key: K, value: Partial<HttpApplicationOptions[K]>): void {
     const current = this.get(key);
     if (isObject(current)) {
@@ -97,14 +73,6 @@ export class ConfigContainer {
         this.set(key as keyof HttpApplicationOptions, options[key]);
       }
     }
-  }
-
-  private has<K extends keyof HttpApplicationOptions>(key: K): boolean {
-    return this.store.has(key);
-  }
-
-  private delete<K extends keyof HttpApplicationOptions>(key: K): boolean {
-    return this.store.delete(key);
   }
 
   private clear(): void {

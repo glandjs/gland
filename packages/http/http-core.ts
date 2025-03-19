@@ -1,7 +1,7 @@
 import { Callback, isFunction, isString, Noop } from '@medishn/toolkit';
 import { EventIdentifier, RequestMethod } from '@gland/common';
 import { EventBroker } from '@gland/core';
-import { ExpressLikeMiddleware, GlandMiddleware, HttpApplicationOptions, HttpContext, RouteAction } from './interface';
+import { ExpressLikeMiddleware, GlandMiddleware, HttpApplicationOptions, HttpContext, RouteAction, type BodyParserOptions } from './interface';
 import { HttpAdapter, HttpEventCore } from './adapter';
 import { PluginsManager } from './plugins';
 import { HttpEventType } from './http-events.const';
@@ -130,25 +130,29 @@ export class HttpCore extends HttpAdapter {
     cors.updateMany(args);
     this.use(this._plugins.cors.createMiddleware());
   }
-  public useBodyParser() {}
+  public useBodyParser(args: BodyParserOptions) {
+    const bodyParser = this._plugins.bodyParser;
+    bodyParser.updateMany(args);
+    this.use(this._plugins.cors.createMiddleware());
+  }
   public static() {}
 
   // Event Management
   public on<T>(event: HttpEventType, listener: Callback<[T]>): Noop {
     return this._events.on(event, listener);
   }
-  public system<K extends keyof ApplicationEventMap>(event: K, listener: ApplicationEventMap[K]): void {
+  public hook<K extends keyof ApplicationEventMap>(event: K, listener: ApplicationEventMap[K]): void {
     switch (event) {
-      case '$server:ready':
+      case 'ready':
         this._listen(listener['port'], listener['host'], listener['message']);
         break;
-      case '$server:crashed':
+      case 'crashed':
         this._events.on('$server:crashed', listener);
         break;
-      case '$router:miss':
+      case 'router:miss':
         this._events.on('$router:miss', listener);
         break;
-      case '$request:failed':
+      case 'request:failed':
         this._events.on('$request:failed', listener);
         break;
       default:
