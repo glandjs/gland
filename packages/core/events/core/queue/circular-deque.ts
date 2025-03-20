@@ -32,17 +32,6 @@ export class CircularDeque<T> {
     this._size++;
   }
 
-  removeFirst(): T | undefined {
-    if (this.isEmpty()) return undefined;
-
-    const item = this.loadItem(this.head);
-    this.buffer[this.head] = 0;
-    this.head = (this.head + 1) & this.mask;
-    this._size--;
-
-    return item;
-  }
-
   removeLast(): T | undefined {
     if (this.isEmpty()) return undefined;
 
