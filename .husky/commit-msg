@@ -1,0 +1,12 @@
+#!/bin/bash
+
+commit_msg_file=$1
+
+commit_hash=$(git rev-parse HEAD)
+
+if ! git log -1 --pretty=%G? | grep -q 'G'; then
+  echo "❌ Error: Commit is not signed. Please sign your commit using 'git commit -S'."
+  exit 1
+fi
+
+echo "✅ Commit is signed and verified!"
