@@ -21,6 +21,9 @@
     "chmod": "chmod +x ./scripts/release.sh",
     "release": "npm run chmod && ./scripts/release.sh"
   },
+  "lint-staged": {
+    "**/*.ts": "prettier --write"
+  },
   "workspaces": [
     "packages/*"
   ],
@@ -52,7 +55,10 @@
     "@types/node": "^22.0.0",
     "@types/sinon": "^17.0.3",
     "chai": "^4.3.7",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
     "mocha": "^10.7.3",
+    "prettier": "^3.5.3",
     "sinon": "^19.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
