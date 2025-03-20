@@ -17,10 +17,6 @@ export class SendData {
    * Handles strings, Buffers, streams, and generic objects.
    */
   process<T extends any = any>(body: T) {
-    if (body instanceof SSEStream) {
-      body.pipe(this.request.res);
-      return;
-    }
     this.chunk = this.processContentType(body);
     if (isString(this.chunk)) {
       if (!this.contentType.get()) {

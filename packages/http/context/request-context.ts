@@ -4,8 +4,6 @@ import { HeadersManager, CookiesManager, SendData, SSEStream } from '../utils/';
 import { HttpStatus, isNaNValue } from '@medishn/toolkit';
 export class RequestContext {
   public readonly header: HeadersManager;
-  private _isSent = false;
-  private _isFinished = false;
   constructor(
     public req: IncomingMessage,
     public readonly res: ServerResponse,
@@ -26,18 +24,8 @@ export class RequestContext {
     this.end();
   }
 
-  sse(): SSEStream {
-    if (this.isSent || this.isFinished) {
-      throw new Error('Response has already been sent');
-    }
-
-    // Ensure headers are set for SSE
-    this.header.set('content-type', 'text/event-stream');
-    this.header.set('cache-control', 'no-cache');
-    this.header.set('connection', 'keep-alive');
-
-    return new SSEStream(this.req, this.res);
-  }
+  // This feature is not currently implemented.
+  sse() {}
 
   get method(): RequestMethod | undefined {
     const method = this.req.method?.toUpperCase();
@@ -49,9 +37,6 @@ export class RequestContext {
     return undefined;
   }
 
-  /**
-   * Getter and setter for HTTP.
-   */
   set status(code: HttpStatus) {
     this.res.statusCode = code;
   }
@@ -59,24 +44,11 @@ export class RequestContext {
     return this.res.statusCode;
   }
 
-  get isSent(): boolean {
-    return this._isSent;
-  }
-
-  get isFinished(): boolean {
-    return this._isFinished;
-  }
-
   end(cb?: () => void): this;
   end(chunk: any, cb?: () => void): this;
   end(chunk: any, encoding: BufferEncoding, cb?: () => void): this;
   end(): any {
     this.res.end(...arguments);
-    if (this.res.writableEnded) {
-      this._isSent = true;
-      this._isFinished = true;
-    }
-    return;
   }
 
   isFresh(): boolean {
