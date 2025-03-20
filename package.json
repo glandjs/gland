@@ -11,16 +11,7 @@
   "bugs": {
     "url": "https://github.com/medishen/gland/issues"
   },
-  "scripts": {
-    "test": "npm run test:unit",
-    "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts",
-    "test:integration": "mocha --require ts-node/register test/integration/**/*.spec.ts",
-    "benchmark": "ts-node ./benchmark/gland.ts",
-    "build": "tsc -b ./packages/tsconfig.build.json",
-    "start": "ts-node packages/core/index.ts",
-    "chmod": "chmod +x ./scripts/release.sh",
-    "release": "npm run chmod && ./scripts/release.sh"
-  },
+  "scripts": {},
   "lint-staged": {
     "**/*.ts": "prettier --write"
   },
