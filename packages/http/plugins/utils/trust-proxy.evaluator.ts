@@ -26,10 +26,10 @@ export class TrustProxyEvaluator {
     }
 
     if (isFunction(this.trust)) {
-      return this.trust(ip, distance); // Custom trust function
+      return this.trust(ip, distance);
     }
 
-    return false; // Default: Do not trust
+    return false;
   }
 
   private matchesSpecialKeyword(ip: string): boolean {

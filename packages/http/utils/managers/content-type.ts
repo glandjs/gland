@@ -11,20 +11,6 @@ export class ContentTypeManager {
   get(): Maybe<string> {
     return this.header.get<'content-type', string>('content-type');
   }
-  length(): number {
-    const length = this.header.get('content-length');
-    if (isString(length)) {
-      return parseInt(length, 10);
-    }
-    return isNumber(length) ? length : 0;
-  }
-  getCharset(): Maybe<string> {
-    const contentType = this.get();
-    if (!contentType) return undefined;
-
-    const match = contentType.match(/charset=([a-zA-Z0-9-]+)/);
-    return match ? match[1] : undefined;
-  }
   setLength(length: number): void {
     if (!isNumber(length) || length < 0) {
       throw new Error('Content-Length must be a non-negative number');
@@ -36,11 +22,5 @@ export class ContentTypeManager {
   }
   removeLength() {
     this.header.remove('content-length');
-  }
-  is(type: string): boolean {
-    const contentType = this.get();
-    if (isNil(contentType)) return false;
-
-    return contentType.split(';')[0].trim() === type;
   }
 }
