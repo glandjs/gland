@@ -6,7 +6,10 @@ export class RequestContext {
   public readonly header: HeadersManager;
   private _isSent = false;
   private _isFinished = false;
-  constructor(public req: IncomingMessage, public readonly res: ServerResponse) {
+  constructor(
+    public req: IncomingMessage,
+    public readonly res: ServerResponse,
+  ) {
     this.header = new HeadersManager(res, req);
   }
   get cookies(): CookiesManager {

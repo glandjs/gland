@@ -6,7 +6,12 @@ import { PipelineChannel } from './channel';
 import { MiddlewareChannel } from '../middleware';
 
 export class PipelineEngine implements IPipelineEngine {
-  constructor(_channel: PipelineChannel, private _events: HttpEventCore, private _router: RouterChannel, private _middleware: MiddlewareChannel) {
+  constructor(
+    _channel: PipelineChannel,
+    private _events: HttpEventCore,
+    private _router: RouterChannel,
+    private _middleware: MiddlewareChannel,
+  ) {
     _channel.onExecute(this.execute.bind(this));
   }
 

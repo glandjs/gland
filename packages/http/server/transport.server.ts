@@ -19,7 +19,10 @@ export class ServerTransport {
    */
   private static readonly MAX_PORT = 65_535;
 
-  constructor(private incomingRequest: TIncomingRequest, private readonly options?: HttpApplicationOptions) {
+  constructor(
+    private incomingRequest: TIncomingRequest,
+    private readonly options?: HttpApplicationOptions,
+  ) {
     this._server = TransportFactory.create(this.options);
   }
 
