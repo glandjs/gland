@@ -19,7 +19,11 @@ export class RadixNode {
 
   public parameter: Maybe<RadixNode> = null;
   public wildcard: Maybe<RadixNode> = null;
-  constructor(public prefix: string = '', public type: NodeType = NodeType.STATIC, public paramName: string = '') {}
+  constructor(
+    public prefix: string = '',
+    public type: NodeType = NodeType.STATIC,
+    public paramName: string = '',
+  ) {}
 
   addNode(method: string, path: string, action: RouteAction): void {
     new NodeAdder(this).addNode(method, path, action);

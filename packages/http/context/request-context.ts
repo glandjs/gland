@@ -4,7 +4,10 @@ import { HeadersManager, CookiesManager, SendData, SSEStream } from '../utils/';
 import { HttpStatus, isNaNValue } from '@medishn/toolkit';
 export class RequestContext {
   public readonly header: HeadersManager;
-  constructor(public req: IncomingMessage, public readonly res: ServerResponse) {
+  constructor(
+    public req: IncomingMessage,
+    public readonly res: ServerResponse,
+  ) {
     this.header = new HeadersManager(res, req);
   }
   get cookies(): CookiesManager {

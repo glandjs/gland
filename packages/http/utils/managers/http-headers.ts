@@ -3,7 +3,10 @@ import { HttpHeaderName, HttpHeaderValue, HttpHeaders } from '../../interface';
 import { Maybe } from '@medishn/toolkit';
 
 export class HeadersManager implements HttpHeaders {
-  constructor(private response: ServerResponse, private request: IncomingMessage) {}
+  constructor(
+    private response: ServerResponse,
+    private request: IncomingMessage,
+  ) {}
 
   set<T extends string, XHeaders extends string>(name: HttpHeaderName<T>, value: HttpHeaderValue<T, XHeaders>): void;
   set(name: HttpHeaderName, value: any): void {

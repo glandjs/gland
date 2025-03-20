@@ -8,7 +8,10 @@ import { RadixTree } from './node';
 export class Router {
   private readonly tree: RadixTree = new RadixTree();
 
-  constructor(channel: RouterChannel, private readonly _config: ConfigChannel) {
+  constructor(
+    channel: RouterChannel,
+    private readonly _config: ConfigChannel,
+  ) {
     channel.onMatch((ctx) => this.match(ctx)!);
     channel.onRegister(({ method, path, action }) => {
       this.register(method, path, action);
