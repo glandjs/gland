@@ -8,12 +8,6 @@ export class EventQueue {
     this.deque = new CircularDeque<string>(maxSize);
   }
 
-  get size(): number {
-    return this.deque.size;
-  }
-  isEmpty(): boolean {
-    return this.deque.isEmpty();
-  }
   enqueue(event: string): void {
     this.deque.addFirst(event);
 

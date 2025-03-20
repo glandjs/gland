@@ -1,7 +1,6 @@
 export class BitVector {
   private view: Uint32Array;
   private static readonly BITS_PER_INT = 32;
-  // Track the highest set bit for faster operations
   private highestSetBit = -1;
 
   constructor(initialCapacity = 1024) {
@@ -28,7 +27,6 @@ export class BitVector {
     if (index < this.view.length) {
       this.view[index] &= ~mask;
 
-      //
       if (bit === this.highestSetBit) {
         this.recalculateHighestBit();
       }
