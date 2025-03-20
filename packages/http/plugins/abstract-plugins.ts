@@ -4,7 +4,10 @@ import { GlandMiddleware, HttpApplicationOptions } from '../interface';
 
 export abstract class AbstractPlugins<X, T extends keyof HttpApplicationOptions> {
   protected logger: Logger;
-  constructor(protected channel: ConfigChannel, protected configKey: T) {
+  constructor(
+    protected channel: ConfigChannel,
+    protected configKey: T,
+  ) {
     this.logger = new Logger({ context: `HTTP:${this.configKey.toUpperCase()}` });
     this.bindEventHandlers();
   }

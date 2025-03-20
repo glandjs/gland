@@ -15,7 +15,10 @@ export class SSEStream extends Transform {
   private lastEventId: number = 0;
   private readonly header: HttpHeaders;
 
-  constructor(request: IncomingMessage, private response: ServerResponse) {
+  constructor(
+    request: IncomingMessage,
+    private response: ServerResponse,
+  ) {
     super({ objectMode: true });
     this.header = new HeadersManager(response, request);
 

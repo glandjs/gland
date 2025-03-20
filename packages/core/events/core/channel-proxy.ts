@@ -3,7 +3,10 @@ import { EventBroker } from '../broker';
 import { Callback, isString, Noop } from '@medishn/toolkit';
 
 export class ChannelProxy implements EventChannel {
-  constructor(private readonly broker: EventBroker, private readonly type: string) {}
+  constructor(
+    private readonly broker: EventBroker,
+    private readonly type: string,
+  ) {}
 
   private resolveEventName(type?: EventType): string {
     return type ? `${this.type}:${type}` : this.type;
