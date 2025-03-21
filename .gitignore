@@ -16,10 +16,6 @@ packages/**/*.js
 # npm pack
 *.tgz
 
-# Package manager lock files
-**/yarn.lock
-**/bun.lock
-**/pnpm-lock.yaml
 
 # Mac files
 .DS_Store

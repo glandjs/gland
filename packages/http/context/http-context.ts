@@ -25,11 +25,7 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
   private _path?: string;
   private _parsedUrl?: URL;
   private _request: RequestContext;
-  constructor(
-    private _events: HttpEventCore,
-    req: IncomingMessage,
-    res: ServerResponse,
-  ) {
+  constructor(private _events: HttpEventCore, req: IncomingMessage, res: ServerResponse) {
     super('http');
     this._request = new RequestContext(req, res);
     this._initializeQuery();
