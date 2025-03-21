@@ -52,6 +52,54 @@ importers:
         specifier: ^5.5.4
         version: 5.8.2
 
+  packages/common:
+    dependencies:
+      '@medishn/toolkit':
+        specifier: ^1.0.3
+        version: 1.0.3
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
+    devDependencies:
+      typescript:
+        specifier: ^5.5.4
+        version: 5.8.2
+
+  packages/core:
+    dependencies:
+      '@gland/common':
+        specifier: workspace:*
+        version: link:../common
+      '@medishn/toolkit':
+        specifier: ^1.0.3
+        version: 1.0.3
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
+    devDependencies:
+      typescript:
+        specifier: ^5.5.4
+        version: 5.8.2
+
+  packages/http:
+    dependencies:
+      '@gland/common':
+        specifier: workspace:*
+        version: link:../common
+      '@gland/core':
+        specifier: workspace:*
+        version: link:../core
+      '@medishn/toolkit':
+        specifier: ^1.0.3
+        version: 1.0.3
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
+    devDependencies:
+      typescript:
+        specifier: ^5.5.4
+        version: 5.8.2
+
 packages:
 
   '@medishn/qiks@2.0.0':
