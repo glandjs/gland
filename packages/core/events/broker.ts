@@ -1,29 +1,27 @@
 import { Callback, Noop } from '@medishn/toolkit';
-import { EventChannel, EventType } from '@gland/common';
+import { CryptoUUID, EventChannel, EventType } from '@gland/common';
 import { EventNode, ChannelProxy } from './core';
 export type RequestStrategy = 'first' | 'last' | 'all';
 
 export class EventBroker {
-  private static _instance: EventBroker | null = null;
+  private readonly _connections = new Map<string, EventBroker>();
 
   private readonly _nodes: EventNode;
   private readonly _channels = new Map<string, EventChannel>();
-  constructor() {
+
+  constructor(private _id: string = CryptoUUID.generate()) {
     this._nodes = new EventNode();
   }
-
-  public static get instance(): EventBroker {
-    if (!EventBroker._instance) {
-      EventBroker._instance = new EventBroker();
-    }
-    return EventBroker._instance;
+  public get id(): string {
+    return this._id;
   }
+
   public request<R>(type: EventType, data: any, strategy?: 'first' | 'last'): R | undefined;
   public request<R>(type: EventType, data: any, strategy?: 'all'): R[];
   public request<R>(type: EventType, data: any, strategy: RequestStrategy = 'first'): R | R[] | undefined {
     const listeners = this.getListeners<any>(type);
     if (!listeners || listeners.length === 0) {
-      throw new Error(`No listeners registered for event ${type}`);
+      return strategy === 'all' ? [] : undefined;
     }
 
     const results: R[] = [];
@@ -94,5 +92,114 @@ export class EventBroker {
 
   public getListeners<T>(event: string): T[] {
     return this._nodes.getListeners(event) as T[];
+  }
+
+  public connectTo(broker: EventBroker): Noop {
+    if (broker.id === this.id) {
+      throw new Error('Cannot connect a broker to itself');
+    }
+
+    this._connections.set(broker.id, broker);
+
+    if (!broker._connections.has(this.id)) {
+      broker.connectTo(this);
+    }
+
+    return () => {
+      this.disconnect(broker.id);
+    };
+  }
+  public disconnect(brokerId: string): boolean {
+    const broker = this._connections.get(brokerId);
+    if (!broker) return false;
+
+    this._connections.delete(brokerId);
+
+    if (broker._connections.has(this.id)) {
+      broker.disconnect(this.id);
+    }
+
+    return true;
+  }
+  public emitTo<D>(brokerId: string, event: EventType, data: D): boolean {
+    const broker = this._connections.get(brokerId);
+    if (!broker) return false;
+
+    broker.emit(event, data);
+    return true;
+  }
+
+  public broadcastTo<D>(event: EventType, data: D): number {
+    let count = 0;
+    this._connections.forEach((connection) => {
+      connection.emit(event, data);
+      count++;
+    });
+    return count;
+  }
+
+  public requestTo<R>(brokerId: string, ...args: Parameters<EventBroker['request']>) {
+    const broker = this._connections.get(brokerId);
+    if (!broker) return undefined;
+
+    return broker.request<R>(...args);
+  }
+
+  public pipeTo(brokerId: string, sourceEvent: EventType, targetEvent: EventType, bidirectional: boolean = true): Noop {
+    const broker = this._connections.get(brokerId);
+    if (!broker) {
+      throw new Error(`Broker ${brokerId} not found`);
+    }
+
+    const off = this.on(sourceEvent, (data) => {
+      broker.emit(targetEvent, data);
+    });
+
+    let brokerOff: Noop = () => {};
+    if (bidirectional) {
+      brokerOff = broker.on(sourceEvent, (data) => {
+        this.emit(targetEvent, data);
+      });
+    }
+
+    return () => {
+      off();
+      brokerOff();
+    };
+  }
+  public connectAll(brokers: EventBroker[]): Noop {
+    const disconnects: Noop[] = [];
+    for (const broker of brokers) {
+      disconnects.push(this.connectTo(broker));
+    }
+
+    return () => {
+      disconnects.forEach((disconnect) => disconnect());
+    };
+  }
+
+  public static createRelations(brokers: EventBroker[]): void {
+    for (let i = 0; i < brokers.length; i++) {
+      for (let j = i + 1; j < brokers.length; j++) {
+        brokers[i].connectTo(brokers[j]);
+      }
+    }
+  }
+
+  public forwardTo(event: EventType): Noop {
+    return this.on(event, (data) => {
+      this.broadcastTo(event, data);
+    });
+  }
+
+  public relayTo<D>(event: EventType, data: D, sourceId?: string): number {
+    let count = 0;
+    this._connections.forEach((broker, brokerId) => {
+      if (brokerId !== sourceId) {
+        broker.emit(event, data);
+        count++;
+      }
+    });
+    return count;
   }
 }
