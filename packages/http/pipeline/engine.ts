@@ -16,24 +16,21 @@ export class PipelineEngine implements IPipelineEngine {
   }
 
   public async execute(ctx: HttpContext): Promise<void> {
-    return new Promise(async (resolve) => {
-      const path = ctx.url!;
-      const resolver = this._middleware.createResolver();
-      const route = this._router.match(ctx);
-      if (isNil(route)) {
-        this._events.safeEmit('$router:miss', ctx);
-        return;
+    const path = ctx.url!;
+    const resolver = this._middleware.createResolver();
+    const route = this._router.match(ctx);
+    if (isNil(route)) {
+      this._events.safeEmit('$router:miss', ctx);
+      return;
+    }
+    ctx.params = route.params;
+    await resolver.execute(ctx, path, async () => {
+      const result = await route.action(ctx);
+      ctx.body = result;
+      ctx.status = ctx.status ?? 200;
+      if (!ctx.replied) {
+        ctx.send(ctx.body);
       }
-      ctx.params = route.params;
-      await resolver.execute(ctx, path, async () => {
-        const result = await route.action(ctx);
-        ctx.body = result;
-        ctx.status = ctx.status ?? 200;
-        if (!ctx.replied) {
-          ctx.send(ctx.body);
-        }
-      });
-      resolve();
     });
   }
 }
