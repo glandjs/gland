@@ -1,5 +1,5 @@
 import { Dictionary } from '@medishn/toolkit';
-import { EventType, ProtocolType } from '../../types';
+import { ProtocolType } from '../../types';
 
 export interface AdapterContext<T extends ProtocolType = ProtocolType> {
   readonly mode: T;
@@ -7,5 +7,4 @@ export interface AdapterContext<T extends ProtocolType = ProtocolType> {
   set error(err: unknown);
   set state(data: Dictionary<any>);
   get state(): Dictionary<any>;
-  emit<D>(event: EventType, data?: D): any;
 }
