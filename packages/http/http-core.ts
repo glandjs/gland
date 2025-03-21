@@ -1,8 +1,7 @@
 import { Callback, isFunction, isString, Noop } from '@medishn/toolkit';
 import { EventType, RequestMethod } from '@gland/common';
-import { EventBroker } from '@gland/core';
 import { ExpressLikeMiddleware, GlandMiddleware, HttpApplicationOptions, HttpContext, RouteAction, type BodyParserOptions } from './interface';
-import { HttpAdapter, HttpEventCore } from './adapter';
+import { HttpAdapter } from './adapter';
 import { PluginsManager } from './plugins';
 import { HttpEventType } from './http-events.const';
 import { CorsConfig, type ApplicationEventMap } from './types/app-options.types';
@@ -29,11 +28,10 @@ import { HttpInitializer } from './http-initializer';
 export class HttpCore extends HttpAdapter {
   private readonly _plugins: PluginsManager;
   private readonly channel: HttpChannel;
-  constructor(broker: EventBroker, options?: HttpApplicationOptions) {
-    const events = broker.channel('http');
-    const httpBroker = new HttpEventCore(events);
-    super(httpBroker);
-    this.channel = new HttpChannel(httpBroker);
+
+  constructor(options?: HttpApplicationOptions) {
+    super();
+    this.channel = new HttpChannel(this._events);
     const initial = new HttpInitializer(this.channel);
     initial.initialize(options);
     this._plugins = new PluginsManager(this.channel.config);
@@ -46,6 +44,10 @@ export class HttpCore extends HttpAdapter {
     });
     this._events.emit('options', options);
     this._plugins.setupMiddleware(this);
+  }
+
+  get id() {
+    return this.broker.id;
   }
 
   get settings() {
