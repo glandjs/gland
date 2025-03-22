@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ❓ Support Questions
+    url: https://stackoverflow.com/questions/tagged/gland
+    about: 'Please ask and answer support questions here instead of opening an issue.'
+  - name: 💬 Community Discussions
+    url: https://github.com/glandjs/gland/discussions
+    about: 'For feature discussions and general feedback, use GitHub Discussions.'
