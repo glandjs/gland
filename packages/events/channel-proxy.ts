@@ -1,10 +1,10 @@
 import { EventChannel, EventType } from '@gland/common';
-import { EventBroker } from '../broker';
+import { Broker } from './broker';
 import { Callback, isString, Noop } from '@medishn/toolkit';
 
 export class ChannelProxy implements EventChannel {
   constructor(
-    private readonly broker: EventBroker,
+    private readonly broker: Broker,
     private readonly type: string,
   ) {}
 

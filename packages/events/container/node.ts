@@ -1,7 +1,7 @@
 import { Logger, type Callback } from '@medishn/toolkit';
 import { BitVector } from './bit-vector';
 import { EventQueue } from '../queue';
-import { Emitter } from '../emitter';
+import { Emitter } from './emitter';
 type EventPart = string;
 
 const PATH_SEPARATOR = ':';

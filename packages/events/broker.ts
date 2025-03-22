@@ -1,10 +1,11 @@
 import { Callback, Noop } from '@medishn/toolkit';
 import { CryptoUUID, EventChannel, EventType } from '@gland/common';
-import { EventNode, ChannelProxy } from './core';
+import { EventNode } from './container';
+import { ChannelProxy } from './channel-proxy';
 export type RequestStrategy = 'first' | 'last' | 'all';
 
-export class EventBroker {
-  private readonly _connections = new Map<string, EventBroker>();
+export class Broker {
+  private readonly _connections = new Map<string, Broker>();
 
   private readonly _nodes: EventNode;
   private readonly _channels = new Map<string, EventChannel>();
@@ -75,7 +76,7 @@ export class EventBroker {
       this.emit(targetEvent, data);
     });
   }
-  public forward(broker: EventBroker, event: EventType): Noop {
+  public forward(broker: Broker, event: EventType): Noop {
     return this.on(event, (data) => {
       broker.emit(event, data);
     });
@@ -94,7 +95,7 @@ export class EventBroker {
     return this._nodes.getListeners(event) as T[];
   }
 
-  public connectTo(broker: EventBroker): Noop {
+  public connectTo(broker: Broker): Noop {
     if (broker.id === this.id) {
       throw new Error('Cannot connect a broker to itself');
     }
@@ -138,7 +139,7 @@ export class EventBroker {
     return count;
   }
 
-  public requestTo<R>(brokerId: string, ...args: Parameters<EventBroker['request']>) {
+  public requestTo<R>(brokerId: string, ...args: Parameters<Broker['request']>) {
     const broker = this._connections.get(brokerId);
     if (!broker) return undefined;
 
@@ -167,7 +168,7 @@ export class EventBroker {
       brokerOff();
     };
   }
-  public connectAll(brokers: EventBroker[]): Noop {
+  public connectAll(brokers: Broker[]): Noop {
     const disconnects: Noop[] = [];
     for (const broker of brokers) {
       disconnects.push(this.connectTo(broker));
@@ -178,7 +179,7 @@ export class EventBroker {
     };
   }
 
-  public static createRelations(brokers: EventBroker[]): void {
+  public static createRelations(brokers: Broker[]): void {
     for (let i = 0; i < brokers.length; i++) {
       for (let j = i + 1; j < brokers.length; j++) {
         brokers[i].connectTo(brokers[j]);

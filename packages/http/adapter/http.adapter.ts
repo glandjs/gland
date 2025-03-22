@@ -3,7 +3,7 @@ import { IncomingRequestServer, ServerTransport } from '../server';
 import { HttpEventCore } from './http-events';
 import { Adapter } from '@gland/common';
 import { HttpApplicationOptions } from '../interface';
-import { EventBroker } from '@gland/core';
+import { Broker } from '@gland/events';
 
 export class HttpAdapter implements Adapter<'http'> {
   get protocol(): 'http' {
@@ -13,9 +13,9 @@ export class HttpAdapter implements Adapter<'http'> {
   private _transport: ServerTransport;
   private readonly _incomingServer: IncomingRequestServer;
   protected _events: HttpEventCore;
-  protected broker: EventBroker;
+  protected broker: Broker;
   constructor() {
-    this.broker = new EventBroker('http');
+    this.broker = new Broker('http');
     this._events = new HttpEventCore(this.broker.channel('http'));
     this._incomingServer = new IncomingRequestServer(this._events);
     this._events.once('options', this.init.bind(this));
