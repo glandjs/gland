@@ -1,54 +1,45 @@
-# Pull Request Template
+# PR Template
 
 ## Description
-
-Please provide a clear and concise description of the changes implemented in this pull request and the problem it solves.
-
-## Related Issue(s)
-
-Please link any related issues here using the GitHub issue syntax (e.g., "Fixes #123", "Resolves #456").
+Please provide a concise description of your changes and the motivation behind them.
 
 ## Type of Change
-
-Please check the relevant option(s) that apply to this PR:
-
+<!-- Check at least one that applies -->
+Please check the option(s) that apply to this PR:
 - [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Performance improvement
+- [ ] Feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature causing existing functionality to change)
 - [ ] Refactoring (no functional changes, no API changes)
-- [ ] Build or CI/CD related changes
 - [ ] Documentation update
-- [ ] Code style update (formatting, renaming)
+- [ ] Build or CI/CD related changes
+- [ ] Performance improvement
 - [ ] Other (please describe):
 
 ## Checklist
-
-Before submitting your PR, please review the following checklist:
-
-- [ ] I have read the [CONTRIBUTING](../docs/CONTRIBUTING.md) document
-- [ ] My code follows the code style and conventions of this project
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] All new and existing tests pass successfully
+<!-- Check the items that apply to this PR -->
+- [ ] I have read the [CONTRIBUTING](CONTRIBUTING.md) guidelines
+- [ ] My code follows the event-driven architecture of Gland
+- [ ] I have added tests that prove my fix/feature works
+- [ ] New and existing unit tests pass locally with my changes
+- [ ] I have made necessary documentation updates
 - [ ] My changes generate no new warnings or errors
-- [ ] I have updated the documentation accordingly (if applicable)
-- [ ] I have added appropriate comments to my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation (if applicable)
-- [ ] I have rebased my branch onto the latest main/master branch
-- [ ] I have verified that my changes are compatible with dependent modules
+- [ ] I have updated examples if applicable
+- [ ] My branch is up-to-date with the base branch
 
-## Testing Performed
+**Breaking Changes?**  
+- [ ] Yes (please describe the impact and migration path)
+- [ ] No  
 
-Please describe the tests you have run to verify your changes. Provide instructions so we can reproduce the testing process. List any relevant details for your test configuration.
+**Documentation Impact**  
+- [ ] Requires updates to event flow diagrams  
+- [ ] New channel API docs needed  
+- [ ] No changes required  
 
-```
-Provide test details here
-```
+## Current Behavior
+Describe the current behavior before this PR. If applicable, include issue numbers and links.
 
-## Screenshots (if applicable)
+## New Behavior
+Describe the new behavior introduced by this PR. Explain how it improves the framework or fixes an issue.
 
-If your changes include visual elements, please include screenshots or GIFs here.
-
-## Additional Information
-
-Any other information that is important to this PR.
+**Additional Information**  
+<!--Provide any other relevant details about this PR, such as implementation considerations, limitations, or future work. -->  
