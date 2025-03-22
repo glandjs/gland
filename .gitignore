@@ -1,23 +1,18 @@
 packages/*/package-lock.json
-dist
-/node_modules/
 
-packages/**/node_modules/
+# dependencies
+node_modules/
+
 # bundle
 packages/**/*.d.ts
 packages/**/*.js
 
-
-# Logs
-*.log
-
 # Environment variables
 .env
-# npm pack
-*.tgz
 
-
-# Mac files
+# misc
 .DS_Store
 .idea/
 .vscode/
+/packages/**/.npmignore
+/packages/**/LICENSE
