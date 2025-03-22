@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@gland/common": "workspace:*",
+    "@gland/events": "workspace:*",
     "@medishn/toolkit": "^1.0.3",
     "reflect-metadata": "^0.2.2"
   },

@@ -27,7 +27,10 @@
       "@gland/core/*": ["./packages/core/*"],
 
       "@gland/http": ["./packages/http"],
-      "@gland/http/*": ["./packages/http/*"]
+      "@gland/http/*": ["./packages/http/*"],
+
+      "@gland/events": ["./packages/events"],
+      "@gland/events/*": ["./packages/events/*"]
     },
     "noImplicitAny": false,
     "noUnusedLocals": false,

@@ -1,6 +1,6 @@
 import { RequestMethod } from '@gland/common';
 import { IncomingMessage, ServerResponse } from 'http';
-import { HeadersManager, CookiesManager, SendData, SSEStream } from '../utils/';
+import { HeadersManager, CookiesManager, SendData } from '../utils/';
 import { HttpStatus, isNaNValue } from '@medishn/toolkit';
 export class RequestContext {
   public readonly header: HeadersManager;

@@ -1,4 +1,4 @@
 {
   "files": [],
-  "references": [{ "path": "./core" }, { "path": "./common" }, { "path": "./http" }]
+  "references": [{ "path": "./core" }, { "path": "./common" }, { "path": "./http" }, { "path": "./events" }]
 }
