@@ -2,25 +2,22 @@
   "name": "@gland/core",
   "version": "1.0.0",
   "description": "Glands is a web framework for Node.js",
-  "funding": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/gland"
-  },
+  "homepage": "https://github.com/medishen/gland#readme",
   "author": "Mahdi",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/medishen/gland/issues"
-  },
-  "scripts": {},
-  "lint-staged": {
-    "**/*.ts": "prettier --write"
-  },
   "workspaces": [
     "packages/*"
   ],
+   "scripts": {},
+  "lint-staged": {
+    "**/*.ts": "prettier --ignore-path ./.prettierignore --write"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/medishen/gland.git"
+  },
+   "bugs": {
+    "url": "https://github.com/medishen/gland/issues"
   },
   "keywords": [
     "gland",
@@ -32,6 +29,10 @@
   "engines": {
     "node": ">= 20"
   },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/gland"
+  },
   "collective": {
     "type": "opencollective",
     "url": "https://opencollective.com/nest",
@@ -39,7 +40,6 @@
       "text": "Become a partner:"
     }
   },
-  "homepage": "https://github.com/medishen/gland#readme",
   "devDependencies": {
     "@types/chai": "^4.3.19",
     "@types/mocha": "^10.0.7",
