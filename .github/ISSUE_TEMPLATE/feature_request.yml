@@ -1,0 +1,84 @@
+name: '🚀 Feature Request'
+description: 'Suggest an idea or enhancement for Gland'
+labels: ['enhancement', 'needs triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 💡 Feature Request
+
+        Thank you for suggesting an enhancement for Gland! We value your input in making our event-driven framework even better.
+
+        Before submitting your feature request, please:
+        - Check existing issues to see if your idea has already been proposed
+        - Consider if your idea aligns with Gland's event-driven architecture and philosophy
+
+        For general questions, please use:
+        - [Stack Overflow](https://stackoverflow.com/questions/tagged/gland) with the `gland` tag
+        - Community channels (coming soon)
+
+        ---
+
+  - type: checkboxes
+    attributes:
+      label: 'Prerequisites'
+      description: "Please confirm you've completed the following"
+      options:
+        - label: 'I have searched for similar feature requests'
+          required: true
+        - label: "I have read the documentation to confirm this feature doesn't already exist"
+          required: true
+
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: 'Problem Statement'
+      description: 'Is your feature request related to a problem? Please describe.'
+      placeholder: "I'm trying to accomplish X, but there's no way to do it because..."
+
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: 'Proposed Solution'
+      description: "Describe the solution you'd like to see implemented"
+      placeholder: 'I would like Gland to...'
+
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: 'Use Cases'
+      description: 'Describe specific use cases this feature would enable'
+      placeholder: 'This feature would allow developers to...'
+
+  - type: textarea
+    attributes:
+      label: 'Alternatives Considered'
+      description: "Describe any alternative solutions or features you've considered"
+      placeholder: "I've tried working around this by..."
+
+  - type: textarea
+    attributes:
+      label: 'Example Implementation'
+      description: 'If you can, provide a conceptual example of how you envision this feature working'
+      value: |
+        ```typescript
+        // Conceptual example
+        ```
+
+  - type: textarea
+    attributes:
+      label: 'Additional Context'
+      description: 'Add any other context or screenshots about the feature request here'
+
+  - type: dropdown
+    attributes:
+      label: 'Impact'
+      description: 'How would you categorize the impact of this feature?'
+      options:
+        - 'Critical functionality (blocking my usage of Gland)'
+        - 'Major improvement (would significantly enhance my use of Gland)'
+        - 'Nice to have (would be convenient but not essential)'
+        - 'Just an idea (throwing it out there for consideration)'
