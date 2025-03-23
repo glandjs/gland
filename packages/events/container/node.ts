@@ -21,10 +21,8 @@ export class EventNode {
   private nodes: Node[] = [];
   private listeners: Map<number, Set<Callback>> = new Map();
   private nodesBitVector: BitVector;
-  private nodePathCache: Map<string, number> = new Map();
   private nextNodeId = 1;
   private readonly _queues = new Map<string, EventQueue>();
-  private static readonly PATH_CACHE_MAX_SIZE = 1000;
   private readonly _emitter: Emitter;
 
   constructor(initialCapacity = 1024) {
@@ -184,9 +182,6 @@ export class EventNode {
   }
 
   private getOrCreateNodeId(path: string): number {
-    let nodeId = this.nodePathCache.get(path);
-    if (nodeId !== undefined) return nodeId;
-
     const parts = path.split(PATH_SEPARATOR);
     let node = this.root;
 
@@ -194,7 +189,7 @@ export class EventNode {
       let child = node.children.get(part);
 
       if (!child) {
-        nodeId = this.nextNodeId++;
+        const nodeId = this.nextNodeId++;
         child = {
           id: nodeId,
           part,
@@ -208,17 +203,10 @@ export class EventNode {
       node = child;
     }
 
-    if (this.nodePathCache.size < EventNode.PATH_CACHE_MAX_SIZE) {
-      this.nodePathCache.set(path, node.id);
-    }
-
     return node.id;
   }
 
   private resolveNodeId(path: string): number {
-    const cachedId = this.nodePathCache.get(path);
-    if (cachedId !== undefined) return cachedId;
-
     const parts = path.split(PATH_SEPARATOR);
     let node = this.root;
 
@@ -227,11 +215,6 @@ export class EventNode {
       if (!child) return -1;
       node = child;
     }
-
-    if (this.nodePathCache.size < EventNode.PATH_CACHE_MAX_SIZE) {
-      this.nodePathCache.set(path, node.id);
-    }
-
     return node.id;
   }
 
@@ -246,13 +229,6 @@ export class EventNode {
 
       if (!hasListeners && node.children.size === 0) {
         parent.children.delete(node.part);
-
-        for (const [path, id] of this.nodePathCache.entries()) {
-          if (id === node.id) {
-            this.nodePathCache.delete(path);
-            break;
-          }
-        }
       } else {
         break;
       }

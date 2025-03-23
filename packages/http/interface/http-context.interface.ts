@@ -1,4 +1,4 @@
-import { AdapterContext, RequestMethod } from '@gland/common';
+import { AdapterContext, RequestMethod, type EventType } from '@gland/common';
 import { Dictionary, HttpExceptionOptions, HttpStatus, Maybe, Noop } from '@medishn/toolkit';
 import { HttpHeaderName, HttpHeaderValue, HttpHeaders } from './headers.interface';
 
@@ -187,4 +187,6 @@ export interface HttpContext extends AdapterContext<'http'> {
   end(cb?: Noop): this;
   end(chunk: any, cb?: Noop): this;
   end(chunk: any, encoding: BufferEncoding, cb?: Noop): this;
+
+  emit<D>(event: EventType, data?: D): void;
 }

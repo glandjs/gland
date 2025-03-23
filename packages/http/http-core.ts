@@ -45,6 +45,9 @@ export class HttpCore extends HttpAdapter {
     this._events.emit('options', options);
     this._plugins.setupMiddleware(this);
   }
+  get broker() {
+    return this._broker;
+  }
 
   get id() {
     return this.broker.id;
