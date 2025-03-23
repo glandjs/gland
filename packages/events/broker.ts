@@ -146,7 +146,7 @@ export class Broker {
     return broker.request<R>(...args);
   }
 
-  public pipeTo(brokerId: string, sourceEvent: EventType, targetEvent: EventType, bidirectional: boolean = true): Noop {
+  public pipeTo(brokerId: string, sourceEvent: EventType, targetEvent: EventType): Noop {
     const broker = this._connections.get(brokerId);
     if (!broker) {
       throw new Error(`Broker ${brokerId} not found`);
@@ -156,16 +156,8 @@ export class Broker {
       broker.emit(targetEvent, data);
     });
 
-    let brokerOff: Noop = () => {};
-    if (bidirectional) {
-      brokerOff = broker.on(sourceEvent, (data) => {
-        this.emit(targetEvent, data);
-      });
-    }
-
     return () => {
       off();
-      brokerOff();
     };
   }
   public connectAll(brokers: Broker[]): Noop {

@@ -5,8 +5,8 @@ export class CircularDeque<T> {
   private tail: number = 0;
   private _size: number = 0;
   public mask: number;
-  private readonly objectMap = new Map<number, T>();
-  private nextObjectId = 1;
+  private readonly map = new Map<number, T>();
+  private nextId = 1;
 
   constructor(capacity: number) {
     this.mask = this.nextPowerOfTwo(Math.max(8, capacity)) - 1;
@@ -50,48 +50,24 @@ export class CircularDeque<T> {
       case 'number':
         hash = item >>> 0;
         break;
-
       case 'string':
-        hash = this.fnv1a(item);
-        break;
-
       case 'object':
-        hash = this.nextObjectId++;
-        this.objectMap.set(hash, item);
+        hash = this.nextId++;
+        this.map.set(hash, item);
         break;
-
       default:
         throw new Error('Unsupported type');
     }
-
     this.buffer[index] = hash;
   }
 
   public loadItem(index: number): T {
     const hash = this.buffer[index];
 
-    switch (true) {
-      case hash === 0:
-        return undefined!;
-
-      case typeof hash === 'number' && hash <= 0xffffffff:
-        return hash as T;
-
-      case this.objectMap.has(hash):
-        return this.objectMap.get(hash)!;
-
-      default:
-        throw new Error('Data corruption detected');
+    if (this.map.has(hash)) {
+      return this.map.get(hash) as T;
     }
-  }
-
-  private fnv1a(str: string): number {
-    let hash = 0x811c9dc5;
-    for (let i = 0; i < str.length; i++) {
-      hash ^= str.charCodeAt(i);
-      hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
-    }
-    return hash >>> 0;
+    return hash as T;
   }
 
   private resize(): void {
@@ -114,9 +90,9 @@ export class CircularDeque<T> {
   clear(): void {
     this.buffer.fill(0);
 
-    this.objectMap.clear();
+    this.map.clear();
 
-    this.nextObjectId = 1;
+    this.nextId = 1;
 
     this.head = 0;
     this.tail = 0;
