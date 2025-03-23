@@ -13,10 +13,10 @@ export class HttpAdapter implements Adapter<'http'> {
   private _transport: ServerTransport;
   private readonly _incomingServer: IncomingRequestServer;
   protected _events: HttpEventCore;
-  protected broker: Broker;
+  protected _broker: Broker;
   constructor() {
-    this.broker = new Broker('http');
-    this._events = new HttpEventCore(this.broker.channel('http'));
+    this._broker = new Broker('http');
+    this._events = new HttpEventCore(this._broker.channel('http'));
     this._incomingServer = new IncomingRequestServer(this._events);
     this._events.once('options', this.init.bind(this));
   }
