@@ -10,14 +10,14 @@ enum RouterEvent {
 type RegisterType = { method: RequestMethod; path: string; action: RouteAction };
 export class RouterChannel {
   constructor(private channel: HttpEventCore) {}
-  onMatch(handler: (ctx: HttpContext) => Maybe<RouteMatch>) {
+  onMatch(action: (ctx: HttpContext) => Maybe<RouteMatch>) {
     this.channel.respond(RouterEvent.MATCH, (ctx: HttpContext) => {
-      return handler(ctx);
+      return action(ctx);
     });
   }
-  onRegister(handler: (data: RegisterType) => void) {
+  onRegister(action: (data: RegisterType) => void) {
     this.channel.on<RegisterType>(RouterEvent.REGISTER, (data) => {
-      return handler(data);
+      return action(data);
     });
   }
 

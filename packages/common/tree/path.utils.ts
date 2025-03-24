@@ -11,8 +11,8 @@ export class PathUtils {
       .replace(new RegExp(`^\\${this.splitter}+`), '')
       .replace(new RegExp(`\\${this.splitter}+$`), '');
 
-    if (normalized === '' && path !== '') {
-      normalized = this.splitter;
+    if (normalized === '') {
+      return [this.splitter];
     }
 
     return normalized.split(this.splitter).filter(Boolean);
