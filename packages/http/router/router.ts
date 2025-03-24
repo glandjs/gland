@@ -5,7 +5,7 @@ import { HttpContext, RouteAction, RouteMatch } from '../interface';
 import { ConfigChannel } from '../config';
 import { RouterChannel } from './channel';
 export class Router {
-  private tree: Tree<{ method: string; action: RouteAction }>;
+  private tree: Tree<{ method: string; action: RouteAction }> = new Tree('route');
 
   constructor(
     channel: RouterChannel,
