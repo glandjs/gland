@@ -6,19 +6,17 @@ export enum NodeType {
 }
 
 export enum CharCode {
-  SLASH = 47, // /
   COLON = 58, // :
   WILDCARD = 42, // *
-  QUERY = 63, // ?
 }
 
 export enum Flags {
   NONE = 0,
   HAS_COLON = 1 << 0, // 1
   HAS_WILDCARD = 1 << 1, // 2
-  HAS_QUERY = 1 << 2, // 4
-  IS_ENDPOINT = 1 << 3, // 8
-  IS_DYNAMIC = 1 << 4, // 16
+  IS_ENDPOINT = 1 << 2, // 4
+
+  IS_DYNAMIC = 1 << 3, // 8
 }
 export class UniversalNode<T> {
   public static: { [segment: string]: UniversalNode<T> } = Object.create(null);
