@@ -8,7 +8,9 @@
   "workspaces": [
     "packages/*"
   ],
-   "scripts": {},
+  "scripts": {
+    "test:integration": "mocha --require ts-node/register test/integration/**/*.spec.ts"
+  },
   "lint-staged": {
     "**/*.ts": "prettier --ignore-path ./.prettierignore --write"
   },
@@ -16,7 +18,7 @@
     "type": "git",
     "url": "git+https://github.com/medishen/gland.git"
   },
-   "bugs": {
+  "bugs": {
     "url": "https://github.com/medishen/gland/issues"
   },
   "keywords": [
@@ -29,13 +31,9 @@
   "engines": {
     "node": ">= 20"
   },
-  "funding": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/gland"
-  },
   "collective": {
     "type": "opencollective",
-    "url": "https://opencollective.com/nest",
+    "url": "https://opencollective.com/gland",
     "donation": {
       "text": "Become a partner:"
     }
@@ -51,6 +49,7 @@
     "mocha": "^10.7.3",
     "prettier": "^3.5.3",
     "sinon": "^19.0.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
   "dependencies": {
