@@ -1,17 +1,17 @@
 import { Callback, Noop } from '@medishn/toolkit';
 import { CryptoUUID, EventChannel, EventType } from '@gland/common';
-import { EventNode } from './container';
+import { EventRouter } from './container';
 import { ChannelProxy } from './channel-proxy';
 export type RequestStrategy = 'first' | 'last' | 'all';
 
 export class Broker {
   private readonly _connections = new Map<string, Broker>();
 
-  private readonly _nodes: EventNode;
+  private readonly router: EventRouter;
   private readonly _channels = new Map<string, EventChannel>();
 
   constructor(private _id: string = CryptoUUID.generate()) {
-    this._nodes = new EventNode();
+    this.router = new EventRouter();
   }
   public get id(): string {
     return this._id;
@@ -57,18 +57,18 @@ export class Broker {
   }
 
   public emit<D>(event: EventType, data: D): void {
-    this._nodes.emit(event, data);
+    this.router.emit(event, data);
   }
 
   public on<T extends any[] = any>(event: EventType, listener: Callback<T>): Noop {
-    this._nodes.on(event, listener);
+    this.router.on(event, listener);
     const unsubscribe = () => {
-      this._nodes.off(event, listener);
+      this.router.off(event, listener);
     };
     return unsubscribe;
   }
-  public off(event: string, listener: Callback): boolean {
-    return this._nodes.off(event, listener);
+  public off(event: string, listener: Callback): void {
+    this.router.off(event, listener);
   }
 
   public pipe(sourceEvent: EventType, targetEvent: EventType): Noop {
@@ -83,16 +83,16 @@ export class Broker {
   }
 
   public once<T extends any[] = any>(event: EventType, listener: Callback<T>): void {
-    this._nodes.once(event, listener);
+    this.router.once(event, listener);
   }
 
   public broadcast<D>(event: EventType, data?: D): void {
-    const events = this._nodes.getEventsByPrefix(event);
+    const events = this.router.getEventsByPrefix(event);
     events.forEach((e) => this.emit(e, data));
   }
 
   public getListeners<T>(event: string): T[] {
-    return this._nodes.getListeners(event) as T[];
+    return this.router.getListeners(event) as T[];
   }
 
   public connectTo(broker: Broker): Noop {
