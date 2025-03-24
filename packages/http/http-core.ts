@@ -25,13 +25,15 @@ import { HttpInitializer } from './http-initializer';
  * });
  * ```
  */
-export class HttpCore extends HttpAdapter {
+export class HttpCore {
   private readonly _plugins: PluginsManager;
   private readonly channel: HttpChannel;
 
+  private readonly _adapter: HttpAdapter;
+
   constructor(options?: HttpApplicationOptions) {
-    super();
-    this.channel = new HttpChannel(this._events);
+    this._adapter = new HttpAdapter();
+    this.channel = new HttpChannel(this._adapter.events);
     const initial = new HttpInitializer(this.channel);
     initial.initialize(options);
     this._plugins = new PluginsManager(this.channel.config);
@@ -39,14 +41,14 @@ export class HttpCore extends HttpAdapter {
   }
   private initializeEvents(options?: HttpApplicationOptions) {
     // Listen for HTTP requests
-    this._events.on<HttpContext>('request', (ctx) => {
+    this._adapter.events.on<HttpContext>('request', (ctx) => {
       this.channel.pipeline.execute(ctx);
     });
-    this._events.emit('options', options);
+    this._adapter.events.emit('options', options);
     this._plugins.setupMiddleware(this);
   }
   get broker() {
-    return this._broker;
+    return this._adapter.broker;
   }
 
   get id() {
@@ -144,29 +146,29 @@ export class HttpCore extends HttpAdapter {
 
   // Event Management
   public on<T>(event: HttpEventType, listener: Callback<[T]>): Noop {
-    return this._events.on(event, listener);
+    return this._adapter.events.on(event, listener);
   }
   public emit<T>(type: EventType, data: T) {
-    this._events.emit(type, data);
+    this._adapter.events.emit(type, data);
   }
 
   public off<T>(event: HttpEventType, listener: Callback<[T]>): void {
-    this._events.off(event, listener);
+    this._adapter.events.off(event, listener);
   }
 
   public system<K extends keyof ApplicationEventMap>(event: K, listener: ApplicationEventMap[K]): void {
     switch (event) {
       case 'ready':
-        this._listen(listener['port'], listener['host'], listener['message']);
+        this._adapter.listen(listener['port'], listener['host'], listener['message']);
         break;
       case 'crashed':
-        this._events.on('$server:crashed', listener);
+        this._adapter.events.on('$server:crashed', listener);
         break;
       case 'router:miss':
-        this._events.on('$router:miss', listener);
+        this._adapter.events.on('$router:miss', listener);
         break;
       case 'request:failed':
-        this._events.on('$request:failed', listener);
+        this._adapter.events.on('$request:failed', listener);
         break;
       default:
         throw Error(`Unknown system event: ${event}`);
