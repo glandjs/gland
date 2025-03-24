@@ -1,12 +1,11 @@
 import { parse } from 'node:url';
 import { Maybe } from '@medishn/toolkit';
-import { normalizePath, RequestMethod } from '@gland/common';
+import { normalizePath, RequestMethod, Tree } from '@gland/common';
 import { HttpContext, RouteAction, RouteMatch } from '../interface';
 import { ConfigChannel } from '../config';
 import { RouterChannel } from './channel';
-import { RadixTree } from './node';
 export class Router {
-  private readonly tree: RadixTree = new RadixTree();
+  private tree: Tree<{ method: string; action: RouteAction }>;
 
   constructor(
     channel: RouterChannel,
@@ -21,7 +20,10 @@ export class Router {
   public register(method: RequestMethod, path: string, action: RouteAction) {
     const normalizedPath = normalizePath(path);
     const normalizedMethod = method.toLowerCase();
-    this.tree.add(normalizedMethod, normalizedPath, action);
+    this.tree.insert(normalizedPath, {
+      action,
+      method: normalizedMethod,
+    });
     return this;
   }
   public match(ctx: HttpContext): Maybe<RouteMatch> {
@@ -43,17 +45,14 @@ export class Router {
       }
     }
 
-    const normalizedMethod = method.toLowerCase();
-    const result = this.tree.match(normalizedMethod, normalizedPath);
-
-    if (!result?.handler) {
+    const result = this.tree.match(normalizedPath);
+    const action = result?.value?.action;
+    if (!action) {
       return null;
     }
 
-    const action = result.handler.bind(this);
-
     return {
-      action,
+      action: action.bind(this),
       method,
       params: result.params,
       path: prefixApplied ? this.combinePaths(globalPrefix, normalizedPath) : normalizedPath,
@@ -66,8 +65,8 @@ export class Router {
     for (const method of Object.values(RequestMethod)) {
       if (method === RequestMethod.ALL) continue;
 
-      const result = this.tree.match(method, path);
-      if (result?.handler) {
+      const result = this.tree.match(path);
+      if (result?.value?.action) {
         allowedMethods.push(method);
       }
     }

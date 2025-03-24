@@ -33,6 +33,7 @@ export class EventQueue {
             batch.push(
               callback(event).catch((err) => {
                 console.error(`Event processing failed:`, err);
+                throw err;
               }),
             );
             processed++;
