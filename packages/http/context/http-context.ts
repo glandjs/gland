@@ -8,7 +8,6 @@ import { RequestContext } from './request-context';
 import { HttpEventCore } from '../adapter/http-events';
 import { generateETag, normalizeTrustProxy, TrustProxyEvaluator } from '../plugins/utils';
 import { parse as parseQuery } from 'querystring';
-import type { Broker } from '@gland/events';
 
 /**
  * HTTP-specific context providing access to request/response objects and utility methods.
@@ -253,18 +252,7 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
   }
 
   public emit<D>(event: EventType, data?: D) {
-    const type = event.startsWith('@') ? event.split('@')[1] : event;
-    const broker = this._events['_channel']['broker'] as Broker;
-    const channels = this.state.channel;
-    if (event.startsWith('@')) {
-      broker.emitTo('core', `http:external:${type}`, data);
-    } else {
-      for (const channel of channels) {
-        if (channel.event === type) {
-          broker.emitTo('core', channel.fullEvent, data);
-        }
-      }
-    }
+    return this._events.emit(event, data);
   }
 
   public throw(status: HttpStatus, options?: HttpExceptionOptions): void {

@@ -16,7 +16,7 @@
  *   ctx.send('Hello, Gland!');
  * });
  *
- * app.listen(3000);
+ * app.listen(3000,'localhost');
  * ```
  * @since 1.0.0
  */
