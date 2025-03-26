@@ -4,7 +4,7 @@ import { ExpressLikeMiddleware, GlandMiddleware, HttpApplicationOptions, HttpCon
 import { HttpAdapter } from './adapter';
 import { PluginsManager } from './plugins';
 import { HttpEventType } from './http-events.const';
-import { CorsConfig, type ApplicationEventMap } from './types/app-options.types';
+import { CorsConfig, type ApplicationEventMap, type ServerListening } from './types/app-options.types';
 import { HttpChannel } from './http-channel';
 import { HttpInitializer } from './http-initializer';
 
@@ -66,14 +66,11 @@ export class HttpCore {
     return this._plugins.proxy;
   }
 
+  public listen(port: number, args?: ServerListening) {
+    this._adapter.listen(port, args?.host, args?.message);
+  }
+
   /**
-   * Registers middleware functions with the HTTP server.
-   *
-   * This method supports multiple middleware registration patterns:
-   * - Gland-style middleware: `(ctx: HttpContext, next: NextFunction) => void`
-   * - Express-style middleware: `(req: Request, res: Response, next: NextFunction) => void`
-   * - Path-specific middleware: `(path: string, middleware: MiddlewareFunction) => void`
-   *
    * @example
    * ```typescript
    * // Gland-style middleware
@@ -94,8 +91,6 @@ export class HttpCore {
    *   next();
    * });
    * ```
-   * @param {...any} args - Middleware function(s) or path + middleware combination
-   * @returns {void}
    */
   use(middleware: GlandMiddleware): void;
   use(middleware: ExpressLikeMiddleware): void;
@@ -146,7 +141,12 @@ export class HttpCore {
 
   // Event Management
   public on<T>(event: HttpEventType, listener: Callback<[T]>): Noop {
-    return this._adapter.events.on(event, listener);
+    const isExternal = this._adapter.events.getListeners(`external:${event}`);
+    if (isExternal) {
+      return this._adapter.events.on(`external:${event}`, listener);
+    } else {
+      return this._adapter.events.on(event, listener);
+    }
   }
   public emit<T>(type: EventType, data: T) {
     this._adapter.events.emit(type, data);
@@ -158,9 +158,6 @@ export class HttpCore {
 
   public system<K extends keyof ApplicationEventMap>(event: K, listener: ApplicationEventMap[K]): void {
     switch (event) {
-      case 'ready':
-        this._adapter.listen(listener['port'], listener['host'], listener['message']);
-        break;
       case 'crashed':
         this._adapter.events.on('$server:crashed', listener);
         break;

@@ -7,8 +7,7 @@ export type CustomOrigin = (requestOrigin: string, callback: (err: Maybe<Error>,
 
 export type TrustProxyOption = boolean | number | 'loopback' | 'linklocal' | 'uniquelocal' | string | string[] | ((ip: string, distance: number) => boolean);
 export type CorsConfig = boolean | CorsOptions | CorsOptionsDelegate<IncomingMessage>;
-export type ServerListeningEvent = {
-  port: number;
+export type ServerListening = {
   host?: string;
   message?: string;
 };
@@ -21,7 +20,6 @@ export type ServerCrashedEvent = {
 
 export type ServerListenerCallback = (error: ServerCrashedEvent) => void;
 export type ApplicationEventMap = {
-  ready: ServerListeningEvent;
   crashed: ServerListenerCallback;
   'router:miss': (ctx: HttpContext) => Promise<void> | void;
   'request:failed': (error: any, ctx: HttpContext) => Promise<void> | void;
