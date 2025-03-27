@@ -1,4 +1,4 @@
-import { EventChannel, EventType } from '@gland/common';
+import { EventChannel, EventType, type EventOptions } from '@gland/common';
 import { Broker } from './broker';
 import { Callback, isString, Noop } from '@medishn/toolkit';
 
@@ -30,19 +30,19 @@ export class ChannelProxy implements EventChannel {
     return this.broker.channel(`${this.type}:${type}`);
   }
 
-  emit<T>(type: EventType, data: T): void;
-  emit<T>(data: T): void;
-  emit(type: unknown, data?: unknown): void {
+  emit<T>(type: EventType, data: T, options?: EventOptions): void;
+  emit<T>(data: T, options?: EventOptions): void;
+  emit(type: unknown, data?: unknown, options?: EventOptions): void {
     const event = isString(type) ? this.resolveEventName(type) : this.type;
-    return this.broker.emit(event, data);
+    return this.broker.emit(event, data, options);
   }
 
-  on<T extends any = any>(listener: Callback<[T]>): Noop;
-  on<T extends any = any>(event: EventType, listener: Callback<[T]>): Noop;
-  on(...args: any): Noop {
-    const [fisrt, second] = args;
+  on<T extends unknown = any>(listener: Callback<[T]>, options?: EventOptions): Noop;
+  on<T extends unknown = any>(event: EventType, listener: Callback<[T]>, options: EventOptions): Noop;
+  on(...args: any[]): Noop {
+    const [fisrt, second, three] = args;
     const eventType = isString(fisrt) ? this.resolveEventName(fisrt) : this.type;
-    return this.broker.on(eventType, second ?? fisrt);
+    return this.broker.on(eventType, second ?? fisrt, three);
   }
 
   once<T extends any = any>(listener: Callback<[T]>): void;
@@ -61,12 +61,12 @@ export class ChannelProxy implements EventChannel {
     return this.broker.broadcast(eventType, second ?? fisrt);
   }
 
-  off<T extends any[] = any>(listener: Callback<T>): boolean;
-  off<T extends any[] = any>(event: EventType, listener: Callback<T>): boolean;
-  off(...args: any): boolean {
+  off<T extends any[] = any>(listener: Callback<T>): void;
+  off<T extends any[] = any>(event: EventType, listener: Callback<T>): void;
+  off(...args: any): void {
     const [fisrt, second] = args;
     const eventType = isString(fisrt) ? this.resolveEventName(fisrt) : this.type;
-    return this.broker.off(eventType, second ?? fisrt);
+    this.broker.off(eventType, second ?? fisrt);
   }
 
   getListeners<T>(event: EventType): T[];

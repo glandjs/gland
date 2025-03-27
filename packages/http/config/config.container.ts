@@ -6,7 +6,6 @@ import { ObjectInspector } from '@medishn/toolkit/dist/object';
 
 export class ConfigContainer {
   private store: Map<keyof HttpApplicationOptions, any> = new Map();
-  private logger = new Logger({ context: 'HTTP:ConfigContainer' });
 
   constructor(private _channel: ConfigChannel) {
     this.setupEventHandlers();
@@ -34,7 +33,6 @@ export class ConfigContainer {
   }
 
   private initializeDefaults(options?: HttpApplicationOptions) {
-    this.logger.debug('Initializing config defaults');
     const defaults = ApplicationConfigurationDefaults;
     this.set('body', defaults.bodyParser);
     this.set('cookies', defaults.cookie);

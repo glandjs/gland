@@ -22,3 +22,4 @@
  */
 export * from './http-core';
 export * from './http-events.const';
+export * from './interface';

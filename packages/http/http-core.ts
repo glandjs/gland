@@ -137,7 +137,9 @@ export class HttpCore {
     bodyParser.updateMany(args);
     this.use(this._plugins.cors.createMiddleware());
   }
-  public static() {}
+  public static() {
+    console.warn('[HTTP] [WARN] Not implemented yet.');
+  }
 
   // Event Management
   public on<T>(event: HttpEventType, listener: Callback<[T]>): Noop {
