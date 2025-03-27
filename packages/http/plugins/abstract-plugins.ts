@@ -1,14 +1,12 @@
-import { Logger, merge } from '@medishn/toolkit';
+import { merge } from '@medishn/toolkit';
 import { ConfigChannel } from '../config';
 import { GlandMiddleware, HttpApplicationOptions } from '../interface';
 
 export abstract class AbstractPlugins<X, T extends keyof HttpApplicationOptions> {
-  protected logger: Logger;
   constructor(
     protected channel: ConfigChannel,
     protected configKey: T,
   ) {
-    this.logger = new Logger({ context: `HTTP:${this.configKey.toUpperCase()}` });
     this.bindEventHandlers();
   }
 

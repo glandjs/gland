@@ -1,4 +1,4 @@
-import { EventChannel, EventType } from '@gland/common';
+import { EventChannel, EventType, type EventOptions } from '@gland/common';
 import { Callback, Noop } from '@medishn/toolkit';
 export class HttpEventCore implements EventChannel {
   constructor(private readonly _channel: EventChannel) {}
@@ -18,11 +18,10 @@ export class HttpEventCore implements EventChannel {
   channel(type: EventType): HttpEventCore {
     return new HttpEventCore(this._channel.channel(type));
   }
-
-  emit<T>(type: EventType, data: T): void;
-  emit<T>(data: T): void;
+  emit<T>(type: EventType, data: T, options?: EventOptions): void;
+  emit<T>(data: T, options?: EventOptions): void;
   emit(...args: any[]): void {
-    this._channel.emit(...(args as [EventType, any]));
+    this._channel.emit(...(args as [any]));
   }
 
   getListeners<T>(event: EventType): T[];
@@ -31,17 +30,25 @@ export class HttpEventCore implements EventChannel {
     return this._channel.getListeners(...(args as [EventType]));
   }
 
-  off<T extends any[] = any>(listener: Callback<T>): boolean;
-  off<T extends any[] = any>(event: EventType, listener: Callback<T>): boolean;
-  off(...args: any[]): boolean {
-    return this._channel.off(...(args as [EventType, any]));
+  off<T extends any[] = any>(listener: Callback<T>): void;
+  off<T extends any[] = any>(event: EventType, listener: Callback<T>): void;
+  off(...args: any[]): void {
+    this._channel.off(...(args as [EventType, any]));
   }
 
-  on<T extends any = any>(listener: Callback<[T]>): Noop;
-  on<T extends any = any>(event: EventType, listener: Callback<[T]>): Noop;
+  on<T extends any = any>(listener: Callback<[T]>, options?: EventOptions): Noop;
+  on<T extends any = any>(event: EventType, listener: Callback<[T]>, options?: EventOptions): Noop;
   on(...args: any[]): Noop {
-    return this._channel.on(...(args as [EventType, any]));
+    return this._channel.on(...(args as [any]));
   }
+  /**
+   *
+  on<T extends any = any>(listener: Callback<[T]>, options?: EventOptions): Noop;
+  on<T extends any = any>(event: EventType, listener: Callback<[T]>, options: EventOptions): Noop;
+  on(...args: any[]): Noop {
+    return this._channel.on(...(args as [any]));
+  }
+   */
   once<T extends any = any>(listener: Callback<[T]>): void;
   once<T extends any = any>(event: EventType, listener: Callback<[T]>): void;
   once(...args: any[]): void {
@@ -55,7 +62,7 @@ export class HttpEventCore implements EventChannel {
   }
 
   safeEmit<T>(type: EventType, data: T): boolean {
-    this.emit(type, data);
+    this.emit(type, data, { queue: true });
 
     const listeners = this.getListeners(type);
 

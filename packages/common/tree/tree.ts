@@ -50,18 +50,14 @@ export class Tree<T> {
 
       if (!matchedNode) {
         for (const [dynSegment, dynNode] of Object.entries(currentNode!.dynamic)) {
-          if (dynNode.hasFlag(Flags.HAS_COLON)) {
+          if (dynNode?.hasFlag(Flags.HAS_COLON)) {
             params[dynSegment.slice(1)] = segment;
             matchedNode = dynNode;
             break;
-          } else if (dynNode.hasFlag(Flags.HAS_WILDCARD)) {
-            const remainingSegments = segments.slice(i);
-            params['*'] = remainingSegments.join(this.path['splitter']);
-
-            return {
-              value: dynNode.hasFlag(Flags.IS_ENDPOINT) ? dynNode.value : null,
-              params,
-            };
+          } else if (dynNode?.hasFlag(Flags.HAS_WILDCARD)) {
+            params['*'] = segment;
+            matchedNode = dynNode;
+            break;
           }
         }
       }
@@ -92,20 +88,17 @@ export class Tree<T> {
 
       if (!childNode) {
         for (const [dynSegment, dynNode] of Object.entries(currentNode.dynamic)) {
-          if (dynNode.hasFlag(Flags.HAS_COLON) || dynNode.hasFlag(Flags.HAS_WILDCARD)) {
+          if (dynNode?.hasFlag(Flags.HAS_COLON) || dynNode?.hasFlag(Flags.HAS_WILDCARD)) {
             childNode = dynNode;
             break;
           }
         }
       }
-
-      if (!childNode) return false;
-
       pathStack.push(childNode);
       currentNode = childNode;
     }
 
-    if (!currentNode.hasFlag(Flags.IS_ENDPOINT)) return false;
+    if (!currentNode?.hasFlag(Flags.IS_ENDPOINT)) return false;
 
     currentNode.removeFlag(Flags.IS_ENDPOINT);
     currentNode.value = null;
@@ -122,10 +115,10 @@ export class Tree<T> {
         delete parent.dynamic[segments[i - 1]];
       }
 
-      if (node.hasFlag(Flags.HAS_COLON)) {
+      if (node?.hasFlag(Flags.HAS_COLON)) {
         parent.removeFlag(Flags.HAS_COLON);
       }
-      if (node.hasFlag(Flags.HAS_WILDCARD)) {
+      if (node?.hasFlag(Flags.HAS_WILDCARD)) {
         parent.removeFlag(Flags.HAS_WILDCARD);
       }
     }

@@ -2,7 +2,7 @@ export class CircularDeque<T> {
   public buffer: Uint32Array;
   private dataBuffer: ArrayBuffer;
   public head: number = 0;
-  private tail: number = 0;
+  public tail: number = 0;
   private _size: number = 0;
   public mask: number;
   private readonly map = new Map<number, T>();

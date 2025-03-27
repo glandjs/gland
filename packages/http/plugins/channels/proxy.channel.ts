@@ -22,12 +22,6 @@ export class ProxyChannel extends AbstractPlugins<ProxyOptions, 'proxy'> {
     this.trustEvaluator = new TrustProxyEvaluator(normalizeTrustProxy(trustProxySetting));
     this.proxyTrustCount = this.get('proxyTrustCount') ?? 1;
     this.proxyIpHeader = this.get('proxyIpHeader')!;
-
-    this.logger.debug('Proxy settings initialized', {
-      trustProxy: trustProxySetting,
-      proxyTrustCount: this.proxyTrustCount,
-      proxyIpHeader: this.proxyIpHeader,
-    });
   }
 
   createMiddleware(): GlandMiddleware {

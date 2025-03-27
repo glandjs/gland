@@ -37,7 +37,7 @@
     "strictPropertyInitialization": false,
     "noLib": false
   },
-  "include": ["packages/**/*", "test/**/*"],
+  "include": ["packages/**/*", "test/**/*", "examples/**/*"],
   "preserveSymlinks": true,
   "exclude": ["node_modules"]
 }

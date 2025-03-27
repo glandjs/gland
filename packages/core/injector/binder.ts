@@ -3,17 +3,12 @@ import type { Broker } from '@gland/events';
 import type { Explorer } from './explorer';
 
 export class AppBinder {
-  private readonly logger = new Logger({
-    context: 'Injector:Binder',
-  });
   constructor(
     private explorer: Explorer,
     private broker: Broker,
   ) {}
   bind(): void {
     this.bindControllers();
-
-    this.logger.info('All components bound successfully');
   }
 
   public bindControllers(): void {
@@ -41,7 +36,6 @@ export class AppBinder {
         event,
         fullEvent,
       });
-      this.logger.debug(`Channel event registered: ${fullEvent}`);
     }
     for (const route of routes) {
       const { method, methodPath, methodType, controllerPath, target } = route;
@@ -54,7 +48,6 @@ export class AppBinder {
           return target(ctx);
         },
       });
-      this.logger.debug(`Route registered: ${methodType} ${fullPath}`);
     }
   }
 

@@ -1,5 +1,5 @@
 import { Callback, Noop } from '@medishn/toolkit';
-import { CryptoUUID, EventChannel, EventType } from '@gland/common';
+import { CryptoUUID, EventChannel, EventType, type EventOptions } from '@gland/common';
 import { EventRouter } from './container';
 import { ChannelProxy } from './channel-proxy';
 export type RequestStrategy = 'first' | 'last' | 'all';
@@ -56,12 +56,12 @@ export class Broker {
     return this._channels.get(type)!;
   }
 
-  public emit<D>(event: EventType, data: D): void {
-    this.router.emit(event, data);
+  public emit<D>(event: EventType, data: D, options?: EventOptions): void {
+    this.router.emit(event, data, options);
   }
 
-  public on<T extends any[] = any>(event: EventType, listener: Callback<T>): Noop {
-    this.router.on(event, listener);
+  public on<T extends any[] = any>(event: EventType, listener: Callback<T>, options?: EventOptions): Noop {
+    this.router.on(event, listener, options);
     const unsubscribe = () => {
       this.router.off(event, listener);
     };
@@ -122,11 +122,11 @@ export class Broker {
 
     return true;
   }
-  public emitTo<D>(brokerId: string, event: EventType, data: D): boolean {
+  public emitTo<D>(brokerId: string, event: EventType, data: D, options?: EventOptions): boolean {
     const broker = this._connections.get(brokerId);
     if (!broker) return false;
 
-    broker.emit(event, data);
+    broker.emit(event, data, options);
     return true;
   }
 

@@ -2,24 +2,25 @@
   "name": "@gland/core",
   "version": "1.0.0",
   "description": "Glands is a web framework for Node.js",
-  "homepage": "https://github.com/medishen/gland#readme",
+  "homepage": "https://github.com/glandjs/gland#readme",
   "author": "Mahdi",
   "license": "MIT",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "test:integration": "mocha --require ts-node/register test/integration/**/*.spec.ts"
+    "test:integration": "mocha --require ts-node/register test/integration/**/*.spec.ts",
+    "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts"
   },
   "lint-staged": {
     "**/*.ts": "prettier --ignore-path ./.prettierignore --write"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/medishen/gland.git"
+    "url": "git+https://github.com/glandjs/gland.git"
   },
   "bugs": {
-    "url": "https://github.com/medishen/gland/issues"
+    "url": "https://github.com/glandjs/gland/issues"
   },
   "keywords": [
     "gland",
