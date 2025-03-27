@@ -1,4 +1,4 @@
-import { EventQueue } from '@gland/events/queue';
+import { EventQueue } from '@glandjs/events/queue';
 import { expect } from 'chai';
 import sinon from 'sinon';
 

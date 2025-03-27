@@ -1,4 +1,4 @@
-import { DynamicModule, ImportableModule, InjectionToken, isDynamicModule, MODULE_METADATA, ModuleMetadata } from '@gland/common';
+import { DynamicModule, ImportableModule, InjectionToken, isDynamicModule, MODULE_METADATA, ModuleMetadata } from '@glandjs/common';
 import { Constructor } from '@medishn/toolkit';
 import { Module } from '../module';
 import { Container, type ModulesContainer } from '../container';

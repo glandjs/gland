@@ -1,4 +1,4 @@
-import { EventChannel, EventType, type EventOptions } from '@gland/common';
+import { EventChannel, EventType, type EventOptions } from '@glandjs/common';
 import { Callback, Noop } from '@medishn/toolkit';
 export class HttpEventCore implements EventChannel {
   constructor(private readonly _channel: EventChannel) {}

@@ -6,3 +6,14 @@
 
 tsconfig.json
 .prettierrc
+.prettierignore
+.gitignore
+.env
+pnpm-workspace.yaml
+pnpm-lock.yaml
+.husky
+bin
+docs
+.changeset
+.github
+exmaples

@@ -1,4 +1,4 @@
-import { AdapterContext, ProtocolType } from '@gland/common';
+import { AdapterContext, ProtocolType } from '@glandjs/common';
 import { Dictionary, merge } from '@medishn/toolkit';
 
 export class Context<T extends ProtocolType = ProtocolType> implements AdapterContext<T> {

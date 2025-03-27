@@ -1,5 +1,5 @@
 import { Callback, Noop } from '@medishn/toolkit';
-import { CryptoUUID, EventChannel, EventType, type EventOptions } from '@gland/common';
+import { CryptoUUID, EventChannel, EventType, type EventOptions } from '@glandjs/common';
 import { EventRouter } from './container';
 import { ChannelProxy } from './channel-proxy';
 export type RequestStrategy = 'first' | 'last' | 'all';

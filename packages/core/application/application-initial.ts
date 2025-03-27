@@ -1,5 +1,5 @@
 import { Constructor, Logger } from '@medishn/toolkit';
-import type { Broker } from '@gland/events';
+import type { Broker } from '@glandjs/events';
 import { DependenciesScanner, Explorer, AppBinder } from '../injector';
 
 export class AppInitial {

@@ -1,4 +1,4 @@
-import { METHOD_METADATA, PATH_METADATA } from '@gland/common';
+import { METHOD_METADATA, PATH_METADATA } from '@glandjs/common';
 import { DiscoveryService } from './discovery-service';
 import { MetadataScanner } from './scanner';
 import type { ModulesContainer } from './container';

@@ -1,6 +1,6 @@
 {
-  "name": "@gland/core",
-  "version": "1.0.0",
+  "name": "@glandjs/core",
+  "version": "1.0.0-alpha.1",
   "author": "Mahdi",
   "license": "MIT",
   "engines": {
@@ -9,12 +9,16 @@
   "scripts": {
     "build": "tsc"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "@gland/common": "workspace:*",
-    "@gland/events": "workspace:*",
-    "@gland/http": "workspace:*",
+    "@glandjs/common": "workspace:*",
+    "@glandjs/events": "workspace:*",
+    "@glandjs/http": "workspace:*",
     "@medishn/toolkit": "^1.0.3",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "tslib": "2.8.1"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

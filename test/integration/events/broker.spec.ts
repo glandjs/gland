@@ -1,8 +1,7 @@
 import 'mocha';
-
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Broker } from '@gland/events';
+import { Broker } from '@glandjs/events';
 describe('Events-Integration ', () => {
   let broker1: Broker;
   let broker2: Broker;

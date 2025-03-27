@@ -1,9 +1,9 @@
 import { Logger } from '@medishn/toolkit';
 import { IncomingRequestServer, ServerTransport } from '../server';
 import { HttpEventCore } from './http-events';
-import { Adapter } from '@gland/common';
+import { Adapter } from '@glandjs/common';
 import { HttpApplicationOptions } from '../interface';
-import { Broker } from '@gland/events';
+import { Broker } from '@glandjs/events';
 
 export class HttpAdapter implements Adapter<'http'> {
   get protocol(): 'http' {

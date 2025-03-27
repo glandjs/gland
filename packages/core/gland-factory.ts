@@ -1,8 +1,8 @@
-import { HttpCore } from '@gland/http';
-import { Broker } from '@gland/events';
+import { HttpCore } from '@glandjs/http';
+import { Broker } from '@glandjs/events';
 import { Logger, type Constructor } from '@medishn/toolkit';
 import { AppInitial } from './application';
-import type { HttpApplicationOptions } from '@gland/http/interface';
+import type { HttpApplicationOptions } from '@glandjs/http/interface';
 
 export class GlandFactory {
   private static readonly logger = new Logger({

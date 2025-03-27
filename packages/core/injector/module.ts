@@ -1,5 +1,5 @@
-import { InjectionToken, CryptoUUID } from '@gland/common';
-import { ApiController, ApiChannel } from '@gland/common/types';
+import { InjectionToken, CryptoUUID } from '@glandjs/common';
+import { ApiController, ApiChannel } from '@glandjs/common/types';
 import { Constructor } from '@medishn/toolkit';
 import { InstanceWrapper } from './instance-wrapper';
 

@@ -12,7 +12,6 @@
     "allowJs": false,
     "composite": true,
     "declaration": true,
-    "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "types": ["node"],
@@ -22,5 +21,19 @@
     "noLib": false,
     "sourceMap": false,
     "strictPropertyInitialization": false
-  }
+  },
+  "references": [
+    {
+      "path": "./common/tsconfig.json"
+    },
+    {
+      "path": "./core/tsconfig.json"
+    },
+    {
+      "path": "./events/tsconfig.json"
+    },
+    {
+      "path": "./http/tsconfig.json"
+    }
+  ]
 }

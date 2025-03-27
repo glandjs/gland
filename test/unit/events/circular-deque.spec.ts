@@ -1,6 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
-import { CircularDeque } from '@gland/events/queue';
+import { CircularDeque } from '@glandjs/events/queue';
 describe('Events-Queue-CircularDeque', () => {
   describe('Basic Operations', () => {
     let deque: CircularDeque<number>;

@@ -1,4 +1,4 @@
-import { AdapterContext, RequestMethod, type EventType } from '@gland/common';
+import { AdapterContext, RequestMethod, type EventType } from '@glandjs/common';
 import { Dictionary, HttpExceptionOptions, HttpStatus, Maybe, Noop } from '@medishn/toolkit';
 import { HttpHeaderName, HttpHeaderValue, HttpHeaders } from './headers.interface';
 

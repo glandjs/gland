@@ -1,6 +1,6 @@
 {
-  "name": "@gland/events",
-  "version": "1.0.0",
+  "name": "@glandjs/events",
+  "version": "1.0.0-alpha.1",
   "author": "Mahdi",
   "license": "MIT",
   "engines": {
@@ -9,9 +9,13 @@
   "scripts": {
     "build": "tsc"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "@gland/common": "workspace:*",
-    "@medishn/toolkit": "^1.0.3"
+    "@glandjs/common": "workspace:*",
+    "@medishn/toolkit": "^1.0.3",
+    "tslib": "2.8.1"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

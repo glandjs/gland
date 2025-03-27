@@ -1,6 +1,6 @@
-import type { HttpContext } from '@gland/http';
-import { Channel, Controller, Get, Module, On } from '@gland/common';
-import { GlandFactory } from '@gland/core';
+import type { HttpContext } from '@glandjs/http';
+import { Channel, Controller, Get, Module, On } from '@glandjs/common';
+import { GlandFactory } from '@glandjs/core';
 
 @Controller('users')
 class UserController {
