@@ -2,7 +2,7 @@
   "name": "@gland/core",
   "version": "1.0.0",
   "description": "Glands is a web framework for Node.js",
-  "homepage": "https://github.com/medishen/gland#readme",
+  "homepage": "https://github.com/glandjs/gland#readme",
   "author": "Mahdi",
   "license": "MIT",
   "workspaces": [
@@ -17,10 +17,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/medishen/gland.git"
+    "url": "git+https://github.com/glandjs/gland.git"
   },
   "bugs": {
-    "url": "https://github.com/medishen/gland/issues"
+    "url": "https://github.com/glandjs/gland/issues"
   },
   "keywords": [
     "gland",
