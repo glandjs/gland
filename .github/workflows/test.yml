@@ -1,46 +1,74 @@
-name: CI - Run Tests
+name: CI Tests
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [20.x, 21.x, 22.x]
+
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.0.6
+
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
-
-      - name: Install pnpm
-        run: npm install -g pnpm
 
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run lint-staged
-        run: npx lint-staged
+      - name: Run Unit Tests
+        run: pnpm test:unit
 
-      - name: Run unit tests
-        run: pnpm run test:unit
+      - name: Run Integration Tests
+        run: pnpm test:integration
 
-      - name: Run integration tests
-        run: pnpm run test:integration
-
-      - name: Upload test results (on failure)
-        if: failure()
+      - name: Upload test coverage
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: test-results/
+          name: test-results-${{ matrix.node-version }}
+          path: |
+            coverage/
+            test-results/
+          retention-days: 5
+
+  lint:
+    name: Lint and Style Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.0.6
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run Prettier Check
+        run: pnpm exec prettier --check .
