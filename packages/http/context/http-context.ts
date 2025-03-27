@@ -1,5 +1,5 @@
-import { Context } from '@gland/core';
-import { normalizePath, RequestMethod, EventType } from '@gland/common';
+import { Context } from '@glandjs/core';
+import { normalizePath, RequestMethod, EventType } from '@glandjs/common';
 import { IncomingMessage, ServerResponse } from 'http';
 import { Dictionary, HttpException, HttpExceptionOptions, HttpStatus, isString, isUndefined, Maybe } from '@medishn/toolkit';
 import { TLSSocket } from 'tls';
@@ -8,7 +8,7 @@ import { RequestContext } from './request-context';
 import { HttpEventCore } from '../adapter/http-events';
 import { generateETag, normalizeTrustProxy, TrustProxyEvaluator } from '../plugins/utils';
 import { parse as parseQuery } from 'querystring';
-import type { Broker } from '@gland/events';
+import type { Broker } from '@glandjs/events';
 
 /**
  * HTTP-specific context providing access to request/response objects and utility methods.

@@ -1,8 +1,8 @@
 import { Logger, type Callback } from '@medishn/toolkit';
 import type { EventQueue } from '../queue';
-import { Tree, type EventOptions } from '@gland/common';
+import { Tree, type EventOptions } from '@glandjs/common';
 import { QueueUtils } from './queue-utils';
-import { Flags, NodeType, type UniversalNode } from '@gland/common/tree/node';
+import { Flags, NodeType, type UniversalNode } from '@glandjs/common/tree/node';
 
 export type QueeuType = Map<string, EventQueue>;
 export class EventRouter {

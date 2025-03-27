@@ -1,6 +1,6 @@
-name: "💥 Regression"
-description: "Report functionality that worked in a previous version but is now broken"
-labels: ["regression", "needs triage"]
+name: '💥 Regression'
+description: 'Report functionality that worked in a previous version but is now broken'
+labels: ['regression', 'needs triage']
 body:
   - type: markdown
     attributes:
@@ -19,48 +19,48 @@ body:
 
   - type: checkboxes
     attributes:
-      label: "Prerequisites"
-      description: "Please confirm the following before submitting your regression report"
+      label: 'Prerequisites'
+      description: 'Please confirm the following before submitting your regression report'
       options:
-      - label: "I have searched existing issues for similar reports"
-        required: true
-      - label: "I have verified the issue occurs consistently in the new version but not in the previous version"
-        required: true
+        - label: 'I have searched existing issues for similar reports'
+          required: true
+        - label: 'I have verified the issue occurs consistently in the new version but not in the previous version'
+          required: true
 
   - type: input
     validations:
       required: true
     attributes:
-      label: "Version Information"
-      description: "Which versions are you comparing?"
-      placeholder: "Previously working: v1.2.0 → Now broken: v1.3.0"
+      label: 'Version Information'
+      description: 'Which versions are you comparing?'
+      placeholder: 'Previously working: v1.2.0 → Now broken: v1.3.0'
 
   - type: textarea
     validations:
       required: true
     attributes:
-      label: "Regression Description"
-      description: "A clear description of what functionality changed between versions"
-      placeholder: "In the previous version, X would happen when I did Y. Now, Z happens instead."
+      label: 'Regression Description'
+      description: 'A clear description of what functionality changed between versions'
+      placeholder: 'In the previous version, X would happen when I did Y. Now, Z happens instead.'
 
   - type: textarea
     validations:
       required: true
     attributes:
-      label: "Previous Behavior"
-      description: "How did it work in the previous version?"
+      label: 'Previous Behavior'
+      description: 'How did it work in the previous version?'
 
   - type: textarea
     validations:
       required: true
     attributes:
-      label: "Current Behavior"
-      description: "How does it work (or not work) in the current version?"
+      label: 'Current Behavior'
+      description: 'How does it work (or not work) in the current version?'
 
   - type: textarea
     attributes:
-      label: "Steps to Reproduce"
-      description: "Provide steps to reproduce the regression"
+      label: 'Steps to Reproduce'
+      description: 'Provide steps to reproduce the regression'
       placeholder: |
         1. Set up Gland with configuration X
         2. Register event handler for Y
@@ -69,14 +69,14 @@ body:
 
   - type: input
     attributes:
-      label: "Reproduction Link"
-      description: "Link to a minimal repository that demonstrates the regression"
-      placeholder: "https://github.com/username/repo"
+      label: 'Reproduction Link'
+      description: 'Link to a minimal repository that demonstrates the regression'
+      placeholder: 'https://github.com/username/repo'
 
   - type: textarea
     attributes:
-      label: "Minimal Code Example"
-      description: "If you cannot create a reproduction repository, please provide the smallest code sample that demonstrates the issue"
+      label: 'Minimal Code Example'
+      description: 'If you cannot create a reproduction repository, please provide the smallest code sample that demonstrates the issue'
       value: |
         ```typescript
         // Code that works in previous version but fails in current version
@@ -84,21 +84,21 @@ body:
 
   - type: input
     attributes:
-      label: "Potential Cause"
-      description: "If you have any insights into what changed to cause this regression, please share"
-      placeholder: "Possibly related to PR #123 or the changes to X feature"
+      label: 'Potential Cause'
+      description: 'If you have any insights into what changed to cause this regression, please share'
+      placeholder: 'Possibly related to PR #123 or the changes to X feature'
 
   - type: textarea
     validations:
       required: true
     attributes:
-      label: "Environment"
-      description: "Please provide your environment details"
+      label: 'Environment'
+      description: 'Please provide your environment details'
       value: |
         - Gland Version (previous):
         - Gland Version (current):
 
   - type: textarea
     attributes:
-      label: "Additional Context"
-      description: "Add any other context about the regression here (logs, screenshots, etc.)"
+      label: 'Additional Context'
+      description: 'Add any other context about the regression here (logs, screenshots, etc.)'

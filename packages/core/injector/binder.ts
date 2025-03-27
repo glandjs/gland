@@ -1,5 +1,5 @@
 import { Logger } from '@medishn/toolkit';
-import type { Broker } from '@gland/events';
+import type { Broker } from '@glandjs/events';
 import type { Explorer } from './explorer';
 
 export class AppBinder {

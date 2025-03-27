@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { HttpContext } from '../interface';
-import { NextFunction } from '@gland/common';
+import { NextFunction } from '@glandjs/common';
 
 export type ExpressLikeMiddleware = (req: IncomingMessage, res: ServerResponse, next: (error?: unknown) => void) => void | Promise<void>;
 

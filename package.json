@@ -1,6 +1,6 @@
 {
-  "name": "@gland/core",
-  "version": "1.0.0",
+  "name": "@glandjs/core",
+  "version": "1.0.0-alpha.1",
   "description": "Glands is a web framework for Node.js",
   "homepage": "https://github.com/glandjs/gland#readme",
   "author": "Mahdi",
@@ -11,7 +11,12 @@
   "scripts": {
     "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts",
     "test:integration": "mocha --require ts-node/register test/integration/**/*.spec.ts",
-    "lint": "prettier --check ."
+    "lint": "prettier --check .",
+    "version": "changeset version",
+    "release": "pnpm build && pnpm changeset publish",
+    "release:alpha": "pnpm changeset publish --tag alpha",
+    "clean": "rm -rf packages/**/**/**/*.d.ts packages/**/**/*.d.ts packages/**/*.d.ts packages/**/**/**/*.js packages/**/**/*.js packages/**/*.js ",
+    "build": "pnpm -r build"
   },
   "lint-staged": {
     "**/*.ts": "prettier --ignore-path ./.prettierignore --write"
@@ -41,6 +46,7 @@
     }
   },
   "devDependencies": {
+    "@changesets/cli": "^2.28.1",
     "@types/chai": "^4.3.19",
     "@types/mocha": "^10.0.7",
     "@types/node": "^22.0.0",
@@ -55,8 +61,8 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@medishn/qiks": "^2.0.0",
     "@medishn/toolkit": "^1.0.3",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "tslib": "^2.8.1"
   }
 }

@@ -1,4 +1,4 @@
-import { NextFunction } from '@gland/common';
+import { NextFunction } from '@glandjs/common';
 import { HttpContext } from '../interface';
 import { MiddlewareChannel } from './channel';
 

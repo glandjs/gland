@@ -7,6 +7,8 @@
     "removeComments": true,
     "composite": true,
     "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
@@ -16,21 +18,17 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "rootDir": ".",
-    "outDir": "dist",
     "baseUrl": ".",
     "types": ["node"],
     "paths": {
-      "@gland/common": ["./packages/common"],
-      "@gland/common/*": ["./packages/common/*"],
-
-      "@gland/core": ["./packages/core"],
-      "@gland/core/*": ["./packages/core/*"],
-
-      "@gland/http": ["./packages/http"],
-      "@gland/http/*": ["./packages/http/*"],
-
-      "@gland/events": ["./packages/events"],
-      "@gland/events/*": ["./packages/events/*"]
+      "@glandjs/common": ["./packages/common"],
+      "@glandjs/common/*": ["./packages/common/*"],
+      "@glandjs/core": ["./packages/core"],
+      "@glandjs/core/*": ["./packages/core/*"],
+      "@glandjs/http": ["./packages/http"],
+      "@glandjs/http/*": ["./packages/http/*"],
+      "@glandjs/events": ["./packages/events"],
+      "@glandjs/events/*": ["./packages/events/*"]
     },
     "noImplicitAny": false,
     "noUnusedLocals": false,
@@ -38,6 +36,8 @@
     "noLib": false
   },
   "include": ["packages/**/*", "test/**/*", "examples/**/*"],
+  "compileOnSave": true,
+  "buildOnSave": true,
   "preserveSymlinks": true,
   "exclude": ["node_modules"]
 }

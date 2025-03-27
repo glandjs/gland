@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { EventRouter } from '@gland/events/container';
+import { EventRouter } from '@glandjs/events/container';
 
 describe('Events-Router', () => {
   let eventRouter: EventRouter;

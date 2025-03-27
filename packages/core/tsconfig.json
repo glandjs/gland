@@ -1,22 +1,30 @@
 {
-  "extends": "../../tsconfig.json",
-
+  "extends": "../tsconfig.json",
   "compilerOptions": {
+    "outDir": ".",
     "rootDir": ".",
-    "outDir": "."
+    "paths": {
+      "@glandjs/common": ["../common"],
+      "@glandjs/common/*": ["../common/*"],
+      "@glandjs/events": ["../events"],
+      "@glandjs/events/*": ["../events/*"],
+      "@glandjs/http": ["../http"],
+      "@glandjs/http/*": ["../http/*"]
+    },
+    "types": ["node"]
   },
   "files": [],
   "include": ["**/*.ts"],
   "exclude": ["node_modules"],
   "references": [
     {
-      "path": "../common"
+      "path": "../common/tsconfig.json"
     },
     {
-      "path": "../events"
+      "path": "../events/tsconfig.json"
     },
     {
-      "path": "../http"
+      "path": "../http/tsconfig.json"
     }
   ]
 }

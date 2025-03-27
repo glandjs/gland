@@ -1,10 +1,14 @@
-import { InjectionToken } from '@gland/common';
+import { InjectionToken } from '@glandjs/common';
 import { Constructor } from '@medishn/toolkit';
 
 export class InstanceWrapper<T = any> {
   private instance: T | undefined;
 
-  constructor(public readonly token: InjectionToken, public readonly metatype: Constructor<T>, instance?: T) {
+  constructor(
+    public readonly token: InjectionToken,
+    public readonly metatype: Constructor<T>,
+    instance?: T,
+  ) {
     if (instance) {
       this.instance = instance;
     }

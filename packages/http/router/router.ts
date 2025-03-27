@@ -1,6 +1,6 @@
 import { parse } from 'node:url';
 import { Maybe } from '@medishn/toolkit';
-import { normalizePath, RequestMethod, Tree } from '@gland/common';
+import { normalizePath, RequestMethod, Tree } from '@glandjs/common';
 import { HttpContext, RouteAction, RouteMatch } from '../interface';
 import { ConfigChannel } from '../config';
 import { RouterChannel } from './channel';

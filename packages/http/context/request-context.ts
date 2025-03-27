@@ -1,4 +1,4 @@
-import { RequestMethod } from '@gland/common';
+import { RequestMethod } from '@glandjs/common';
 import { IncomingMessage, ServerResponse } from 'http';
 import { HeadersManager, CookiesManager, SendData } from '../utils/';
 import { HttpStatus, isNaNValue } from '@medishn/toolkit';

@@ -1,4 +1,4 @@
-import { EventChannel, EventType, type EventOptions } from '@gland/common';
+import { EventChannel, EventType, type EventOptions } from '@glandjs/common';
 import { Broker } from './broker';
 import { Callback, isString, Noop } from '@medishn/toolkit';
 

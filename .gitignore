@@ -4,8 +4,8 @@ packages/*/package-lock.json
 node_modules/
 
 # bundle
-packages/**/*.d.ts
-packages/**/*.js
+packages/**/**/*.d.ts
+packages/**/**/*.js
 
 # Environment variables
 .env
@@ -16,3 +16,5 @@ packages/**/*.js
 .vscode/
 /packages/**/.npmignore
 /packages/**/LICENSE
+
+bin/*

@@ -1,4 +1,4 @@
-import { NextFunction } from '@gland/common';
+import { NextFunction } from '@glandjs/common';
 import { AnyMiddleware, ExpressLikeMiddleware, GlandMiddleware, HttpContext } from '../interface';
 import { isFunction, isString } from '@medishn/toolkit';
 import { MiddlewareChannel } from './channel';

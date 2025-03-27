@@ -4,12 +4,12 @@
  * MIT Licensed
  *
  *
- * The `@gland/http` package provides a fully event-driven HTTP/HTTPS server based on the Gland framework.
- * It is designed to work seamlessly with `@gland/core`, leveraging the Event-Driven System (EDS)
+ * The `@glandjs/http` package provides a fully event-driven HTTP/HTTPS server based on the Gland framework.
+ * It is designed to work seamlessly with `@glandjs/core`, leveraging the Event-Driven System (EDS)
  *
  * @example
  * ```ts
- * import { HttpCore } from '@gland/http';
+ * import { HttpCore } from '@glandjs/http';
  * const app = new HttpCore();
  *
  * app.get('/', (ctx) => {

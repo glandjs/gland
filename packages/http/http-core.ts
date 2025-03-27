@@ -1,5 +1,5 @@
 import { Callback, isFunction, isString, Noop } from '@medishn/toolkit';
-import { EventType, RequestMethod } from '@gland/common';
+import { EventType, RequestMethod } from '@glandjs/common';
 import { ExpressLikeMiddleware, GlandMiddleware, HttpApplicationOptions, HttpContext, RouteAction, type BodyParserOptions } from './interface';
 import { HttpAdapter } from './adapter';
 import { PluginsManager } from './plugins';

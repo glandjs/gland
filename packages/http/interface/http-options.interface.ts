@@ -1,4 +1,4 @@
-import { Environment, RequestMethod } from '@gland/common/enums';
+import { Environment, RequestMethod } from '@glandjs/common/enums';
 import type { CustomOrigin, EntityTagOptions, StaticOrigin, TrustProxyOption } from '../types';
 import type { HttpContext } from './http-context.interface';
 

@@ -1,4 +1,4 @@
-import { DynamicModule, ImportableModule, InjectionToken, isDynamicModule, MODULE_METADATA } from '@gland/common';
+import { DynamicModule, ImportableModule, InjectionToken, isDynamicModule, MODULE_METADATA } from '@glandjs/common';
 import { Module } from '../module';
 import { DeepHashedModule } from '../opaque-key-factory';
 import { Constructor } from '@medishn/toolkit';

@@ -1,4 +1,4 @@
-import { RequestMethod } from '@gland/common';
+import { RequestMethod } from '@glandjs/common';
 import { HttpContext } from './http-context.interface';
 
 export type RouteAction = (ctx: HttpContext) => any | Promise<any>;

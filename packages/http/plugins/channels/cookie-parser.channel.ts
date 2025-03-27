@@ -1,7 +1,7 @@
 import { Dictionary, isArray, isUndefined, Maybe, merge } from '@medishn/toolkit';
 import { createHash } from 'node:crypto';
 import { AbstractPlugins } from '../abstract-plugins';
-import { CookieOptions, GlandMiddleware, HttpContext } from '@gland/http/interface';
+import { CookieOptions, GlandMiddleware, HttpContext } from '../../interface';
 import { ConfigChannel } from '../../config/config.channel';
 
 export class CookieParserChannel extends AbstractPlugins<CookieOptions, 'cookies'> {

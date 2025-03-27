@@ -1,4 +1,4 @@
-import { RequestMethod } from '@gland/common';
+import { RequestMethod } from '@glandjs/common';
 import { HttpEventCore } from '../adapter';
 import { HttpContext, RouteAction, RouteMatch } from '../interface';
 import { Maybe } from '@medishn/toolkit';
