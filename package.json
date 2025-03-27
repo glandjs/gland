@@ -9,8 +9,9 @@
     "packages/*"
   ],
   "scripts": {
+    "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts",
     "test:integration": "mocha --require ts-node/register test/integration/**/*.spec.ts",
-    "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts"
+    "lint": "prettier --check ."
   },
   "lint-staged": {
     "**/*.ts": "prettier --ignore-path ./.prettierignore --write"
