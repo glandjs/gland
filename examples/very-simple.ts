@@ -1,6 +1,6 @@
-import type { HttpContext } from '@glandjs/http';
-import { Channel, Controller, Get, Module, On } from '@glandjs/common';
+import { Channel, Controller, Module, On } from '@glandjs/common';
 import { GlandFactory } from '@glandjs/core';
+import { Get, HttpBroker, type HttpContext } from '@glandjs/http';
 
 @Controller('users')
 class UserController {
@@ -39,9 +39,9 @@ class UserModule {}
   imports: [UserModule],
 })
 class AppModule {}
-
 async function bootstrap() {
   const app = await GlandFactory.create(AppModule);
-  app.listen(3000);
+  const http = app.connectTo(HttpBroker, {});
+  http.listen(3000);
 }
 bootstrap();
