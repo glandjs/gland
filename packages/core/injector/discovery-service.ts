@@ -1,3 +1,4 @@
+import { isUndefined } from '@medishn/toolkit';
 import type { ModulesContainer } from './container';
 import { InstanceWrapper } from './instance-wrapper';
 
@@ -10,10 +11,10 @@ export class DiscoveryService {
     for (const [_, moduleRef] of this.modulesContainer.entries()) {
       for (const [__, wrapper] of moduleRef.controllers.entries()) {
         const metadata = Reflect.getMetadata(metadataKey, wrapper.metatype);
-        if (metadata === undefined) {
+        if (isUndefined(metadata)) {
           continue;
         }
-        if (metadataValue !== undefined && metadata !== metadataValue) {
+        if (!isUndefined(metadataValue) && metadata !== metadataValue) {
           continue;
         }
         controllers.push(wrapper);
@@ -29,10 +30,10 @@ export class DiscoveryService {
     for (const [_, moduleRef] of this.modulesContainer.entries()) {
       for (const [__, wrapper] of moduleRef.channels.entries()) {
         const metadata = Reflect.getMetadata(metadataKey, wrapper.metatype);
-        if (metadata === undefined) {
+        if (isUndefined(metadata)) {
           continue;
         }
-        if (metadataValue !== undefined && metadata !== metadataValue) {
+        if (!isUndefined(metadataValue) && metadata !== metadataValue) {
           continue;
         }
         channels.push(wrapper);

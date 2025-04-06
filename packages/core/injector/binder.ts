@@ -1,7 +1,14 @@
-import { Logger } from '@medishn/toolkit';
 import type { Broker } from '@glandjs/events';
 import type { Explorer } from './explorer';
-
+export interface RouteRegister {
+  route: string;
+  controller: {
+    path: string;
+    methodName: string;
+  };
+  method: string;
+  action: Function;
+}
 export class AppBinder {
   constructor(
     private explorer: Explorer,
@@ -12,9 +19,9 @@ export class AppBinder {
   }
 
   public bindControllers(): void {
-    const routes = this.explorer.exploreControllers();
-    const channelHandlers = this.explorer.exploreChannel();
-    const channels = new Map<
+    const controllers = this.explorer.exploreControllers();
+    const channels = this.explorer.exploreChannels();
+    const map = new Map<
       string,
       {
         namespace: string;
@@ -22,30 +29,34 @@ export class AppBinder {
         fullEvent: string;
       }
     >();
-    for (const handler of channelHandlers) {
-      const { instance, event, namespace, target } = handler;
+    for (const channel of channels) {
+      const { instance, event, namespace, target } = channel;
 
-      const fullEvent = `http:external:${namespace}:${event}`;
+      const fullEvent = `gland:external:${namespace}:${event}`;
 
       this.broker.on(fullEvent, async (...args: any[]) => {
         await target.apply(instance, args);
       });
 
-      channels.set(namespace, {
+      map.set(namespace, {
         namespace,
         event,
         fullEvent,
       });
     }
-    for (const route of routes) {
-      const { method, methodPath, methodType, controllerPath, target } = route;
-      const fullPath = this.combinePaths(controllerPath, methodPath);
-      this.broker.emit('http:router:register', {
+    for (const controller of controllers) {
+      const { method, route, controller: ctr } = controller;
+      const fullPath = this.combinePaths(ctr.path, route);
+      this.broker.emit('gland:router:register', {
+        route: route,
+        controller: {
+          path: fullPath,
+          methodName: ctr.methodName,
+        },
         method,
-        path: fullPath,
         action: (ctx) => {
-          ctx._state.channel = Array.from(channels.values());
-          return target(ctx);
+          ctx._state.channel = Array.from(map.values());
+          return ctr.target(ctx);
         },
       });
     }
