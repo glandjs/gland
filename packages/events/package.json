@@ -13,11 +13,14 @@
     "access": "public"
   },
   "dependencies": {
-    "@glandjs/common": "workspace:*",
     "@medishn/toolkit": "^1.0.3",
     "tslib": "2.8.1"
   },
   "devDependencies": {
+    "@glandjs/common": "workspace:*",
     "typescript": "^5.5.4"
+  },
+  "peerDependencies": {
+    "@glandjs/common": "workspace:*"
   }
 }
