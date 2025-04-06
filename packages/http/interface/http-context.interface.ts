@@ -1,14 +1,15 @@
-import { AdapterContext, RequestMethod, type EventType } from '@glandjs/common';
+import { type EventType } from '@glandjs/common';
 import { Dictionary, HttpExceptionOptions, HttpStatus, Maybe, Noop } from '@medishn/toolkit';
 import { HttpHeaderName, HttpHeaderValue, HttpHeaders } from './headers.interface';
 
 import { IncomingMessage, ServerResponse } from 'node:http';
 import { CookieOptions } from './http-options.interface';
+import type { RequestMethod } from '../enum';
 
 /**
  * HTTP-specific context providing access to request/response objects and utility methods
  */
-export interface HttpContext extends AdapterContext<'http'> {
+export interface HttpContext {
   /**
    * Get the request protocol (always 'http' for HttpContext)
    */

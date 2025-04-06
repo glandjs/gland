@@ -1,5 +1,5 @@
 import { Callback, isFunction, isString, Noop } from '@medishn/toolkit';
-import { EventType, RequestMethod } from '@glandjs/common';
+import { EventType } from '@glandjs/common';
 import { ExpressLikeMiddleware, GlandMiddleware, HttpApplicationOptions, HttpContext, RouteAction, type BodyParserOptions } from './interface';
 import { HttpAdapter } from './adapter';
 import { PluginsManager } from './plugins';
@@ -7,6 +7,7 @@ import { HttpEventType } from './http-events.const';
 import { CorsConfig, type ApplicationEventMap, type ServerListening } from './types/app-options.types';
 import { HttpChannel } from './http-channel';
 import { HttpInitializer } from './http-initializer';
+import { RequestMethod } from './enum';
 
 /**
  * The core HTTP server class for the Gland framework.

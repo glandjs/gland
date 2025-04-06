@@ -1,5 +1,5 @@
 import { Context } from '@glandjs/core';
-import { normalizePath, RequestMethod, EventType } from '@glandjs/common';
+import { normalizePath, EventType } from '@glandjs/common';
 import { IncomingMessage, ServerResponse } from 'http';
 import { Dictionary, HttpException, HttpExceptionOptions, HttpStatus, isString, isUndefined, Maybe } from '@medishn/toolkit';
 import { TLSSocket } from 'tls';
@@ -9,6 +9,7 @@ import { HttpEventCore } from '../adapter/http-events';
 import { generateETag, normalizeTrustProxy, TrustProxyEvaluator } from '../plugins/utils';
 import { parse as parseQuery } from 'querystring';
 import type { Broker } from '@glandjs/events';
+import type { RequestMethod } from '../enum';
 
 /**
  * HTTP-specific context providing access to request/response objects and utility methods.
@@ -20,7 +21,7 @@ import type { Broker } from '@glandjs/events';
  * @example
  * ctx.send('Hello World');
  */
-export class HttpServerContext extends Context<'http'> implements HttpContext {
+export class HttpServerContext extends Context implements HttpContext {
   mode: 'http';
   private _query: Dictionary<string | number | undefined> = {};
   private _path?: string;
@@ -31,7 +32,7 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     req: IncomingMessage,
     res: ServerResponse,
   ) {
-    super('http');
+    super();
     this._request = new RequestContext(req, res);
     this._initializeQuery();
   }
@@ -257,7 +258,7 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
     const broker = this._events['_channel']['broker'] as Broker;
     const channels = this.state.channel;
     if (event.startsWith('@')) {
-      broker.emitTo('core', `http:external:${type}`, data);
+      broker.emitTo('core', `gland:external:${type}`, data);
     } else {
       for (const channel of channels) {
         if (channel.event === type) {

@@ -1,5 +1,5 @@
-import { isNil, isNumber, isString, isTruthy, Maybe } from '@medishn/toolkit';
-import { HttpHeaders, HttpHeaderValue } from 'packages/http/interface';
+import { isNumber, isTruthy, Maybe } from '@medishn/toolkit';
+import type { HttpHeaders, HttpHeaderValue } from '../../interface';
 
 export class ContentTypeManager {
   constructor(private header: HttpHeaders) {}

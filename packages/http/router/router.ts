@@ -1,9 +1,10 @@
 import { parse } from 'node:url';
 import { Maybe } from '@medishn/toolkit';
-import { normalizePath, RequestMethod, Tree } from '@glandjs/common';
+import { normalizePath, Tree } from '@glandjs/common';
 import { HttpContext, RouteAction, RouteMatch } from '../interface';
 import { ConfigChannel } from '../config';
 import { RouterChannel } from './channel';
+import { RequestMethod } from '../enum';
 export class Router {
   private tree: Tree<{ method: string; action: RouteAction }> = new Tree('route');
 

@@ -41,14 +41,7 @@ export class HttpEventCore implements EventChannel {
   on(...args: any[]): Noop {
     return this._channel.on(...(args as [any]));
   }
-  /**
-   *
-  on<T extends any = any>(listener: Callback<[T]>, options?: EventOptions): Noop;
-  on<T extends any = any>(event: EventType, listener: Callback<[T]>, options: EventOptions): Noop;
-  on(...args: any[]): Noop {
-    return this._channel.on(...(args as [any]));
-  }
-   */
+
   once<T extends any = any>(listener: Callback<[T]>): void;
   once<T extends any = any>(event: EventType, listener: Callback<[T]>): void;
   once(...args: any[]): void {

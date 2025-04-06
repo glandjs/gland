@@ -21,5 +21,8 @@
  * @since 1.0.0
  */
 export * from './http-core';
+export * from './http-broker';
+export * from './decorators';
+export * from './enum';
 export * from './http-events.const';
 export * from './interface';
