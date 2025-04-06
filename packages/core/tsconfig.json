@@ -7,9 +7,7 @@
       "@glandjs/common": ["../common"],
       "@glandjs/common/*": ["../common/*"],
       "@glandjs/events": ["../events"],
-      "@glandjs/events/*": ["../events/*"],
-      "@glandjs/http": ["../http"],
-      "@glandjs/http/*": ["../http/*"]
+      "@glandjs/events/*": ["../events/*"]
     },
     "types": ["node"]
   },
@@ -22,9 +20,6 @@
     },
     {
       "path": "../events/tsconfig.json"
-    },
-    {
-      "path": "../http/tsconfig.json"
     }
   ]
 }
