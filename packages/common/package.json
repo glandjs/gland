@@ -1,8 +1,15 @@
 {
   "name": "@glandjs/common",
   "version": "1.0.0-alpha.1",
+  "description": "Glands is a web framework for Node.js (@common)",
+  "homepage": "https://github.com/glandjs/gland#readme",
   "author": "Mahdi",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/glandjs/gland.git",
+    "directory": "packages/common"
+  },
   "scripts": {
     "build": "tsc"
   },
@@ -14,7 +21,9 @@
   },
   "dependencies": {
     "@medishn/toolkit": "^1.0.3",
-    "reflect-metadata": "^0.2.2",
     "tslib": "2.8.1"
+  },
+  "peerDependencies": {
+    "reflect-metadata": "^0.1.12"
   }
 }

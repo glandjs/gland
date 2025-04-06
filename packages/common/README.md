@@ -1,11 +1,11 @@
 <p align="center">
-  <a href="#" target="blank"><img src="https://github.com/medishen/gland/blob/main/docs/logo.svg" width="200" alt="Gland Logo" /></a>
+  <a href="#" target="blank"><img src="https://github.com/glandjs/gland/blob/main/docs/logo.svg" width="200" alt="Gland Logo" /></a>
 </p>
 
 <p align="center">
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/v/@glandjs/core.svg" alt="NPM Version" /></a>
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/l/@glandjs/core.svg" alt="Package License" /></a>
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/dm/@glandjs/core.svg" alt="NPM Downloads" /></a>
+  <a href="https://npmjs.com/package/@glandjs/common" target="_blank"><img src="https://img.shields.io/npm/v/@glandjs/common.svg" alt="NPM Version" /></a>
+  <a href="https://npmjs.com/package/@glandjs/common" target="_blank"><img src="https://img.shields.io/npm/l/@glandjs/common.svg" alt="Package License" /></a>
+  <a href="https://npmjs.com/package/@glandjs/common" target="_blank"><img src="https://img.shields.io/npm/dm/@glandjs/common.svg" alt="NPM Downloads" /></a>
 </p>
 
 <h1 align="center">Gland</h1>
@@ -64,9 +64,3 @@ Gland is an open-source project, and its continued development is made possible 
 ---
 
 > **Note:** Gland is under active development. We appreciate your patience as we continue to enhance the framework. Your feedback and contributions are invaluable!
-
----
-
-<p align="center">
-  <a href="https://opencollective.com/gland/sponsor" target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-</p>
