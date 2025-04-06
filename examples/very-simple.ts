@@ -7,7 +7,7 @@ class UserController {
   @Get('/')
   createUser(ctx: HttpContext) {
     const data = 1;
-    ctx.emit('user:created', { data, ctx });
+    ctx.emit('user:created', { data });
   }
 }
 
@@ -17,7 +17,7 @@ class UserChannel {
   async handleUserCreated(payload: { ctx: HttpContext; data: any }) {
     const body = payload.data;
     const ctx = payload.ctx;
-    ctx.emit('@response:send', { ctx, body });
+    ctx.emit('@response:send', { body });
   }
 }
 

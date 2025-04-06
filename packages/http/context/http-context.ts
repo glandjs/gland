@@ -253,6 +253,8 @@ export class HttpServerContext extends Context<'http'> implements HttpContext {
   }
 
   public emit<D>(event: EventType, data?: D) {
+    if (data) data["ctx"] = data["ctx"] || this;
+
     const type = event.startsWith('@') ? event.split('@')[1] : event;
     const broker = this._events['_channel']['broker'] as Broker;
     const channels = this.state.channel;
