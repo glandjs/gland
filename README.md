@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="#" target="blank"><img src="https://github.com/glandjs/gland/blob/main/docs/logo.svg" width="200" alt="Gland Logo" /></a>
+  <a href="#" target="blank"><img src="./docs/Logo.png" width="200" alt="Gland Logo" /></a>
 </p>
 
 <p align="center">
@@ -14,17 +14,17 @@
 
 ## Description
 
+> What if every interaction was an event? Welcome to Gland.
+
 **Gland** is a lightweight, extensible web framework built for modern JavaScript and TypeScript applications. With its unique event-driven architecture (EDS), it offers unparalleled flexibility in creating modular, scalable server-side applications.
 
 Inspired by frameworks like Angular and NestJS, Gland integrates an object-oriented design pattern, minimalistic dependency injection (DI), and powerful event-driven communication, allowing developers to efficiently build and maintain complex applications.
 
 ## Philosophy
 
-Gland is designed to solve the challenges of modern web development by embracing **event-driven design** and **modularity**. Traditional frameworks often rely on tightly coupled components, which can make applications harder to scale and maintain. Gland flips this paradigm by using events to connect components, allowing developers to build systems that are:
+Rather than relying on predefined conventions or imposing rigid structures, Gland offers an approach where the developer can focus on the core problem domain without being hindered by unnecessary constraints. By using an event-driven approach, Gland ensures that communication between components remains straightforward and flexible, while also maintaining the ability to easily extend the system as requirements evolve.
 
-- **Decoupled**: Components communicate through events, reducing direct dependencies.
-- **Scalable**: Events can be processed asynchronously, making it easier to handle high loads.
-- **Flexible**: Developers can choose when to wait for responses and when to fire-and-forget.
+The simplicity of Gland lies not in the absence of features, but in how it allows developers to shape their applications with minimal friction and clear intentions. It strives to be a framework that adapts to the developer's needs, not the other way around. Through this approach, Gland provides the foundation for building applications that are both effective and maintainable, without forcing an unnatural design pattern upon the developer.
 
 ## Why Gland?
 
@@ -57,9 +57,22 @@ For details on our security practices and how to report vulnerabilities, please 
 
 Gland is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## Sponsors
+## Support Gland
 
-Gland is an open-source project, and its continued development is made possible by our amazing sponsors and backers. If you'd like to support us, consider becoming a sponsor on [OpenCollective](https://opencollective.com/gland).
+Gland is an open-source project. If you find it useful and want to support its continued development, consider donating to help keep the project:
+
+### 💸 Bitcoin (on-chain)
+
+`bc1quhhrh3qd3wgfs8s5hh2hh6k0q6d5wygrqn0hxw`
+
+### ⚡ Bitcoin Lightning
+
+`genix@coinos.io`
+
+---
+
+Gland doesn’t tell you how to build.
+It asks: _what if everything was just a message?_
 
 ---
 
