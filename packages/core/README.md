@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="#" target="blank"><img src="https://github.com/glandjs/gland/blob/main/docs/logo.svg" width="200" alt="Gland Logo" /></a>
+  <a href="#" target="blank"><img src="https://github.com/glandjs/gland/blob/main/docs/Logo.png" width="200" alt="Gland Logo" /></a>
 </p>
 
 <p align="center">
@@ -20,11 +20,9 @@ Inspired by frameworks like Angular and NestJS, Gland integrates an object-orien
 
 ## Philosophy
 
-Gland is designed to solve the challenges of modern web development by embracing **event-driven design** and **modularity**. Traditional frameworks often rely on tightly coupled components, which can make applications harder to scale and maintain. Gland flips this paradigm by using events to connect components, allowing developers to build systems that are:
+Rather than relying on predefined conventions or imposing rigid structures, Gland offers an approach where the developer can focus on the core problem domain without being hindered by unnecessary constraints. By using an event-driven approach, Gland ensures that communication between components remains straightforward and flexible, while also maintaining the ability to easily extend the system as requirements evolve.
 
-- **Decoupled**: Components communicate through events, reducing direct dependencies.
-- **Scalable**: Events can be processed asynchronously, making it easier to handle high loads.
-- **Flexible**: Developers can choose when to wait for responses and when to fire-and-forget.
+The simplicity of Gland lies not in the absence of features, but in how it allows developers to shape their applications with minimal friction and clear intentions. It strives to be a framework that adapts to the developer's needs, not the other way around. Through this approach, Gland provides the foundation for building applications that are both effective and maintainable, without forcing an unnatural design pattern upon the developer.
 
 ## Why Gland?
 
@@ -36,7 +34,7 @@ For full documentation on how to use Gland, including guides, examples, and API 
 
 - [Official Documentation](#)
 - [API Reference](#/api)
-- [Contributing Guide](./docs/CONTRIBUTING.md)
+- [Contributing Guide](https://github.com/medishen/gland/blob/main/docs/CONTRIBUTING.md)
 
 ## Contributing
 
@@ -47,20 +45,12 @@ We welcome contributions to help improve Gland and shape it into a robust, produ
 3. Write tests to cover your changes.
 4. Submit a pull request with a detailed description of your changes.
 
-Please review our [CONTRIBUTING.md](./docs/CONTRIBUTING.md) guidelines before starting.
+Please review our [CONTRIBUTING.md](https://github.com/medishen/gland/blob/main/docs/CONTRIBUTING.md) guidelines before starting.
 
 ## Security
 
-For details on our security practices and how to report vulnerabilities, please visit [SECURITY.md](./docs/SECURITY).
+For details on our security practices and how to report vulnerabilities, please visit [SECURITY.md](https://github.com/medishen/gland/blob/main/docs/SECURITY).
 
 ## License
 
-Gland is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Sponsors
-
-Gland is an open-source project, and its continued development is made possible by our amazing sponsors and backers. If you'd like to support us, consider becoming a sponsor on [OpenCollective](https://opencollective.com/gland).
-
----
-
-> **Note:** Gland is under active development. We appreciate your patience as we continue to enhance the framework. Your feedback and contributions are invaluable!
+Gland is licensed under the MIT License. See the [LICENSE](https://github.com/medishen/gland/blob/main/LICENSE) file for details.
