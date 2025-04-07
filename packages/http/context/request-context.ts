@@ -1,7 +1,7 @@
-import { RequestMethod } from '@glandjs/common';
 import { IncomingMessage, ServerResponse } from 'http';
 import { HeadersManager, CookiesManager, SendData } from '../utils/';
 import { HttpStatus, isNaNValue } from '@medishn/toolkit';
+import { RequestMethod } from '../enum';
 export class RequestContext {
   public readonly header: HeadersManager;
   constructor(

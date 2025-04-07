@@ -1,11 +1,10 @@
-import { AdapterContext, ProtocolType } from '@glandjs/common';
 import { Dictionary, merge } from '@medishn/toolkit';
 
-export class Context<T extends ProtocolType = ProtocolType> implements AdapterContext<T> {
+export class Context {
   private _state: Dictionary<any> = {};
   private _error?: unknown;
 
-  constructor(public readonly mode: T) {}
+  constructor() {}
 
   get state(): Dictionary<any> {
     return { ...this._state };

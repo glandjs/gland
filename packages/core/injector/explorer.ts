@@ -2,15 +2,17 @@ import { METHOD_METADATA, PATH_METADATA } from '@glandjs/common';
 import { DiscoveryService } from './discovery-service';
 import { MetadataScanner } from './scanner';
 import type { ModulesContainer } from './container';
-interface ControllerMetadata<T = any> {
-  instance: T;
+export interface RouteMetadata<T = any> {
   method: string;
-  methodType: any;
-  methodPath: any;
-  controllerPath: string;
-  target: Function;
+  route: string;
+  controller: {
+    path: string;
+    instance: T;
+    methodName: string;
+    target: Function;
+  };
 }
-interface ChannelMetadata<T = any> {
+export interface ChannelMetadata<T = any> {
   instance: T;
   event: string;
   namespace: string;
@@ -24,31 +26,36 @@ export class Explorer {
     this.discoveryService = new DiscoveryService(modulesContainer);
   }
 
-  exploreControllers<T extends object>() {
+  public exploreControllers<T extends object>(): RouteMetadata<T>[] {
     const controllers = this.discoveryService.getControllers(PATH_METADATA);
-    if (!controllers) {
-      throw new Error('No Controller found');
+
+    if (!controllers || controllers.length === 0) {
+      throw new Error('No controllers found in the application');
     }
-    const result: ControllerMetadata<T>[] = [];
+
+    const result: RouteMetadata<T>[] = [];
 
     for (const wrapper of controllers) {
       const instance = wrapper.getInstance();
-      const metatype = wrapper.metatype;
+      const controllerType = wrapper.metatype;
       const prototype = Object.getPrototypeOf(instance);
-      const controllerPath = Reflect.getMetadata(PATH_METADATA, metatype);
-      this.metadataScanner.scanFromPrototype(prototype, (method) => {
-        const target = prototype[method];
-        const methodType = Reflect.getMetadata(METHOD_METADATA, target);
-        const methodPath = Reflect.getMetadata(PATH_METADATA, target) || '/';
+      const controllerPath = Reflect.getMetadata(PATH_METADATA, controllerType) || '';
 
-        if (methodType) {
+      this.metadataScanner.scanFromPrototype(prototype, (methodName) => {
+        const target = prototype[methodName];
+        const method = Reflect.getMetadata(METHOD_METADATA, target);
+        const route = Reflect.getMetadata(PATH_METADATA, target) || '/';
+
+        if (method) {
           result.push({
-            instance,
-            method,
-            methodType,
-            methodPath,
-            controllerPath,
-            target,
+            controller: {
+              instance,
+              target,
+              methodName,
+              path: controllerPath,
+            },
+            method: method,
+            route,
           });
         }
       });
@@ -57,7 +64,7 @@ export class Explorer {
     return result;
   }
 
-  exploreChannel<T extends object>() {
+  exploreChannels<T extends object>() {
     const channels = this.discoveryService.getChannel(PATH_METADATA);
 
     const result: ChannelMetadata<T>[] = [];

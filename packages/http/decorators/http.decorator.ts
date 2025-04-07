@@ -1,5 +1,5 @@
-import { RequestMethod } from '../../enums';
-import { METHOD_METADATA, PATH_METADATA } from '../../constant';
+import { METHOD_METADATA, PATH_METADATA } from '@glandjs/common';
+import { RequestMethod } from '../enum';
 
 export interface RequestMappingMetadata {
   path?: string | string[];

@@ -1,4 +1,4 @@
-import { Environment, RequestMethod } from '@glandjs/common/enums';
+import { RequestMethod } from '../enum';
 import type { CustomOrigin, EntityTagOptions, StaticOrigin, TrustProxyOption } from '../types';
 import type { HttpContext } from './http-context.interface';
 
@@ -149,12 +149,6 @@ export type ViewsOptions = {
 };
 
 export interface SettingsOptions {
-  /**
-   * Application environment (e.g., 'development', 'production').
-   * @default 'development'
-   */
-  env?: Environment;
-
   /**
    * ETag configuration for HTTP caching.
    * @default '{strength:'weak',algorithm:sha256'}'

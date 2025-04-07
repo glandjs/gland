@@ -2,7 +2,6 @@ import { DynamicModule, ImportableModule, InjectionToken, isDynamicModule, MODUL
 import { Constructor } from '@medishn/toolkit';
 import { Module } from '../module';
 import { Container, type ModulesContainer } from '../container';
-
 export class DependenciesScanner {
   private readonly container: Container;
   private readonly modulesContainer: ModulesContainer;

@@ -3,9 +3,9 @@
 </p>
 
 <p align="center">
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/v/@glandjs/core.svg" alt="NPM Version" /></a>
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/l/@glandjs/core.svg" alt="Package License" /></a>
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/dm/@glandjs/core.svg" alt="NPM Downloads" /></a>
+  <a href="https://npmjs.com/package/@glandjs/events" target="_blank"><img src="https://img.shields.io/npm/v/@glandjs/events.svg" alt="NPM Version" /></a>
+  <a href="https://npmjs.com/package/@glandjs/events" target="_blank"><img src="https://img.shields.io/npm/l/@glandjs/events.svg" alt="Package License" /></a>
+  <a href="https://npmjs.com/package/@glandjs/events" target="_blank"><img src="https://img.shields.io/npm/dm/@glandjs/events.svg" alt="NPM Downloads" /></a>
 </p>
 
 <h1 align="center">Gland</h1>
