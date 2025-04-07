@@ -57,15 +57,15 @@ For details on our security practices and how to report vulnerabilities, please 
 
 Gland is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## Support Gland
+## Donation
 
 Gland is an open-source project. If you find it useful and want to support its continued development, consider donating to help keep the project:
 
-### 💸 Bitcoin (on-chain)
+### Bitcoin (on-chain)
 
 `bc1quhhrh3qd3wgfs8s5hh2hh6k0q6d5wygrqn0hxw`
 
-### ⚡ Bitcoin Lightning
+### Bitcoin Lightning
 
 `genix@coinos.io`
 
@@ -73,7 +73,3 @@ Gland is an open-source project. If you find it useful and want to support its c
 
 Gland doesn’t tell you how to build.
 It asks: _what if everything was just a message?_
-
----
-
-> **Note:** Gland is under active development. We appreciate your patience as we continue to enhance the framework. Your feedback and contributions are invaluable!
