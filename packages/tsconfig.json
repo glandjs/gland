@@ -30,9 +30,6 @@
     },
     {
       "path": "./events/tsconfig.json"
-    },
-    {
-      "path": "./http/tsconfig.json"
     }
   ]
 }
