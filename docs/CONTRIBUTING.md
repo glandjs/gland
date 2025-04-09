@@ -41,8 +41,8 @@ Gland is committed to fostering an inclusive and respectful community. All contr
 **Do not create GitHub issues for general questions.** Instead:
 
 - Use [Stack Overflow](https://stackoverflow.com) with the `gland` tag
-- Join our [Discord Community](#) for real-time discussions (coming soon)
-- Check our [Documentation](#) (coming soon)
+- Join our [Discord Community](https://discord.gg/GtRtkrEYwR)
+- Check our [Documentation](https://glandjs.github.io/docs/)
 
 ## <a name="getting-started"></a> Getting Started
 
@@ -81,7 +81,7 @@ If you encounter a bug or have a question, please follow these steps:
 
 **Note**: For general questions, please use [Stack Overflow](https://stackoverflow.com) with the tag `gland`.
 
-Want real-time discussion? Join our [Discord community](#) (coming soon!).
+Want real-time discussion? Join our [Discord community](https://discord.gg/GtRtkrEYwR).
 
 ---
 
