@@ -112,31 +112,6 @@ importers:
         specifier: ^5.5.4
         version: 5.8.2
 
-  packages/http:
-    dependencies:
-      '@glandjs/core':
-        specifier: workspace:*
-        version: link:../core
-      '@glandjs/events':
-        specifier: workspace:*
-        version: link:../events
-      '@medishn/toolkit':
-        specifier: ^1.0.3
-        version: 1.0.3
-      reflect-metadata:
-        specifier: ^0.1.12
-        version: 0.1.14
-      tslib:
-        specifier: 2.8.1
-        version: 2.8.1
-    devDependencies:
-      '@glandjs/common':
-        specifier: workspace:*
-        version: link:../common
-      typescript:
-        specifier: ^5.5.4
-        version: 5.8.2
-
 packages:
 
   '@babel/runtime@7.27.0':

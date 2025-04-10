@@ -5,6 +5,7 @@
 !*.d.ts
 
 tsconfig.json
+tsconfig.tsbuildinfo
 .prettierrc
 .prettierignore
 .gitignore

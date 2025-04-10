@@ -1,6 +1,6 @@
 import { Channel, Controller, Module, On } from '@glandjs/common';
 import { GlandFactory } from '@glandjs/core';
-import { Get, HttpBroker, type HttpContext } from '@glandjs/http';
+import { Get, HttpBroker, type HttpContext } from '@glandjs/express';
 
 @Controller('users')
 class UserController {
