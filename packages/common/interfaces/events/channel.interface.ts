@@ -7,8 +7,8 @@ export interface EventOptions {
 export interface EventChannel {
   channel(type: EventType): EventChannel;
 
-  request<R>(type: EventType, data: any, strategy?: 'first' | 'last'): R | undefined;
-  request<R>(type: EventType, data: any, strategy?: 'all'): R[];
+  call<R>(type: EventType, data: any, strategy?: 'first' | 'last'): R | undefined;
+  call<R>(type: EventType, data: any, strategy?: 'all'): R[];
 
   respond<T, R>(listener: (data: T, respond: (result: R) => void) => void): Noop;
   respond<T, R>(type: EventType, listener: (data: T, respond: (result: R) => void) => void): Noop;
