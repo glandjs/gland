@@ -4,8 +4,8 @@ import type { EventType } from '../../../types';
 /**
  * @publicApi
  */
-export function Saga(event: EventType): ClassDecorator {
+export function Saga(opts: { event: EventType; compensation: EventType }): ClassDecorator {
   return (target: Function) => {
-    Reflect.defineMetadata(SAGA_METADATA, event, target);
+    Reflect.defineMetadata(SAGA_METADATA, opts, target);
   };
 }

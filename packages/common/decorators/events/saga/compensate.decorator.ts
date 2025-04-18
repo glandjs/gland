@@ -1,11 +1,10 @@
 import { METHOD_METADATA } from '../../../constant';
-import type { EventType } from '../../../types';
 
 /**
  * @publicApi
  */
-export function Compensate(event: EventType): MethodDecorator {
+export function Compensate(): MethodDecorator {
   return (target: object, key: string | symbol) => {
-    Reflect.defineMetadata(METHOD_METADATA, event, target, key);
+    Reflect.defineMetadata(METHOD_METADATA, {}, target, key);
   };
 }
