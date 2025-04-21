@@ -1,8 +1,9 @@
 import { Logger, type Callback } from '@medishn/toolkit';
 import type { EventQueue } from '../queue';
-import { Tree, type EventOptions } from '@glandjs/common';
 import { QueueUtils } from './queue-utils';
-import { Flags, NodeType, type UniversalNode } from '@glandjs/common/tree/node';
+import { Tree } from '../tree';
+import { Flags, NodeType, type UniversalNode } from '../tree/node';
+import type { EventOptions } from '../interface';
 
 export type QueeuType = Map<string, EventQueue>;
 export class EventRouter {
@@ -13,7 +14,7 @@ export class EventRouter {
     context: 'Gland:Events',
   });
 
-  private _tree = new Tree<any>('event');
+  private _tree = new Tree<any>();
 
   constructor() {
     this._queueUtils = new QueueUtils(this._queues);
@@ -89,7 +90,7 @@ export class EventRouter {
     if (event) {
       this._tree.remove(event);
     } else {
-      this._tree = new Tree<Callback[]>('event');
+      this._tree = new Tree<Callback[]>();
     }
   }
 

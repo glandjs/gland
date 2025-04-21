@@ -1,8 +1,8 @@
 import { Callback, Noop } from '@medishn/toolkit';
-import { CryptoUUID, EventChannel, EventType, type EventOptions } from '@glandjs/common';
 import { EventRouter } from './container';
 import { ChannelProxy } from './channel-proxy';
-export type RequestStrategy = 'first' | 'last' | 'all';
+import type { EventChannel, EventOptions, EventType } from './interface';
+export type CallStrategy = 'first' | 'last' | 'all';
 
 export class Broker {
   private readonly _connections = new Map<string, Broker>();
@@ -10,16 +10,14 @@ export class Broker {
   private readonly router: EventRouter;
   private readonly _channels = new Map<string, EventChannel>();
 
-  constructor(private _id: string = CryptoUUID.generate()) {
+  constructor(public name: string) {
     this.router = new EventRouter();
   }
-  public get id(): string {
-    return this._id;
-  }
 
-  public request<R>(type: EventType, data: any, strategy?: 'first' | 'last'): R | undefined;
-  public request<R>(type: EventType, data: any, strategy?: 'all'): R[];
-  public request<R>(type: EventType, data: any, strategy: RequestStrategy = 'first'): R | R[] | undefined {
+
+  public call<R>(type: EventType, data: any, strategy?: 'first' | 'last'): R | undefined;
+  public call<R>(type: EventType, data: any, strategy?: 'all'): R[];
+  public call<R>(type: EventType, data: any, strategy: CallStrategy = 'first'): R | R[] | undefined {
     const listeners = this.getListeners<any>(type);
     if (!listeners || listeners.length === 0) {
       return strategy === 'all' ? [] : undefined;
@@ -96,28 +94,28 @@ export class Broker {
   }
 
   public connectTo(broker: Broker): Noop {
-    if (broker.id === this.id) {
+    if (broker.name === this.name) {
       throw new Error('Cannot connect a broker to itself');
     }
 
-    this._connections.set(broker.id, broker);
+    this._connections.set(broker.name, broker);
 
-    if (!broker._connections.has(this.id)) {
+    if (!broker._connections.has(this.name)) {
       broker.connectTo(this);
     }
 
     return () => {
-      this.disconnect(broker.id);
+      this.disconnect(broker.name);
     };
   }
-  public disconnect(brokerId: string): boolean {
-    const broker = this._connections.get(brokerId);
+  public disconnect(brokerName: string): boolean {
+    const broker = this._connections.get(brokerName);
     if (!broker) return false;
 
-    this._connections.delete(brokerId);
+    this._connections.delete(brokerName);
 
-    if (broker._connections.has(this.id)) {
-      broker.disconnect(this.id);
+    if (broker._connections.has(this.name)) {
+      broker.disconnect(this.name);
     }
 
     return true;
@@ -139,11 +137,11 @@ export class Broker {
     return count;
   }
 
-  public requestTo<R>(brokerId: string, ...args: Parameters<Broker['request']>) {
+  public callTo<R>(brokerId: string, ...args: Parameters<Broker['call']>) {
     const broker = this._connections.get(brokerId);
     if (!broker) return undefined;
 
-    return broker.request<R>(...args);
+    return broker.call<R>(...args);
   }
 
   public pipeTo(brokerId: string, sourceEvent: EventType, targetEvent: EventType): Noop {

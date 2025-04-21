@@ -1,10 +1,6 @@
-import type { TreeMode } from './tree';
-
 export class PathUtils {
-  private splitter: string;
-  constructor(mode: TreeMode) {
-    this.splitter = mode === 'event' ? ':' : '/';
-  }
+  private splitter: string = ':';
+  constructor() {}
   split(path: string): string[] {
     let normalized = path
       .trim()

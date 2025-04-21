@@ -9,7 +9,7 @@
  * various components of the Gland ecosystem, offering reusable building blocks for creating event-driven
  * and scalable applications.
  */
-export * from './tree';
+import 'reflect-metadata';
 export * from './decorators';
 export * from './utils';
 export * from './types';

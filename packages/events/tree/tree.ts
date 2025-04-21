@@ -1,13 +1,12 @@
 import { CharCode, Flags, NodeType, UniversalNode } from './node';
 import { PathUtils } from './path.utils';
-export type TreeMode = 'event' | 'route';
 export class Tree<T> {
   public readonly root: UniversalNode<T>;
   private readonly path: PathUtils;
 
-  constructor(mode: TreeMode) {
+  constructor() {
     this.root = new UniversalNode<T>(0);
-    this.path = new PathUtils(mode);
+    this.path = new PathUtils();
   }
 
   insert(path: string, value: T): void {

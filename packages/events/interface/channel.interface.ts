@@ -1,11 +1,12 @@
-import { EventType } from '../../types';
 import { Callback, Noop } from '@medishn/toolkit';
 export interface EventOptions {
   queue?: boolean;
 }
-
+export type EventType = string;
 export interface EventChannel {
   channel(type: EventType): EventChannel;
+
+  name: string;
 
   call<R>(type: EventType, data: any, strategy?: 'first' | 'last'): R | undefined;
   call<R>(type: EventType, data: any, strategy?: 'all'): R[];

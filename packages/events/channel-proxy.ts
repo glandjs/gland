@@ -1,12 +1,15 @@
-import { EventChannel, EventType, type EventOptions } from '@glandjs/common';
 import { Broker } from './broker';
 import { Callback, isString, Noop } from '@medishn/toolkit';
-
+import type { EventChannel, EventOptions, EventType } from './interface';
 export class ChannelProxy implements EventChannel {
   constructor(
     private readonly broker: Broker,
     private readonly type: string,
   ) {}
+
+  get name() {
+    return this.broker.name;
+  }
 
   private resolveEventName(type?: EventType): string {
     return type ? `${this.type}:${type}` : this.type;
@@ -19,11 +22,11 @@ export class ChannelProxy implements EventChannel {
     return this.broker.respond(event, listener);
   }
 
-  request<R>(type: EventType, data: any, strategy?: 'first' | 'last'): R | undefined;
-  request<R>(type: EventType, data: any, strategy?: 'all'): R[];
-  request<R>(type: unknown, data: unknown, strategy?: any): R | R[] | undefined {
+  call<R>(type: EventType, data: any, strategy?: 'first' | 'last'): R | undefined;
+  call<R>(type: EventType, data: any, strategy?: 'all'): R[];
+  call<R>(type: unknown, data: unknown, strategy?: any): R | R[] | undefined {
     const event = isString(type) ? this.resolveEventName(type) : this.type;
-    return this.broker.request(event, data, strategy);
+    return this.broker.call(event, data, strategy);
   }
 
   channel(type: EventType): EventChannel {
