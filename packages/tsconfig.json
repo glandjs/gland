@@ -27,9 +27,6 @@
     },
     {
       "path": "./core/tsconfig.json"
-    },
-    {
-      "path": "./events/tsconfig.json"
     }
   ]
 }
