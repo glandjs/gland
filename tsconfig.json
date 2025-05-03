@@ -24,9 +24,7 @@
       "@glandjs/common": ["./packages/common"],
       "@glandjs/common/*": ["./packages/common/*"],
       "@glandjs/core": ["./packages/core"],
-      "@glandjs/core/*": ["./packages/core/*"],
-      "@glandjs/events": ["./packages/events"],
-      "@glandjs/events/*": ["./packages/events/*"]
+      "@glandjs/core/*": ["./packages/core/*"]
     },
     "noImplicitAny": false,
     "noUnusedLocals": false,
