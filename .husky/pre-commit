@@ -1,11 +1,2 @@
-#!/bin/bash
-
-echo "🔎 Running lint-staged..."
-npx lint-staged
-
-if [ $? -ne 0 ]; then
-  echo "❌ Lint-staged failed. Commit aborted."
-  exit 1
-fi
-
-echo "✅ Lint-staged completed successfully!"
+#!/usr/bin/env sh
+npm run lint-staged
