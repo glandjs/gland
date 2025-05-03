@@ -1,26 +1,10 @@
 {
   "name": "@glandjs/core",
-  "version": "1.0.1-alpha",
+  "version": "1.0.0-beta",
   "description": "Glands is a web framework for Node.js",
-  "homepage": "https://github.com/glandjs/gland#readme",
   "author": "Mahdi",
   "license": "MIT",
-  "workspaces": [
-    "packages/*"
-  ],
-  "scripts": {
-    "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts",
-    "test:integration": "mocha --require ts-node/register test/integration/**/*.spec.ts",
-    "lint": "prettier --check .",
-    "version": "changeset version",
-    "release": "pnpm build && pnpm changeset publish",
-    "release:alpha": "pnpm changeset publish --tag alpha",
-    "clean": "rm -rf packages/**/**/**/*.d.ts packages/**/**/*.d.ts packages/**/*.d.ts packages/**/**/**/*.js packages/**/**/*.js packages/**/*.js ",
-    "build": "pnpm -r build"
-  },
-  "lint-staged": {
-    "**/*.ts": "prettier --ignore-path ./.prettierignore --write"
-  },
+  "homepage": "https://github.com/glandjs/gland#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/glandjs/gland.git"
@@ -30,23 +14,64 @@
   },
   "keywords": [
     "gland",
+    "glandjs",
+    "framework",
     "nodejs",
-    "http",
-    "web",
-    "medishn"
+    "di",
+    "dependency-injection",
+    "event-bus",
+    "event-driven",
+    "typescript",
+    "core",
+    "architecture",
+    "modular"
   ],
   "engines": {
-    "node": ">= 20"
+    "node": ">=20.0.0",
+    "typescript": ">=5.0.0"
   },
   "collective": {
     "type": "opencollective",
     "url": "https://opencollective.com/gland",
     "donation": {
-      "text": "Become a partner:"
+      "text": "Become a partner"
     }
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "files": [
+    "packages/common",
+    "packages/core"
+  ],
+  "scripts": {
+    "dev": "pnpm -r dev",
+    "watch": "tsc --watch",
+    "build": "pnpm -r build",
+    "prebuild": "pnpm clean && pnpm typecheck",
+    "clean": "rm -rf packages/**/dist packages/**/build packages/**/lib packages/**/**/*.d.ts packages/**/**/*.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "prettier --check .",
+    "lint:fix": "prettier --write .",
+    "lint-staged": "lint-staged",
+    "test": "pnpm test:unit && pnpm test:integration",
+    "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts",
+    "test:integration": "mocha --require ts-node/register test/integration/**/*.spec.ts",
+    "coverage": "nyc --reporter=text-summary pnpm test && nyc report --reporter=text-summary > coverage.md",
+    "version": "changeset version",
+    "prepare": "husky init",
+    "release": "pnpm build && pnpm changeset publish",
+    "release:alpha": "pnpm build && pnpm changeset publish --tag alpha",
+    "release:beta": "pnpm build && pnpm changeset publish --tag beta",
+    "release:next": "pnpm build && changeset publish --tag next"
+  },
+  "lint-staged": {
+    "**/*.ts": "prettier --ignore-path ./.prettierignore --write"
   },
   "devDependencies": {
     "@changesets/cli": "^2.28.1",
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
     "@types/chai": "^4.3.19",
     "@types/mocha": "^10.0.7",
     "@types/node": "^22.0.0",
@@ -55,12 +80,14 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
     "mocha": "^10.7.3",
+    "nyc": "^17.1.0",
     "prettier": "^3.5.3",
     "sinon": "^19.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "@glandjs/events": "1.0.0-beta-1",
     "@medishn/toolkit": "^1.0.3",
     "reflect-metadata": "^0.2.2",
     "tslib": "^2.8.1"

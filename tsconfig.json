@@ -31,7 +31,7 @@
     "strictPropertyInitialization": false,
     "noLib": false
   },
-  "include": ["packages/**/*", "test/**/*", "examples/**/*"],
+  "include": ["packages/**/*"],
   "compileOnSave": true,
   "buildOnSave": true,
   "preserveSymlinks": true,
