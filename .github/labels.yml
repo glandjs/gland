@@ -1,0 +1,109 @@
+labels:
+  - name: Bug
+    color: 'd73a4a'
+    description: "Something isn't working"
+  - name: Enhancement
+    color: 'a2eeef'
+    description: 'New feature or request'
+  - name: Documentation
+    color: '0075ca'
+    description: 'Improvements or additions to documentation'
+  - name: Question
+    color: 'd876e3'
+    description: 'Further information requested'
+  - name: Discussion
+    color: 'cfd3d7'
+    description: 'Open-ended discussion'
+
+  - name: area:core
+    color: '5319e7'
+    description: 'Issues in @glandjs/core package'
+  - name: area:common
+    color: '0e8a16'
+    description: 'Issues in @glandjs/common package'
+  - name: area:events
+    color: 'd4c5f9'
+    description: 'Issues in @glandjs/events package'
+  - name: area:http
+    color: '1d76db'
+    description: 'Issues in @glandjs/http package'
+  - name: area:emitter
+    color: 'f9d0c4'
+    description: 'Issues in @glandjs/emitter package'
+  - name: area:docs
+    color: '006b75'
+    description: 'Documentation and guides'
+
+  - name: P0
+    color: 'b60205'
+    description: 'Critical: immediate attention required'
+  - name: P1
+    color: 'd93f0b'
+    description: 'High: important but not blocking'
+  - name: P2
+    color: 'f9d0c4'
+    description: 'Medium: non-critical enhancements or bugs'
+  - name: P3
+    color: '0e8a16'
+    description: 'Low: minor improvements or tasks'
+
+  - name: status:triaged
+    color: '0e8a16'
+    description: 'Issue has been reviewed and prioritized'
+  - name: status:in progress
+    color: 'fbca04'
+    description: 'Work is underway'
+  - name: status:blocked
+    color: 'e99695'
+    description: 'Work is blocked by external factors'
+  - name: status:review needed
+    color: '0052cc'
+    description: 'Ready for review'
+  - name: status:done
+    color: '1d76db'
+    description: 'Completed and merged'
+
+  - name: good first issue
+    color: '7057ff'
+    description: 'Good for newcomers'
+  - name: help wanted
+    color: '008672'
+    description: 'Extra attention is needed'
+
+  - name: CI
+    color: '006b75'
+    description: 'Automation and CI failures'
+  - name: dependencies
+    color: '2f6f44'
+    description: 'Dependency update or vulnerability fix'
+
+  - name: duplicate
+    color: 'cccccc'
+    description: 'This issue or PR already exists'
+  - name: wontfix
+    color: 'ffffff'
+    description: 'This will not be worked on'
+  - name: invalid
+    color: 'e4e669'
+    description: "This doesn't seem right"
+
+  - name: architecture
+    color: 'c5def5'
+    description: 'Proposals around core architecture/design'
+  - name: RFC
+    color: '5319e7'
+    description: 'Request for Comments (significant changes)'
+
+  - name: performance
+    color: 'd876e3'
+    description: 'Performance improvements needed'
+  - name: security
+    color: 'b60205'
+    description: 'Vulnerability or security issue'
+
+  - name: release
+    color: '0e8a16'
+    description: 'Issues or PRs to include in next release'
+  - name: roadmap
+    color: '5319e7'
+    description: 'Feature on the project roadmap'
