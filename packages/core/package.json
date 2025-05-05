@@ -1,35 +1,53 @@
 {
   "name": "@glandjs/core",
-  "version": "1.0.1-alpha",
+  "version": "1.0.0-beta",
   "description": "Glands is a web framework for Node.js (@core)",
-  "homepage": "https://github.com/glandjs/gland#readme",
-  "author": "Mahdi",
+  "author": "Mahdi <bitsgenix@gmail.com>",
   "license": "MIT",
+  "homepage": "https://github.com/glandjs/gland#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/glandjs/gland.git",
     "directory": "packages/core"
   },
-  "scripts": {
-    "build": "tsc"
-  },
   "engines": {
-    "node": ">= 20"
+    "node": ">=20.0.0",
+    "typescript": ">=5.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf *.d.ts *.js",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsc --watch"
   },
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "gland",
+    "glandjs",
+    "core",
+    "framework",
+    "nodejs",
+    "typescript",
+    "dependency-injection",
+    "event-driven",
+    "event-bus",
+    "event-broker",
+    "architecture",
+    "modular"
+  ],
   "dependencies": {
-    "@glandjs/events": "workspace:*",
+    "@glandjs/events": "1.0.2-beta",
     "@medishn/toolkit": "^1.0.3",
     "tslib": "2.8.1"
+  },
+  "peerDependencies": {
+    "@glandjs/common": "workspace:*",
+    "reflect-metadata": "^0.1.12 || ^0.2.0"
   },
   "devDependencies": {
     "@glandjs/common": "workspace:*",
     "typescript": "^5.5.4"
-  },
-  "peerDependencies": {
-    "@glandjs/common": "workspace:*",
-    "reflect-metadata": "^0.1.12"
   }
 }

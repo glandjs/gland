@@ -54,16 +54,18 @@
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
     "lint-staged": "lint-staged",
-    "test": "pnpm test:unit && pnpm test:integration",
-    "test:unit": "mocha --require ts-node/register test/unit/**/*.spec.ts",
-    "test:integration": "mocha --require ts-node/register test/integration/**/*.spec.ts",
+    "test": "pnpm test:unit",
+    "test:unit": "tsx ./node_modules/mocha/bin/mocha test/unit/**/*.spec.ts",
+    "test:integration": "tsx ./node_modules/mocha/bin/mocha test/integration/**/*.spec.ts",
     "coverage": "nyc --reporter=text-summary pnpm test && nyc report --reporter=text-summary > coverage.md",
     "version": "changeset version",
-    "prepare": "husky init",
+    "prepare": "husky",
     "release": "pnpm build && pnpm changeset publish",
     "release:alpha": "pnpm build && pnpm changeset publish --tag alpha",
     "release:beta": "pnpm build && pnpm changeset publish --tag beta",
-    "release:next": "pnpm build && changeset publish --tag next"
+    "release:next": "pnpm build && changeset publish --tag next",
+    "mode:dev": "",
+    "mode:prod": ""
   },
   "lint-staged": {
     "**/*.ts": "prettier --ignore-path ./.prettierignore --write"
@@ -83,11 +85,11 @@
     "nyc": "^17.1.0",
     "prettier": "^3.5.3",
     "sinon": "^19.0.0",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@glandjs/events": "1.0.0-beta-1",
+    "@glandjs/events": "1.0.2-beta",
     "@medishn/toolkit": "^1.0.3",
     "reflect-metadata": "^0.2.2",
     "tslib": "^2.8.1"
