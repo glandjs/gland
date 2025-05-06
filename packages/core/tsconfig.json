@@ -6,8 +6,6 @@
     "paths": {
       "@glandjs/common": ["../common"],
       "@glandjs/common/*": ["../common/*"],
-      "@glandjs/events": ["../events"],
-      "@glandjs/events/*": ["../events/*"]
     },
     "types": ["node"]
   },
@@ -17,9 +15,6 @@
   "references": [
     {
       "path": "../common/tsconfig.json"
-    },
-    {
-      "path": "../events/tsconfig.json"
     }
   ]
 }
