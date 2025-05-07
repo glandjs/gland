@@ -18,3 +18,5 @@ packages/**/**/*.js
 /packages/**/LICENSE
 
 bin/*
+.nyc_output/*
+coverage.md
