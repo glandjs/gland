@@ -1,45 +1,43 @@
-import { isUndefined } from '@medishn/toolkit';
+import { isUndefined, type Logger } from '@medishn/toolkit';
 import type { ModulesContainer } from './container';
 import { InstanceWrapper } from './instance-wrapper';
-
 export class DiscoveryService {
-  constructor(private readonly modulesContainer: ModulesContainer) {}
+  private readonly logger?: Logger;
+  constructor(
+    private readonly modulesContainer: ModulesContainer,
+    logger?: Logger,
+  ) {
+    this.logger = logger?.child('Discovery');
+  }
+  private getByMetadata(metadataKey: string, metadataValue: any, selector: (moduleRef: any) => Map<string, InstanceWrapper>, type: 'controller' | 'channel'): InstanceWrapper[] {
+    const items: InstanceWrapper[] = [];
 
-  public getControllers(metadataKey: string, metadataValue?: any): InstanceWrapper[] {
-    const controllers: InstanceWrapper[] = [];
-
-    for (const [_, moduleRef] of this.modulesContainer.entries()) {
-      for (const [__, wrapper] of moduleRef.controllers.entries()) {
-        const metadata = Reflect.getMetadata(metadataKey, wrapper.metatype);
-        if (isUndefined(metadata)) {
+    for (const [moduleName, moduleRef] of this.modulesContainer.entries()) {
+      const wrappers = selector(moduleRef);
+      this.logger?.debug(`Scanning module: ${moduleName} for ${type}s`);
+      for (const [token, wrapper] of wrappers.entries()) {
+        const meta = Reflect.getMetadata(metadataKey, wrapper.token);
+        if (isUndefined(meta)) {
+          this.logger?.debug(` - Skipped ${type} (no ${metadataKey})`);
           continue;
         }
-        if (!isUndefined(metadataValue) && metadata !== metadataValue) {
+        if (!isUndefined(metadataValue) && meta !== metadataValue) {
+          this.logger?.debug(` - Skipped ${type} (metadata mismatch: expected "${metadataValue}", got "${meta}")`);
           continue;
         }
-        controllers.push(wrapper);
+        this.logger?.debug(` - Matched ${type} with metadata "${meta}"`);
+        items.push(wrapper);
       }
     }
-
-    return controllers;
+    this.logger?.debug(`Found ${items.length} ${type}(s) matching criteria.`);
+    this.logger?.debug(`- Done.`);
+    return items;
+  }
+  public getControllers(metadataKey: string, metadataValue?: any): InstanceWrapper[] {
+    return this.getByMetadata(metadataKey, metadataValue, (m) => m.controllers, 'controller');
   }
 
-  public getChannel(metadataKey: string, metadataValue?: any): InstanceWrapper[] {
-    const channels: InstanceWrapper[] = [];
-
-    for (const [_, moduleRef] of this.modulesContainer.entries()) {
-      for (const [__, wrapper] of moduleRef.channels.entries()) {
-        const metadata = Reflect.getMetadata(metadataKey, wrapper.metatype);
-        if (isUndefined(metadata)) {
-          continue;
-        }
-        if (!isUndefined(metadataValue) && metadata !== metadataValue) {
-          continue;
-        }
-        channels.push(wrapper);
-      }
-    }
-
-    return channels;
+  public getChannels(metadataKey: string, metadataValue?: any): InstanceWrapper[] {
+    return this.getByMetadata(metadataKey, metadataValue, (m) => m.channels, 'channel');
   }
 }

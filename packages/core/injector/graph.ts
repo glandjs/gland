@@ -5,7 +5,6 @@ export interface DependencyNode<T = any> {
   instance?: T;
   parentId?: string;
   children: string[];
-  exports: string[];
 }
 
 export class DependencyGraph<T = any> {
@@ -40,7 +39,6 @@ export class DependencyGraph<T = any> {
       instance,
       parentId,
       children: [],
-      exports: [],
     };
 
     this.nodes.set(id, node);
@@ -54,16 +52,8 @@ export class DependencyGraph<T = any> {
 
     return node;
   }
+
   public getNode(id: string): DependencyNode<T> | undefined {
     return this.nodes.get(id);
-  }
-
-  public markAsExported(id: string, moduleId: string): void {
-    const node = this.getNode(moduleId);
-    if (node) {
-      if (!node.exports.includes(id)) {
-        node.exports.push(id);
-      }
-    }
   }
 }
