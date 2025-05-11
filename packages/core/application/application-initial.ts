@@ -1,31 +1,56 @@
 import { Constructor, Logger } from '@medishn/toolkit';
-import type { Broker } from '@glandjs/events';
-import { DependenciesScanner, Explorer, AppBinder } from '../injector';
+import { DependenciesScanner, Explorer } from '../injector';
+import type { TGlandBroker } from '../types';
+import { ApplicationBinder } from './application-binder';
+import { ApplicationLifecycle } from './application-lifecycle';
 
-export class AppInitial {
+export class ApplicationInitial {
   private readonly dependenciesScanner: DependenciesScanner;
-  private readonly logger = new Logger({
-    context: 'Gland:Initial',
-  });
-  constructor(private broker: Broker) {
-    this.dependenciesScanner = new DependenciesScanner();
-  }
+  private lifecycle: ApplicationLifecycle;
 
+  constructor(
+    private broker: TGlandBroker,
+    private logger: Logger,
+    private mode: boolean,
+  ) {
+    this.dependenciesScanner = new DependenciesScanner(this.getLogger());
+  }
+  getLogger(): Logger | undefined {
+    return this.mode ? this.logger : undefined;
+  }
   public async initialize(root: Constructor): Promise<void> {
+    const logger = this.logger.child('Initial');
     try {
-      this.logger.info('Scanning module dependencies');
+      logger.info('Scanning module dependencies');
       await this.dependenciesScanner.scan(root);
 
-      this.logger.info('Initializing dependency injector');
-      const explorer = new Explorer(this.dependenciesScanner.modules);
+      logger.info('Initializing dependency injector');
+      const explorer = new Explorer(this.dependenciesScanner.modules, this.getLogger());
 
-      this.logger.info('Binding application components');
-      const appBinder = new AppBinder(explorer, this.broker);
+      this.lifecycle = new ApplicationLifecycle(this.dependenciesScanner.modules, this.getLogger());
+
+      this.logger.info('Running module initialization hooks');
+      await this.lifecycle.init();
+
+      logger.info('Binding application components');
+      const appBinder = new ApplicationBinder(explorer, this.broker, this.getLogger());
       appBinder.bind();
+
+      this.logger.info('Running channel initialization hooks');
+      await this.lifecycle.initChannels();
+
+      this.logger.info('Bootstrapping application');
+      await this.lifecycle.bootstrap();
+
       this.logger.info('Application initialized successfully');
     } catch (error) {
-      this.logger.error(`Application initialization failed: ${error.message}`);
+      logger.error(`Application initialization failed: ${error.message}`);
       throw error;
+    }
+  }
+  public async shutdown(signal?: string): Promise<void> {
+    if (this.lifecycle) {
+      await this.lifecycle.shutdown(signal);
     }
   }
 }

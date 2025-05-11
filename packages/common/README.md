@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="#" target="blank"><img src="https://github.com/glandjs/gland/blob/main/docs/Logo.png" width="200" alt="Gland Logo" /></a>
+  <a href="#" target="blank"><img src="https://github.com/glandjs/glandjs.github.io/blob/main/public/logo.png" width="200" alt="Gland Logo" /></a>
 </p>
 
 <p align="center">

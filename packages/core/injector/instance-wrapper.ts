@@ -1,21 +1,13 @@
-import { InjectionToken } from '@glandjs/common';
-import { Constructor } from '@medishn/toolkit';
+import type { Constructor } from '@medishn/toolkit';
 
 export class InstanceWrapper<T = any> {
-  private instance: T | undefined;
-
   constructor(
-    public readonly token: InjectionToken,
-    public readonly metatype: Constructor<T>,
-    instance?: T,
-  ) {
-    if (instance) {
-      this.instance = instance;
-    }
-  }
+    public readonly token: Constructor,
+    private readonly instance?: T,
+  ) {}
 
   get id(): string {
-    return this.token?.toString() || this.metatype?.name || 'unknown';
+    return this.token?.toString() || this.token?.name || 'unknown';
   }
 
   getInstance(): T {
@@ -23,9 +15,5 @@ export class InstanceWrapper<T = any> {
       throw new Error(`Instance ${this.id} not initialized`);
     }
     return this.instance;
-  }
-
-  isNotMetatype(metatype: Constructor<any>): boolean {
-    return this.metatype !== metatype;
   }
 }

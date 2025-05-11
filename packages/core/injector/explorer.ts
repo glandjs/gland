@@ -2,6 +2,7 @@ import { METHOD_METADATA, PATH_METADATA } from '@glandjs/common';
 import { DiscoveryService } from './discovery-service';
 import { MetadataScanner } from './scanner';
 import type { ModulesContainer } from './container';
+import type { Constructor, Logger } from '@medishn/toolkit';
 export interface RouteMetadata<T = any> {
   method: string;
   route: string;
@@ -12,8 +13,10 @@ export interface RouteMetadata<T = any> {
     target: Function;
   };
 }
+
 export interface ChannelMetadata<T = any> {
   instance: T;
+  token: Constructor<T>;
   event: string;
   namespace: string;
   target: Function;
@@ -21,25 +24,27 @@ export interface ChannelMetadata<T = any> {
 export class Explorer {
   private readonly metadataScanner: MetadataScanner;
   private readonly discoveryService: DiscoveryService;
-  constructor(modulesContainer: ModulesContainer) {
+  private readonly logger?: Logger;
+  constructor(modulesContainer: ModulesContainer, logger?: Logger) {
+    this.logger = logger?.child('Explorer');
     this.metadataScanner = new MetadataScanner();
-    this.discoveryService = new DiscoveryService(modulesContainer);
+    this.discoveryService = new DiscoveryService(modulesContainer, logger);
   }
 
   public exploreControllers<T extends object>(): RouteMetadata<T>[] {
+    this.logger?.debug('Starting controller exploration...');
+
     const controllers = this.discoveryService.getControllers(PATH_METADATA);
-
-    if (!controllers || controllers.length === 0) {
-      throw new Error('No controllers found in the application');
-    }
-
     const result: RouteMetadata<T>[] = [];
 
     for (const wrapper of controllers) {
       const instance = wrapper.getInstance();
-      const controllerType = wrapper.metatype;
+
+      const controllerType = wrapper.token;
       const prototype = Object.getPrototypeOf(instance);
       const controllerPath = Reflect.getMetadata(PATH_METADATA, controllerType) || '';
+
+      this.logger?.debug(`Scanning controller: ${controllerType.name}, path: "${controllerPath}"`);
 
       this.metadataScanner.scanFromPrototype(prototype, (methodName) => {
         const target = prototype[methodName];
@@ -47,6 +52,7 @@ export class Explorer {
         const route = Reflect.getMetadata(PATH_METADATA, target) || '/';
 
         if (method) {
+          this.logger?.debug(` - Found route handler: ${method.toUpperCase()} ${controllerPath}${route} -> ${methodName}`);
           result.push({
             controller: {
               instance,
@@ -54,41 +60,50 @@ export class Explorer {
               methodName,
               path: controllerPath,
             },
-            method: method,
+            method,
             route,
           });
         }
       });
     }
 
+    this.logger?.debug(`Completed controller exploration. Total: ${result.length}`);
+    this.logger?.debug(`- Done.`);
     return result;
   }
+  public exploreChannels<T extends object>(): ChannelMetadata<T>[] {
+    this.logger?.debug('Starting channel exploration...');
 
-  exploreChannels<T extends object>() {
-    const channels = this.discoveryService.getChannel(PATH_METADATA);
+    const channels = this.discoveryService.getChannels(PATH_METADATA);
 
     const result: ChannelMetadata<T>[] = [];
 
     for (const wrapper of channels) {
       const instance = wrapper.getInstance();
-      const metatype = wrapper.metatype;
+      const metatype = wrapper.token;
       const prototype = Object.getPrototypeOf(instance);
-      const streamNamespace = Reflect.getMetadata(PATH_METADATA, metatype);
+      const channelName = Reflect.getMetadata(PATH_METADATA, metatype);
 
+      this.logger?.debug(`Scanning channel: ${metatype.name}, namespace: "${channelName}"`);
       this.metadataScanner.scanFromPrototype(prototype, (method) => {
         const target = prototype[method];
+
         const methodMetadata = Reflect.getMetadata(METHOD_METADATA, prototype, method);
+
         if (methodMetadata) {
+          this.logger?.debug(` - Found event handler: ${channelName}.${methodMetadata} -> ${method}`);
           result.push({
             instance,
+            token: metatype,
             event: methodMetadata,
-            namespace: streamNamespace,
+            namespace: channelName,
             target,
           });
         }
       });
     }
-
+    this.logger?.debug(`Completed channel exploration. Total: ${result.length}`);
+    this.logger?.debug(`- Done.`);
     return result;
   }
 }

@@ -1,14 +1,15 @@
 import { Constructor } from '@medishn/toolkit';
-import { ApiChannel, ApiController, ImportableModule, InjectionToken } from '../types';
+import { ImportableModule, InjectionToken } from '../types';
 
 export interface ModuleMetadata<T = any> {
   imports?: ImportableModule<T>[];
-  controllers?: ApiController<T>[];
-  channels?: ApiChannel<T>[];
-  sagas?: Constructor<T>[];
+  controllers?: Constructor<T>[];
+  channels?: Constructor<T>[];
 }
 
 export interface DynamicModule<T = any> {
+  controllers?: Constructor[];
+  channels?: Constructor[];
   imports?: ImportableModule<T>[];
   exports?: InjectionToken<T>[];
   module: Constructor<any>;

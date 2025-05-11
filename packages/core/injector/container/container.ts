@@ -1,51 +1,42 @@
 import { DynamicModule, ImportableModule, InjectionToken, isDynamicModule, MODULE_METADATA } from '@glandjs/common';
 import { Module } from '../module';
-import { DeepHashedModule } from '../opaque-key-factory';
-import { Constructor, isFunction, isString, isSymbol } from '@medishn/toolkit';
 import { DependencyGraph } from '../graph';
 import { ModulesContainer } from './module-container';
-export interface ModuleFactory {
-  type: Constructor<any>;
-  token: string;
-}
+import { Constructor, type Logger } from '@medishn/toolkit';
 
 export class Container {
   private readonly _modules = new ModulesContainer();
   private readonly instances = new Map<InjectionToken, any>();
   private readonly graph = new DependencyGraph();
+  private logger?: Logger;
+  constructor(logger?: Logger) {
+    this.logger = logger?.child('Container');
+  }
 
   get modules(): ModulesContainer {
     return this._modules;
   }
 
-  public async compile(module: Constructor): Promise<ModuleFactory> {
-    const moduleOpaqueKeyFactory = new DeepHashedModule();
-    const token = moduleOpaqueKeyFactory.createForStatic(module);
-    return { type: module, token };
-  }
   public async register(module: Constructor | DynamicModule, parentModuleId?: string): Promise<Module> {
     const { module: moduleClass, metadata } = this.normalizeModule(module);
-    const factory = await this.compile(moduleClass);
-    const moduleRef = this.createModule(factory, moduleClass);
-    const moduleId = this.getId(factory.token);
+    const moduleId = this.getId(moduleClass);
+
+    const existingModule = this._modules.getByToken(moduleId);
+    if (existingModule) {
+      return existingModule;
+    }
+    this.logger?.debug(`Registering module: ${moduleId}`);
+    const moduleRef = this.createModule(moduleId, moduleClass);
     this.graph.addNode(moduleId, 'module', parentModuleId, metadata);
 
     await this.processImports(moduleRef, metadata.imports || [], moduleId);
 
     this.processControllers(moduleRef, metadata.controllers || [], moduleId);
     this.processChannels(moduleRef, metadata.channels || [], moduleId);
-    this.processExports(moduleRef, metadata.exports || [], moduleId);
 
+    this.logger?.debug(`- Done.`);
     return moduleRef;
   }
-
-  private getId(token: InjectionToken): string {
-    if (isString(token)) return token;
-    if (isSymbol(token)) return token.description || token.toString();
-    if (isFunction(token)) return token.name;
-    throw new Error('Invalid injection token');
-  }
-
   private normalizeModule(module: Constructor | DynamicModule) {
     if (isDynamicModule(module)) {
       return {
@@ -54,7 +45,6 @@ export class Container {
           imports: module.imports || [],
           controllers: module.controllers || [],
           channels: module.channels || [],
-          exports: module.exports || [],
         },
       };
     }
@@ -64,13 +54,17 @@ export class Container {
         imports: [],
         controllers: [],
         channels: [],
-        exports: [],
       },
     };
   }
-  private createModule(factory: ModuleFactory, module: Constructor): Module {
-    const moduleRef = new Module(factory.token, module);
-    this.modules.set(factory.token, moduleRef);
+  private getId(token: InjectionToken): string {
+    if (typeof token === 'string') return token;
+    if (typeof token === 'symbol') return token.description || token.toString();
+    return token.name;
+  }
+  private createModule(token: string, module: Constructor): Module {
+    const moduleRef = new Module(token, module);
+    this._modules.set(token, moduleRef);
     return moduleRef;
   }
 
@@ -78,7 +72,7 @@ export class Container {
     const importedModules: Module[] = [];
 
     for (const imported of imports) {
-      const importedModule = await this.register(imported, moduleId);
+      const importedModule = await this.register(imported instanceof Promise ? await imported : imported, moduleId);
       importedModules.push(importedModule);
     }
 
@@ -88,62 +82,32 @@ export class Container {
   private processControllers(module: Module, controllers: Constructor[], moduleId: string): void {
     controllers.forEach((controller) => {
       const controllerId = this.getId(controller);
-
       this.graph.addNode(controllerId, 'controller', moduleId);
 
       const instance = this.resolve(controller);
-
-      module.addController(controller);
-
-      this.instances.set(controller, instance);
+      module.addController(controller, instance);
 
       const controllerNode = this.graph.getNode(controllerId);
       if (controllerNode) {
         controllerNode.instance = instance;
       }
+      this.logger?.debug(`Registered controller: ${controllerId}`);
     });
   }
 
   private processChannels(module: Module, channels: Constructor[], moduleId: string): void {
     channels.forEach((channel) => {
       const channelId = this.getId(channel);
-
       this.graph.addNode(channelId, 'channel', moduleId);
 
       const instance = this.resolve(channel);
+      module.addChannel(channel, instance);
 
-      module.addChannel(channel);
-
-      this.instances.set(channel, instance);
-
-      const channelNode = this.graph.getNode(channelId);
-      if (channelNode) {
-        channelNode.instance = instance;
+      const node = this.graph.getNode(channelId);
+      if (node) {
+        node.instance = instance;
       }
-    });
-  }
-
-  private processExports(module: Module, exports: InjectionToken[], moduleId: string): void {
-    exports.forEach((token) => {
-      const tokenId = this.getId(token);
-
-      let tokenExists = false;
-
-      if (this.instances.has(token)) {
-        tokenExists = true;
-      } else if (module.controllers.has(token)) {
-        tokenExists = true;
-      } else if (module.channels.has(token)) {
-        tokenExists = true;
-      }
-
-      if (!tokenExists) {
-        throw new Error(`Exported token ${tokenId} not found in module ${moduleId}. ` + `Make sure the token is a controller or channel defined in this module.`);
-      }
-
-      this.graph.markAsExported(tokenId, moduleId);
-
-      module.addExport(token);
+      this.logger?.debug(`Registered channel: ${channelId}`);
     });
   }
 
@@ -159,13 +123,7 @@ export class Container {
 
     const instance = new constructor(...dependencies);
     this.instances.set(token, instance);
-
-    const tokenId = this.getId(token);
-    const node = this.graph.getNode(tokenId);
-    if (node) {
-      node.instance = instance;
-    }
-
+    this.logger?.debug(`Resolved instance: ${this.getId(token)}`);
     return instance;
   }
 }
