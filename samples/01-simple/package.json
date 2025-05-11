@@ -1,0 +1,18 @@
+{
+  "name": "gland-samples-ts",
+  "version": "1.0.0",
+  "description": "",
+  "license": "MIT",
+  "scripts": {},
+  "dependencies": {
+    "@glandjs/events": "1.1.0",
+    "@glandjs/common": "workspace:*",
+    "@glandjs/core": "workspace:*",
+    "@glandjs/express": "workspace:*",
+    "@glandjs/http": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "22.14.1",
+    "typescript": "5.7.3"
+  }
+}
