@@ -23,22 +23,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "keywords": [
-    "gland",
-    "glandjs",
-    "core",
-    "framework",
-    "nodejs",
-    "typescript",
-    "dependency-injection",
-    "event-driven",
-    "event-bus",
-    "event-broker",
-    "architecture",
-    "modular"
-  ],
+  "keywords": ["gland", "glandjs", "core", "framework", "nodejs", "typescript", "dependency-injection", "event-driven", "event-bus", "event-broker", "architecture", "modular"],
   "dependencies": {
-    "@glandjs/events": "1.0.2-beta",
+    "@glandjs/events": "^1.1.0",
     "@medishn/toolkit": "^1.0.3",
     "tslib": "2.8.1"
   },
