@@ -1,5 +1,5 @@
 packages/*/package-lock.json
-
+tsconfig.tsb*
 # dependencies
 node_modules/
 

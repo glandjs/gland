@@ -25,8 +25,8 @@
   },
   "keywords": ["gland", "glandjs", "core", "framework", "nodejs", "typescript", "dependency-injection", "event-driven", "event-bus", "event-broker", "architecture", "modular"],
   "dependencies": {
-    "@glandjs/events": "^1.1.0",
-    "@medishn/toolkit": "^1.0.3",
+    "@glandjs/events": "latest",
+    "@medishn/toolkit": "latest",
     "tslib": "2.8.1"
   },
   "peerDependencies": {

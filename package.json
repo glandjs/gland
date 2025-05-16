@@ -12,20 +12,7 @@
   "bugs": {
     "url": "https://github.com/glandjs/gland/issues"
   },
-  "keywords": [
-    "gland",
-    "glandjs",
-    "framework",
-    "nodejs",
-    "di",
-    "dependency-injection",
-    "event-bus",
-    "event-driven",
-    "typescript",
-    "core",
-    "architecture",
-    "modular"
-  ],
+  "keywords": ["gland", "glandjs", "framework", "nodejs", "di", "dependency-injection", "event-bus", "event-driven", "typescript", "core", "architecture", "modular"],
   "engines": {
     "node": ">=20.0.0",
     "typescript": ">=5.0.0"
@@ -37,13 +24,8 @@
       "text": "Become a partner"
     }
   },
-  "workspaces": [
-    "packages/*"
-  ],
-  "files": [
-    "packages/common",
-    "packages/core"
-  ],
+  "workspaces": ["packages/*"],
+  "files": ["packages/common", "packages/core"],
   "scripts": {
     "dev": "pnpm -r dev",
     "watch": "tsc --watch",
@@ -89,8 +71,8 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@glandjs/events": "1.1.0",
-    "@medishn/toolkit": "^1.0.3",
+    "@glandjs/events": "latest",
+    "@medishn/toolkit": "latest",
     "reflect-metadata": "^0.2.2",
     "tslib": "^2.8.1"
   }
