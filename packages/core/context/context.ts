@@ -51,9 +51,10 @@ export class Context<TEvents extends EventRecord> implements CallMethod<TEvents>
     }
     return this;
   }
+
+  // @ts-ignore
   public call<K extends Events<TEvents>>(event: K, data: EventPayload<TEvents, K>): EventReturn<TEvents, K>;
   public call<K extends Events<TEvents>>(event: K, data: EventPayload<TEvents, K>, strategy: 'all'): EventReturn<TEvents, K>[];
-
   public call<K extends Events<TEvents>>(event: K, data: EventPayload<TEvents, K>, strategy?: 'all') {
     const channels = this.state?.channel || [{}];
     const brokerId = this.state?.brokerId;
@@ -63,5 +64,6 @@ export class Context<TEvents extends EventRecord> implements CallMethod<TEvents>
         return this.broker.callTo(brokerId, channel.fullEvent, data, strategy!);
       }
     }
+    return strategy === 'all' ? [] : (undefined as any);
   }
 }
