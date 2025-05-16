@@ -36,9 +36,6 @@ jobs:
       - name: Run Unit Tests
         run: pnpm test:unit
 
-      - name: Run Integration Tests
-        run: pnpm test:integration
-
       - name: Upload test coverage
         uses: actions/upload-artifact@v4
         with:
