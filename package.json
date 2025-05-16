@@ -1,6 +1,6 @@
 {
   "name": "@glandjs/core",
-  "version": "1.0.1-beta",
+  "version": "1.0.2-beta",
   "description": "Glands is a web framework for Node.js",
   "author": "Mahdi",
   "license": "MIT",
@@ -30,8 +30,8 @@
     "dev": "pnpm -r dev",
     "watch": "tsc --watch",
     "build": "pnpm -r build",
-    "prebuild": "pnpm clean && pnpm typecheck",
-    "clean": "rm -rf packages/**/dist packages/**/build packages/**/lib packages/**/**/*.d.ts packages/**/**/*.js",
+    "prebuild": "pnpm typecheck",
+    "clean": "pnpm -r clean",
     "typecheck": "tsc --noEmit",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",

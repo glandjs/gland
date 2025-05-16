@@ -9,7 +9,6 @@
     },
     "types": ["node"]
   },
-  "files": [],
   "include": ["**/*.ts"],
   "exclude": ["node_modules"],
   "references": [
