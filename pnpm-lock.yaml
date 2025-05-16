@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@glandjs/events':
-        specifier: 1.0.2-beta
-        version: 1.0.2-beta
+        specifier: 1.1.0
+        version: 1.1.0
       '@medishn/toolkit':
         specifier: ^1.0.3
         version: 1.0.3
@@ -89,8 +89,8 @@ importers:
   packages/core:
     dependencies:
       '@glandjs/events':
-        specifier: 1.0.2-beta
-        version: 1.0.2-beta
+        specifier: ^1.1.0
+        version: 1.1.0
       '@medishn/toolkit':
         specifier: ^1.0.3
         version: 1.0.3
@@ -459,8 +459,8 @@ packages:
     resolution: {integrity: sha512-wx1LHWSENH3yN/adRH6V/9xvE/dDAlyLkoaynfLMQLrZCUbsr1cutiJZK6oZ1/wtIPW9FI4v8fqem+pBPZgBvQ==}
     engines: {bun: '>=1.0.0', typescript: '>=5'}
 
-  '@glandjs/events@1.0.2-beta':
-    resolution: {integrity: sha512-GMYu5ozfetGh1fXI25H5E9BfEirTvbo+5aG8/96DFkzXrOXCVytMcvNUnhR+x3GWGN0rhVjnkKn8XFuqQO1trw==}
+  '@glandjs/events@1.1.0':
+    resolution: {integrity: sha512-lwYxKHIAbyrFmJ42S5/8gI42pYfuszbthnOm020/HIxzZaiQ7r+ShoIBNYVQuEk0YKJ4KC77xpc6n2RuWJ/sUg==}
     engines: {bun: '>=1.0.0', typescript: '>=5'}
 
   '@istanbuljs/load-nyc-config@1.1.0':
@@ -2255,7 +2255,7 @@ snapshots:
 
   '@glandjs/emitter@1.1.4': {}
 
-  '@glandjs/events@1.0.2-beta':
+  '@glandjs/events@1.1.0':
     dependencies:
       '@glandjs/emitter': 1.1.4
 
