@@ -1,3 +1,5 @@
 packages/**/*.d.ts
 packages/**/*.js
+packages/**/*.json
 pnpm-lock.yaml
+.github/*

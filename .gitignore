@@ -20,3 +20,4 @@ packages/**/**/*.js
 bin/*
 .nyc_output/*
 coverage.md
+tags*
