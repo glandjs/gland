@@ -1,6 +1,6 @@
 {
   "name": "@glandjs/core",
-  "version": "1.0.0-beta",
+  "version": "1.0.2-beta",
   "description": "Glands is a web framework for Node.js (@core)",
   "author": "Mahdi <bitsgenix@gmail.com>",
   "license": "MIT",
@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "clean": "rm -rf *.d.ts *.js",
+    "clean": "rm -rf dist *.d.ts *.js **/*.js **/*.d.ts */**/*.js */**/*.d.ts",
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch"
   },
