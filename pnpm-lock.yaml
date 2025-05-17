@@ -76,7 +76,7 @@ importers:
         specifier: ^1.0.4
         version: 1.0.4
       reflect-metadata:
-        specifier: ^0.1.12 || ^0.2.0
+        specifier: ^0.2.2
         version: 0.2.2
       tslib:
         specifier: 2.8.1
@@ -95,7 +95,7 @@ importers:
         specifier: latest
         version: 1.0.4
       reflect-metadata:
-        specifier: ^0.1.12 || ^0.2.0
+        specifier: ^0.2.2
         version: 0.2.2
       tslib:
         specifier: 2.8.1

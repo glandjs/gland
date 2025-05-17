@@ -43,14 +43,12 @@ export class Explorer {
       const controllerType = wrapper.token;
       const prototype = Object.getPrototypeOf(instance);
       const controllerPath = Reflect.getMetadata(PATH_METADATA, controllerType) || '';
-
       this.logger?.debug(`Scanning controller: ${controllerType.name}, path: "${controllerPath}"`);
 
       this.metadataScanner.scanFromPrototype(prototype, (methodName) => {
         const target = prototype[methodName];
-        const method = Reflect.getMetadata(METHOD_METADATA, target);
+        const method = Reflect.getMetadata(METHOD_METADATA, target); // http method(GET,POST,...etc)
         const route = Reflect.getMetadata(PATH_METADATA, target) || '/';
-
         if (method) {
           this.logger?.debug(` - Found route handler: ${method.toUpperCase()} ${controllerPath}${route} -> ${methodName}`);
           result.push({
