@@ -6,10 +6,10 @@
   "scripts": {},
   "dependencies": {
     "@glandjs/events": "1.1.0",
-    "@glandjs/common": "workspace:*",
-    "@glandjs/core": "workspace:*",
-    "@glandjs/express": "workspace:*",
-    "@glandjs/http": "workspace:*"
+    "@glandjs/common": "^1.0.3-beta",
+    "@glandjs/core": "^1.0.3-beta",
+    "@glandjs/express": "^1.0.0-beta",
+    "@glandjs/http": "^1.0.0-beta"
   },
   "devDependencies": {
     "@types/node": "22.14.1",
