@@ -1,6 +1,6 @@
 {
   "name": "@glandjs/core",
-  "version": "1.0.2-beta",
+  "version": "1.0.3-beta",
   "description": "Glands is a web framework for Node.js",
   "author": "Mahdi",
   "license": "MIT",
