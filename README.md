@@ -56,19 +56,6 @@ For details on our security practices and how to report vulnerabilities, please 
 ## License
 
 Gland is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Donation
-
-Gland is an open-source project. If you find it useful and want to support its continued development, consider donating to help keep the project:
-
-### Bitcoin (on-chain)
-
-`bc1quhhrh3qd3wgfs8s5hh2hh6k0q6d5wygrqn0hxw`
-
-### Bitcoin Lightning
-
-`genix@coinos.io`
-
 ---
 
 Gland doesn’t tell you how to build.
