@@ -1,56 +1,76 @@
-<p align="center">
-  <a href="#" target="blank"><img src="https://github.com/glandjs/glandjs.github.io/blob/main/public/logo.png" width="200" alt="Gland Logo" /></a>
-</p>
+# @glandjs/core
 
-<p align="center">
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/v/@glandjs/core.svg" alt="NPM Version" /></a>
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/l/@glandjs/core.svg" alt="Package License" /></a>
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/dm/@glandjs/core.svg" alt="NPM Downloads" /></a>
-</p>
+The transport-agnostic heart of Gland: module registration, dependency
+injection, metadata discovery, and the event bus that protocol adapters attach
+to.
 
-<h1 align="center">Gland</h1>
+```bash
+npm install @glandjs/core @glandjs/common
+```
 
-<p align="center">A progressive, event-driven Node.js framework for building efficient and scalable server-side applications.</p>
+## Quick start
 
-## Description
+```ts
+import { Module } from '@glandjs/common';
+import { GlandFactory } from '@glandjs/core';
+import { ExpressBroker } from '@glandjs/express';
 
-**Gland** is a lightweight, extensible web framework built for modern JavaScript and TypeScript applications. With its unique event-driven architecture (EDS), it offers unparalleled flexibility in creating modular, scalable server-side applications.
+@Module({ imports: [ProductModule] })
+export class AppModule {}
 
-Inspired by frameworks like Angular and NestJS, Gland integrates an object-oriented design pattern, minimalistic dependency injection (DI), and powerful event-driven communication, allowing developers to efficiently build and maintain complex applications.
+const { app, shutdown } = await GlandFactory.create(AppModule);
 
-## Philosophy
+const express = app.connectTo(ExpressBroker);
+express.listen(3000);
 
-Rather than relying on predefined conventions or imposing rigid structures, Gland offers an approach where the developer can focus on the core problem domain without being hindered by unnecessary constraints. By using an event-driven approach, Gland ensures that communication between components remains straightforward and flexible, while also maintaining the ability to easily extend the system as requirements evolve.
+process.on('SIGTERM', () => void shutdown('SIGTERM'));
+```
 
-The simplicity of Gland lies not in the absence of features, but in how it allows developers to shape their applications with minimal friction and clear intentions. It strives to be a framework that adapts to the developer's needs, not the other way around. Through this approach, Gland provides the foundation for building applications that are both effective and maintainable, without forcing an unnatural design pattern upon the developer.
+`create()` resolves only after every lifecycle phase completes, so calling
+`listen()` on the next line cannot race route registration.
 
-## Why Gland?
+## What this package provides
 
-Gland is designed with flexibility and scalability in mind. Whether you're building small APIs or large-scale applications, Gland provides the tools to help you structure your codebase efficiently and maintainably. Its event-driven approach helps in decoupling components and improving testability, while its object-oriented philosophy ensures clear and consistent code organization.
+| Area      | Export                                                          |
+| --------- | --------------------------------------------------------------- |
+| Bootstrap | `GlandFactory`, `ApplicationInitial`                            |
+| The bus   | `GlandBroker`, `TGlandBroker`                                   |
+| DI        | `Container`, `ModuleRef`, `ModulesContainer`, `InstanceWrapper` |
+| Discovery | `Explorer`, `DiscoveryService`, `MetadataScanner`               |
+| Binding   | `ApplicationBinder`, `ApplicationLifecycle`                     |
+| Lifecycle | `LifecycleScanner`, `ProcessHooks`, the hook interfaces         |
+| Request   | `Context`, `UnknownEventError`                                  |
+| Extension | `BrokerAdapter`                                                 |
+
+## Design notes
+
+**`create()` is awaited.** It used to be called without `await`, so an
+application could begin listening before its routes were bound.
+
+**DI fails loudly.** A cycle raises `CircularDependencyError` naming the chain.
+An erased parameter type raises `UnresolvableDependencyError` explaining the
+fix. Neither case produces a silently `undefined` dependency.
+
+**Channel resolution is a single property read.** The binder freezes one
+`publicName -> brokerEvent` registry at startup and shares it by reference, so
+a request never rebuilds a lookup table.
+
+**Handlers keep their `this`.** A handler is extracted as a bare prototype
+function; the binder restores the instance at dispatch.
+
+**Unhandled rejections do not exit the process.** They are logged. Signals shut
+the application down; a stray promise is a bug to fix, not a reason to drop
+traffic. See `ProcessHookOptions`.
 
 ## Documentation
 
-For full documentation on how to use Gland, including guides, examples, and API references, check out the following resources:
-
-- [Official Documentation](#)
-- [API Reference](#/api)
-- [Contributing Guide](https://github.com/glandjs/gland/blob/main/docs/CONTRIBUTING.md)
-
-## Contributing
-
-We welcome contributions to help improve Gland and shape it into a robust, production-ready framework. Here's how you can get involved:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Write tests to cover your changes.
-4. Submit a pull request with a detailed description of your changes.
-
-Please review our [CONTRIBUTING.md](https://github.com/glandjs/gland/blob/main/docs/CONTRIBUTING.md) guidelines before starting.
-
-## Security
-
-For details on our security practices and how to report vulnerabilities, please visit [SECURITY.md](https://github.com/glandjs/gland/blob/main/docs/SECURITY).
+- [Getting started](../../docs/guides/getting-started.md)
+- [Dependency injection](../../docs/guides/dependency-injection.md)
+- [Channels](../../docs/guides/channels.md)
+- [Lifecycle](../../docs/guides/lifecycle.md)
+- [Architecture](../../docs/architecture/README.md)
+- [API reference](../../docs/api/README.md)
 
 ## License
 
-Gland is licensed under the MIT License. See the [LICENSE](https://github.com/glandjs/gland/blob/main/LICENSE) file for details.
+MIT

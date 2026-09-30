@@ -1,22 +1,49 @@
-import { Logger } from '@medishn/toolkit';
-import { ModulesContainer } from '../injector';
-import { InstanceWrapper } from '../injector/instance-wrapper';
-import type { Module } from '../injector/module';
+import type { Logger } from '@medishn/toolkit';
+import type { ModuleRef, ModulesContainer } from '../injector';
+import type { InstanceWrapper } from '../injector/instance-wrapper';
 
+/**
+ * A lifecycle method a provider may implement.
+ *
+ * All are optional; only the ones a provider actually declares are invoked.
+ */
 export type LifecycleHook = 'onModuleInit' | 'onModuleDestroy' | 'onAppBootstrap' | 'onAppShutdown' | 'onChannelInit';
 
+/** What kind of component a lifecycle participant is. */
 export type LifecycleComponentType = 'module' | 'controller' | 'channel';
 
+/** Every lifecycle hook, in invocation order during bootstrap. */
+export const LIFECYCLE_HOOKS: readonly LifecycleHook[] = ['onModuleInit', 'onModuleDestroy', 'onAppBootstrap', 'onAppShutdown', 'onChannelInit'];
+
+/** A resolved provider that participates in at least one hook. */
 export interface LifecycleComponent {
+  /** The provider instance the hook is invoked on. */
   instance: any;
+  /** Token of the owning module. */
   moduleToken: string;
+  /** Which map the provider came from. */
   componentType: LifecycleComponentType;
+  /** Token identifying the provider within its module. */
   componentToken: string;
 }
 
+/**
+ * Finds providers implementing lifecycle hooks and runs them.
+ *
+ * Providers are collected once, up front, then invoked per phase. Hooks run
+ * concurrently within a phase (`Promise.all`) but phases are strictly
+ * ordered, which is what makes `onModuleInit` safe to depend on when
+ * `onAppBootstrap` runs.
+ *
+ * Hook invocation order across providers is registration order, i.e. the order
+ * modules were discovered.
+ */
 export class LifecycleScanner {
-  private readonly moduleComponentMap = new Map<string, Set<LifecycleComponent>>();
+  /** moduleToken -> providers from that module that implement a hook. */
+  private readonly participants = new Map<string, Set<LifecycleComponent>>();
   private readonly logger?: Logger;
+  private scanned = false;
+
   constructor(
     private readonly modulesContainer: ModulesContainer,
     logger?: Logger,
@@ -24,136 +51,130 @@ export class LifecycleScanner {
     this.logger = logger?.child('LifecycleScanner');
   }
 
+  /**
+   * Walks every module and records the providers that implement a hook.
+   *
+   * Must run before any `on*` phase. Idempotent, so a second call is a no-op
+   * rather than a duplicate registration.
+   */
   public scanForHooks(): void {
-    this.logger?.debug('Scanning for lifecycle hooks');
+    if (this.scanned) return;
+    this.logger?.debug('Scanning for lifecycle hooks...');
 
-    for (const [moduleToken, module] of this.modulesContainer.entries()) {
-      this.scanModule(moduleToken, module);
+    for (const [moduleToken, moduleRef] of this.modulesContainer.entries()) {
+      const found = new Set<LifecycleComponent>();
+
+      this.addModuleParticipant(moduleToken, moduleRef, found);
+      this.addProviderParticipants(moduleToken, moduleRef.controllers, 'controller', found);
+      this.addProviderParticipants(moduleToken, moduleRef.channels, 'channel', found);
+
+      this.participants.set(moduleToken, found);
     }
 
-    this.logger?.debug(`Found components with hooks in ${this.moduleComponentMap.size} modules`);
+    this.scanned = true;
+    this.logger?.debug(`Found lifecycle participants in ${this.participants.size} module(s)`);
   }
 
-  private scanModule(moduleToken: string, module: Module): void {
-    const components = new Set<LifecycleComponent>();
-    this.moduleComponentMap.set(moduleToken, components);
+  /**
+   * Records a module class itself as a participant.
+   *
+   * Uses the instance the container already built. It previously called
+   * `new module.metatype()`, which handed hooks a throwaway object with no
+   * dependency injection — so a module's constructor work and the state it
+   * kept were discarded.
+   */
+  private addModuleParticipant(moduleToken: string, moduleRef: ModuleRef, found: Set<LifecycleComponent>): void {
+    const instance = moduleRef.instance;
+    if (!instance || !this.hasAnyHook(instance)) return;
 
-    if (module.metatype) {
-      try {
-        const moduleInstance = this.getModuleInstance(module);
-        if (moduleInstance) {
-          components.add({
-            instance: moduleInstance,
-            moduleToken,
-            componentType: 'module',
-            componentToken: moduleToken,
-          });
-          this.logger?.debug(`Module ${moduleToken} registered for lifecycle hooks`);
-        }
-      } catch (error) {
-        this.logger?.error(`Error resolving module instance for ${moduleToken}: ${error.message}`);
-      }
-    }
-
-    this.scanComponentsForHooks(moduleToken, module.controllers, 'controller', components);
-
-    this.scanComponentsForHooks(moduleToken, module.channels, 'channel', components);
+    found.add({ instance, moduleToken, componentType: 'module', componentToken: moduleToken });
+    this.logger?.debug(`module "${moduleToken}" registered for lifecycle hooks`);
   }
-  private scanComponentsForHooks(moduleToken: string, components: Map<any, InstanceWrapper>, componentType: LifecycleComponentType, lifecycleComponents: Set<LifecycleComponent>): void {
-    for (const [token, wrapper] of components.entries()) {
-      try {
-        const instance = wrapper.getInstance();
-        const componentToken = typeof token === 'function' ? token.name : String(token);
-        const hasHooks = this.hasLifecycleHooks(instance);
 
-        if (hasHooks) {
-          lifecycleComponents.add({
-            instance,
-            moduleToken,
-            componentType,
-            componentToken,
-          });
-          this.logger?.debug(`${componentType} ${componentToken} registered for lifecycle hooks`);
-        }
-      } catch (error) {
-        this.logger?.error(`Error resolving ${componentType} instance: ${error.message}`);
-      }
+  /** Records each provider in `providers` that implements a hook. */
+  private addProviderParticipants(moduleToken: string, providers: Map<unknown, InstanceWrapper>, componentType: LifecycleComponentType, found: Set<LifecycleComponent>): void {
+    for (const [token, wrapper] of providers.entries()) {
+      const instance = wrapper.tryGetInstance();
+      if (instance === undefined || !this.hasAnyHook(instance)) continue;
+
+      const componentToken = typeof token === 'function' ? token.name : String(token);
+      found.add({ instance, moduleToken, componentType, componentToken });
+      this.logger?.debug(`${componentType} "${componentToken}" registered for lifecycle hooks`);
     }
   }
 
-  private getModuleInstance(module: Module): any {
-    const token = module.metatype;
-    return new module.metatype();
-  }
-
-  private hasLifecycleHooks(instance: any): boolean {
-    return (
-      this.hasHook(instance, 'onModuleInit') ||
-      this.hasHook(instance, 'onModuleDestroy') ||
-      this.hasHook(instance, 'onAppBootstrap') ||
-      this.hasHook(instance, 'onAppShutdown') ||
-      this.hasHook(instance, 'onChannelInit')
-    );
-  }
-
-  private hasHook(instance: any, hook: LifecycleHook): boolean {
-    return instance && typeof instance[hook] === 'function';
-  }
-
+  /**
+   * Invokes `hook` on every provider that implements it.
+   *
+   * A provider that throws is logged and skipped rather than aborting the
+   * phase, so one broken hook cannot prevent the rest of the application from
+   * starting or shutting down.
+   *
+   * @param hook - the hook to run
+   * @param signal - the shutdown signal, forwarded to `onAppShutdown`
+   */
   public async runHook(hook: LifecycleHook, signal?: string): Promise<void> {
-    this.logger?.debug(`Running ${hook} hooks`);
+    this.logger?.debug(`Running "${hook}"`);
 
-    const promises: Promise<void>[] = [];
+    const pending: Array<Promise<unknown>> = [];
 
-    for (const [moduleToken, components] of this.moduleComponentMap.entries()) {
+    for (const components of this.participants.values()) {
       for (const component of components) {
-        if (this.hasHook(component.instance, hook)) {
-          this.logger?.debug(`Executing ${hook} on ${component.componentType} ${component.componentToken}`);
+        if (!this.hasHook(component.instance, hook)) continue;
 
-          try {
-            let promise: Promise<void> | void;
-
-            if (hook === 'onAppShutdown') {
-              promise = component.instance[hook](signal);
-            } else {
-              promise = component.instance[hook]();
-            }
-
-            // Ensure the result is a Promise
-            if (promise && typeof promise.then === 'function') {
-              promises.push(promise);
-            }
-          } catch (error) {
-            this.logger?.error(`Error running ${hook} on ${component.componentType} ${component.componentToken}: ${error.message}`);
+        try {
+          const result = hook === 'onAppShutdown' ? component.instance[hook](signal) : component.instance[hook]();
+          if (result && typeof (result as Promise<unknown>).then === 'function') {
+            pending.push(result as Promise<unknown>);
           }
+        } catch (error) {
+          this.logger?.error(`"${hook}" threw on ${component.componentType} "${component.componentToken}": ${(error as Error)?.message ?? error}`);
         }
       }
     }
 
-    if (promises.length > 0) {
-      await Promise.all(promises);
+    if (pending.length) {
+      const settled = await Promise.allSettled(pending);
+      settled.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          this.logger?.error(`"${hook}" rejected for participant #${index}: ${(result.reason as Error)?.message ?? result.reason}`);
+        }
+      });
     }
 
-    this.logger?.debug(`Completed ${hook} hooks`);
+    this.logger?.debug(`Completed "${hook}"`);
   }
 
+  /** Invokes `onModuleInit` on every provider implementing it. */
   public async onModuleInit(): Promise<void> {
     await this.runHook('onModuleInit');
   }
 
-  public async onModuleDestroy(): Promise<void> {
-    await this.runHook('onModuleDestroy');
+  /** Invokes `onChannelInit` on every provider implementing it. */
+  public async onChannelInit(): Promise<void> {
+    await this.runHook('onChannelInit');
   }
 
+  /** Invokes `onAppBootstrap` on every provider implementing it. */
   public async onAppBootstrap(): Promise<void> {
     await this.runHook('onAppBootstrap');
   }
 
+  /** Invokes `onAppShutdown`, forwarding `signal`. */
   public async onAppShutdown(signal?: string): Promise<void> {
     await this.runHook('onAppShutdown', signal);
   }
 
-  public async onChannelInit(): Promise<void> {
-    await this.runHook('onChannelInit');
+  /** Invokes `onModuleDestroy` on every provider implementing it. */
+  public async onModuleDestroy(): Promise<void> {
+    await this.runHook('onModuleDestroy');
+  }
+
+  private hasAnyHook(instance: unknown): boolean {
+    return LIFECYCLE_HOOKS.some((hook) => this.hasHook(instance, hook));
+  }
+
+  private hasHook(instance: unknown, hook: LifecycleHook): boolean {
+    return !!instance && typeof (instance as Record<string, unknown>)[hook] === 'function';
   }
 }

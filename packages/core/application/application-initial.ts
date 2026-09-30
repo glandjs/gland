@@ -1,56 +1,132 @@
-import { Constructor, Logger } from '@medishn/toolkit';
-import { DependenciesScanner, Explorer } from '../injector';
+import type { ImportableModule } from '@glandjs/common';
+import { ChannelRegistryBuilder } from '@glandjs/common';
+import type { Constructor, Logger } from '@medishn/toolkit';
+import { DependenciesScanner, Explorer, type ModulesContainer } from '../injector';
 import type { TGlandBroker } from '../types';
 import { ApplicationBinder } from './application-binder';
 import { ApplicationLifecycle } from './application-lifecycle';
+import type { ProcessHookOptions } from '../hooks/process-hooks';
 
+/** Options accepted when bootstrapping an application. */
+export interface ApplicationOptions {
+  /**
+   * Emit verbose internal logging.
+   *
+   * Defaults to `true` when `GLAND_DEBUG` is set in the environment.
+   */
+  debug?: boolean;
+
+  /** Forwarded to the lifecycle's process hooks. @see ProcessHookOptions */
+  processHooks?: ProcessHookOptions;
+}
+
+/**
+ * Runs the bootstrap sequence and owns the resulting lifecycle.
+ *
+ * The order below is the framework's contract, and each step is awaited before
+ * the next begins:
+ *
+ * 1. register the module graph and construct every provider
+ * 2. `onModuleInit` on every provider
+ * 3. bind channels, then broadcast routes
+ * 4. `onChannelInit` on every provider
+ * 5. `onAppBootstrap` on every provider
+ *
+ * {@link ApplicationInitial.initialize} previously called without being
+ * awaited from `GlandFactory.create()`, so steps 3-5 raced the caller. An
+ * application could begin listening before its routes existed.
+ */
 export class ApplicationInitial {
   private readonly dependenciesScanner: DependenciesScanner;
-  private lifecycle: ApplicationLifecycle;
+  private readonly logger: Logger;
+  private lifecycle?: ApplicationLifecycle;
+
+  /**
+   * Invoked with the binder once binding completes.
+   *
+   * @internal Set by `GlandFactory` so `GlandBroker` can replay routes to
+   * adapters that attach after bootstrap.
+   */
+  public onBound?: (binder: ApplicationBinder) => void;
 
   constructor(
-    private broker: TGlandBroker,
-    private logger: Logger,
-    private mode: boolean,
+    private readonly broker: TGlandBroker,
+    logger: Logger,
+    private readonly debug = false,
+    private readonly processHookOptions?: ProcessHookOptions,
   ) {
-    this.dependenciesScanner = new DependenciesScanner(this.getLogger());
+    this.logger = logger;
+    this.dependenciesScanner = new DependenciesScanner(this.subLogger('Scanner'));
   }
-  getLogger(): Logger | undefined {
-    return this.mode ? this.logger : undefined;
+
+  /**
+   * The modules registered by {@link initialize}.
+   *
+   * @throws if called before initialization completes
+   */
+  public get modules(): ModulesContainer {
+    return this.dependenciesScanner.modules;
   }
-  public async initialize(root: Constructor): Promise<void> {
-    const logger = this.logger.child('Initial');
+
+  /**
+   * Executes the full bootstrap sequence.
+   *
+   * @param root - the application's entry module
+   *
+   * @throws whatever the scan, bind, or lifecycle phases throw — bootstrap
+   *         failures must surface at startup, not on the first request
+   */
+  public async initialize<T>(root: Constructor<T> | ImportableModule<T>): Promise<void> {
+    const log = this.subLogger('Initial');
+    const say = (level: 'info' | 'error', message: string) => (log ? log[level](message) : void 0);
+
     try {
-      logger.info('Scanning module dependencies');
+      say('info', 'Scanning module dependencies');
       await this.dependenciesScanner.scan(root);
 
-      logger.info('Initializing dependency injector');
-      const explorer = new Explorer(this.dependenciesScanner.modules, this.getLogger());
+      const explorer = new Explorer(this.dependenciesScanner.modules, this.subLogger('Explorer'));
+      const registryBuilder = new ChannelRegistryBuilder();
+      this.lifecycle = new ApplicationLifecycle(this.dependenciesScanner.modules, this.subLogger('Lifecycle'), this.processHookOptions);
 
-      this.lifecycle = new ApplicationLifecycle(this.dependenciesScanner.modules, this.getLogger());
-
-      this.logger.info('Running module initialization hooks');
+      say('info', 'Running module initialization hooks');
       await this.lifecycle.init();
 
-      logger.info('Binding application components');
-      const appBinder = new ApplicationBinder(explorer, this.broker, this.getLogger());
-      appBinder.bind();
+      say('info', 'Binding application components');
+      const binder = new ApplicationBinder(explorer, this.broker, registryBuilder, this.subLogger('Binder'));
+      binder.bind();
 
-      this.logger.info('Running channel initialization hooks');
+      // Let the broker replay these routes to adapters that attach later.
+      this.onBound?.(binder);
+
+      say('info', 'Running channel initialization hooks');
       await this.lifecycle.initChannels();
 
-      this.logger.info('Bootstrapping application');
+      say('info', 'Bootstrapping application');
       await this.lifecycle.bootstrap();
 
-      this.logger.info('Application initialized successfully');
+      say('info', 'Application initialized');
     } catch (error) {
-      logger.error(`Application initialization failed: ${error.message}`);
+      say('error', `Application initialization failed: ${(error as Error)?.message ?? error}`);
       throw error;
     }
   }
+
+  /**
+   * Runs the shutdown phases and releases process handlers.
+   *
+   * @param signal - the signal that triggered shutdown, if any
+   */
   public async shutdown(signal?: string): Promise<void> {
-    if (this.lifecycle) {
-      await this.lifecycle.shutdown(signal);
-    }
+    await this.lifecycle?.shutdown(signal);
+  }
+
+  /**
+   * Returns a child logger, or `undefined` when debug logging is off.
+   *
+   * Callers use `logger?.` throughout, so a single check here is enough to
+   * silence the whole bootstrap path.
+   */
+  private subLogger(context: string): Logger | undefined {
+    return this.debug ? this.logger.child(context) : undefined;
   }
 }
