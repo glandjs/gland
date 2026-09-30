@@ -153,9 +153,28 @@ The regressions worth guarding are behavioural, not structural:
 ## Coverage
 
 ```bash
-pnpm coverage
+pnpm coverage            # runs the suite under nyc, fails below the thresholds
+pnpm coverage:summary    # per-package breakdown, logic separated from barrels
 ```
 
-The interesting units — `Container`, `Explorer`, `ApplicationBinder`, `Context`,
-`LifecycleScanner`, `ProcessHooks` — are covered directly. The integration suite
-covers `GlandFactory.create` end to end, including its failure paths.
+`nyc.config.json` sets `check-coverage` with thresholds on statements, branches,
+functions and lines. Those apply to the whole report, which includes the
+`index.ts` barrel files — almost entirely `export * from`, contributing no logic
+and depressing the totals.
+
+`coverage:summary` separates them:
+
+```
+  scope                 statements branches functions   lines
+  all files                 89.0%    68.5%     85.4%   91.4%
+  logic only                95.2%    77.7%     93.7%   95.6%
+```
+
+Read the logic-only row. The summary also names the files with the lowest
+coverage among those containing logic, which is where the next test belongs.
+
+Every unit the earlier branch rewrote is covered directly: `Container`,
+`Explorer`, `ApplicationBinder`, `Context`, `LifecycleScanner`, `ProcessHooks`,
+`DiscoveryService`, `InstanceWrapper`, `ModulesContainer`, `loadPackage`. The
+integration suite covers `GlandFactory.create` end to end, including its failure
+paths.

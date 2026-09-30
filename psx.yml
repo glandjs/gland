@@ -188,6 +188,7 @@ custom:
     - path: 'scripts'
       structure:
         check-structure.mjs: {}
+        coverage-summary.mjs: {}
 
   files:
     # ---- Root --------------------------------------------------------------
@@ -207,6 +208,7 @@ custom:
     - path: '/.env.example'
     - path: '/commitlint.config.cjs'
     - path: '/nyc.config.json'
+    - path: '/.changeset/fix-core-diagnostics.md'
     - path: '/psx.yml'
     - path: '/.gix/config'
 
