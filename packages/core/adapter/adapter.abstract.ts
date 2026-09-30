@@ -1,6 +1,5 @@
 import type { Constructor } from '@medishn/toolkit';
-import type { EventRecord } from '@glandjs/events';
-import type { TGlandBroker } from '../types';
+import type { Broker, EventRecord } from '@glandjs/events';
 
 /**
  * The contract a protocol adapter implements to plug into Gland.
@@ -32,10 +31,17 @@ export abstract class BrokerAdapter<TEvents extends EventRecord = EventRecord, T
   /**
    * The adapter's own broker.
    *
-   * Assigned by the concrete adapter — declared here so
+   * Typed as `Broker<TEvents>` rather than an intersection with the core's
+   * event map: an adapter broker is an ordinary broker over whatever event map
+   * the adapter cares about, and forcing it to satisfy `GlandEvents` made a
+   * plain `EventBroker<EventRecord>` an illegal assignment for no benefit. The
+   * `on('gland:define:route', …)` subscription below is the actual contract,
+   * and it is enforced by the route broadcast reaching this broker.
+   *
+   * Assigned by the concrete adapter — declared abstract so
    * {@link GlandBroker.connectTo} can link and initialise it generically.
    */
-  public abstract broker: TEvents & TGlandBroker;
+  public abstract broker: Broker<TEvents>;
 
   /** The adapter's application instance. Assigned during construction. */
   public instance!: TApp;

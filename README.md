@@ -98,8 +98,8 @@ Node.js 20+, TypeScript 5+, and these two compiler options:
 {
   "compilerOptions": {
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  }
+    "emitDecoratorMetadata": true,
+  },
 }
 ```
 
@@ -109,33 +109,53 @@ the container constructs needs `@Injectable()`.
 
 ## Documentation
 
-| | |
-|---|---|
-| [Getting started](docs/guides/getting-started.md) | A working application, start to finish |
-| [Modules](docs/guides/modules.md) | Composition, dynamic modules, lazy imports |
+|                                                             |                                                   |
+| ----------------------------------------------------------- | ------------------------------------------------- |
+| [Getting started](docs/guides/getting-started.md)           | A working application, start to finish            |
+| [Modules](docs/guides/modules.md)                           | Composition, dynamic modules, lazy imports        |
 | [Dependency injection](docs/guides/dependency-injection.md) | Resolution order, cycles, and why it fails loudly |
-| [Channels](docs/guides/channels.md) | Addressing, naming rules, typed events |
-| [Controllers](docs/guides/controllers.md) | Routing and the request context |
-| [Lifecycle](docs/guides/lifecycle.md) | The five hooks and their order |
-| [Testing](docs/guides/testing.md) | Unit and integration patterns |
-| [Architecture](docs/architecture/README.md) | The ideas the framework is built from |
-| [Bootstrap sequence](docs/architecture/bootstrap.md) | Exactly what happens at startup |
-| [API reference](docs/api/README.md) | Every public export |
-| [Samples](samples/README.md) | Runnable examples, one idea each |
-| [Changelog](docs/CHANGELOG.md) | What changed, and what to do about it |
+| [Channels](docs/guides/channels.md)                         | Addressing, naming rules, typed events            |
+| [Controllers](docs/guides/controllers.md)                   | Routing and the request context                   |
+| [Lifecycle](docs/guides/lifecycle.md)                       | The five hooks and their order                    |
+| [Testing](docs/guides/testing.md)                           | Unit and integration patterns                     |
+| [Architecture](docs/architecture/README.md)                 | The ideas the framework is built from             |
+| [Bootstrap sequence](docs/architecture/bootstrap.md)        | Exactly what happens at startup                   |
+| [API reference](docs/api/README.md)                         | Every public export                               |
+| [Samples](samples/README.md)                                | Runnable examples, one idea each                  |
+| [Changelog](docs/CHANGELOG.md)                              | What changed, and what to do about it             |
 
 ## Packages
 
-| Package | Description |
-|---|---|
-| [`@glandjs/core`](packages/core) | Module registration, dependency injection, discovery, the bus, lifecycle |
-| [`@glandjs/common`](packages/common) | Decorators, metadata keys, event-name helpers, shared types |
-| [`@glandjs/events`](https://github.com/glandjs/events) | The event broker: mesh, replication, request/response |
-| [`@glandjs/http`](https://github.com/glandjs/http) | Protocol-neutral HTTP layer |
-| [`@glandjs/express`](https://github.com/glandjs/http) | Express adapter |
+| Package                                                | Description                                                              |
+| ------------------------------------------------------ | ------------------------------------------------------------------------ |
+| [`@glandjs/core`](packages/core)                       | Module registration, dependency injection, discovery, the bus, lifecycle |
+| [`@glandjs/common`](packages/common)                   | Decorators, metadata keys, event-name helpers, shared types              |
+| [`@glandjs/events`](https://github.com/glandjs/events) | The event broker: mesh, replication, request/response                    |
+| [`@glandjs/http`](https://github.com/glandjs/http)     | Protocol-neutral HTTP layer                                              |
+| [`@glandjs/express`](https://github.com/glandjs/http)  | Express adapter                                                          |
 
 The transport packages live in separate repositories. This one holds the parts
 that have no opinion about transport.
+
+## Samples
+
+Five runnable applications, one idea each. Every one depends on
+`@glandjs/core` alone and defines its own protocol adapter, so all of them
+typecheck and run without an external transport.
+
+| Sample                                                      | Idea                                                                  |
+| ----------------------------------------------------------- | --------------------------------------------------------------------- |
+| [01-simple](samples/01-simple/)                             | One controller, one channel, one typed event. The shape of every app. |
+| [02-modules](samples/02-modules/)                           | Nested modules, transitive registration, lifecycle order.             |
+| [03-channels](samples/03-channels/)                         | `call` and `emit`, typed events, and what names-in-strings cost.      |
+| [04-dependency-injection](samples/04-dependency-injection/) | `@Injectable`, `@Inject`, tokens, and how a container fails.          |
+| [05-adapter](samples/05-adapter/)                           | Writing a protocol adapter — the core has no transport code.          |
+
+```bash
+cd samples/03-channels
+pnpm install
+pnpm dev
+```
 
 ## Contributing
 

@@ -1,8 +1,8 @@
 {
-  "name": "@glandjs/sample-01-simple",
+  "name": "@glandjs/sample-04-dependency-injection",
   "version": "1.0.0",
   "private": true,
-  "description": "One controller, one channel, one typed event. The shape of every Gland application.",
+  "description": "Dependency injection: @Injectable, @Inject, tokens, and the two ways a container can fail.",
   "license": "MIT",
   "scripts": {
     "dev": "ts-node src/main.ts",

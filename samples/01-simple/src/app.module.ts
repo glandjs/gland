@@ -15,10 +15,10 @@ import { ProductModule } from './modules/product/product.module';
 })
 export class AppModule implements OnModuleInit, OnAppShutdown {
   onModuleInit(): void {
-    console.log('[AppModule] Initialized');
+    console.log('  [AppModule] Initialized');
   }
 
   onAppShutdown(signal?: string): void {
-    console.log(`[AppModule] Shutting down (${signal ?? 'no signal'})`);
+    console.log(`  [AppModule] Shutting down (${signal ?? 'no signal'})`);
   }
 }

@@ -1,41 +1,47 @@
 import { GlandFactory } from '@glandjs/core';
-import { ExpressBroker } from '@glandjs/express';
 import { AppModule } from './app.module';
+import { ProductController, type DemoContext } from './modules/product/product.controller';
+import type { EventTypes } from './shared/events.interface';
 
-/**
- * Boots the sample application.
- *
- * `GlandFactory.create()` resolves only after binding completes, so `listen()`
- * on the next line cannot race route registration.
- */
+function section(title: string): void {
+  console.log(`\n${title}\n${'-'.repeat(title.length)}`);
+}
+
 async function bootstrap(): Promise<void> {
-  const { app, shutdown } = await GlandFactory.create(AppModule);
+  const { app, shutdown } = await GlandFactory.create(AppModule, { processHooks: { signals: [] } });
 
-  const express = app.connectTo(ExpressBroker);
-  express.json();
-  express.urlencoded({ extended: true });
-  express.listen(3000);
+  // Stands in for a request an HTTP adapter would have parsed. `createContext`
+  // wires the channel registry the same way the binder does.
+  const request = (params: Record<string, string> = {}, body?: Record<string, unknown>): DemoContext => Object.assign(app.createContext<EventTypes>(), { params, body }) as DemoContext;
 
-  // Release application state, then the transport, then exit. Doing it in this
-  // order means in-flight requests still have a live server to respond on.
-  const stop = async (signal: string): Promise<void> => {
-    console.log(`\nReceived ${signal}, shutting down…`);
-    try {
-      await shutdown(signal);
-      await express.close();
-      process.exit(0);
-    } catch (error) {
-      console.error('Shutdown failed:', error);
-      process.exit(1);
-    }
-  };
+  const controller = new ProductController();
 
-  process.on('SIGTERM', () => void stop('SIGTERM'));
-  process.on('SIGINT', () => void stop('SIGINT'));
+  section('POST /products');
+  const created = await controller.create(request({}, { name: 'Widget', price: 9.99, stock: 3 }));
+  console.log(`  created                  -> ${JSON.stringify(created)}`);
+
+  section('GET /products');
+  const { products } = await controller.list(request());
+  console.log(`  listed                   -> ${products.length} product(s)`);
+
+  section('GET /products/:id');
+  const found = await controller.find(request({ id: 'p1' }));
+  console.log(`  found                    -> ${JSON.stringify(found)}`);
+
+  section('Validation and 404');
+  const invalid = await controller.create(request({}, { name: 'No price' }));
+  console.log(`  missing price            -> ${JSON.stringify(invalid)}`);
+
+  const missing = await controller.find(request({ id: 'nope' }));
+  console.log(`  unknown id               -> ${JSON.stringify(missing)}`);
+
+  // The analytics channel logged "Product p1 viewed" during the `find` above —
+  // reached with `emit`, so the return value was discarded.
+  await shutdown();
+  console.log('');
 }
 
 void bootstrap().catch((error) => {
-  // A bootstrap failure throws rather than leaving the process half-initialised.
-  console.error('Failed to start:', error);
+  console.error('Failed:', error);
   process.exit(1);
 });

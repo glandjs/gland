@@ -1,8 +1,8 @@
 {
-  "name": "@glandjs/sample-01-simple",
+  "name": "@glandjs/sample-03-channels",
   "version": "1.0.0",
   "private": true,
-  "description": "One controller, one channel, one typed event. The shape of every Gland application.",
+  "description": "Channels as the only way to reach other code: call, emit, typed events, and the cost of names in strings.",
   "license": "MIT",
   "scripts": {
     "dev": "ts-node src/main.ts",

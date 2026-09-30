@@ -1,8 +1,8 @@
 {
-  "name": "@glandjs/sample-01-simple",
+  "name": "@glandjs/sample-05-adapter",
   "version": "1.0.0",
   "private": true,
-  "description": "One controller, one channel, one typed event. The shape of every Gland application.",
+  "description": "Writing a protocol adapter: the core has no transport code, and this is what filling the gap looks like.",
   "license": "MIT",
   "scripts": {
     "dev": "ts-node src/main.ts",

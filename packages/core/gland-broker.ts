@@ -1,6 +1,8 @@
-import { EventBroker, type EventRecord } from '@glandjs/events';
+import type { GlandEvents } from '@glandjs/common';
+import { EventBroker, type Broker, type EventRecord } from '@glandjs/events';
 import type { BrokerAdapterClass } from './adapter';
 import type { ApplicationBinder } from './application/application-binder';
+import { Context } from './context';
 import type { TGlandBroker } from './types/gland-broker.type';
 
 /**
@@ -95,6 +97,35 @@ export class GlandBroker {
    */
   public attachBinder(binder: ApplicationBinder): void {
     this.binder = binder;
+  }
+
+  /**
+   * Builds a request context already wired to this application's channels.
+   *
+   * Normally the adapter builds the context and the binder attaches the
+   * registry before the handler runs. This is for the cases where that is not
+   * the shape of the work: a CLI command, a queue consumer, a scheduled job, or
+   * a test that wants to call a channel directly.
+   *
+   * ```ts
+   * const { app } = await GlandFactory.create(AppModule);
+   * const ctx = app.createContext();
+   * const product = await ctx.call('db:product:find', id);
+   * ```
+   *
+   * @throws if called before bootstrap has bound anything
+   *
+   * @param broker - the bus to dispatch on; defaults to the core bus
+   */
+  public createContext<TEvents extends EventRecord = GlandEvents>(broker?: Broker<TEvents>): Context<TEvents> {
+    const registry = this.binder?.channelRegistry;
+    if (!registry) {
+      throw new Error('Cannot create a context before the application has finished binding. Await GlandFactory.create() first.');
+    }
+
+    const ctx = new Context<TEvents>((broker ?? this.broker) as unknown as Broker<TEvents>);
+    ctx.attachRegistry(this.id, registry);
+    return ctx;
   }
 
   /**

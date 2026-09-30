@@ -15,14 +15,14 @@ import { ProductController } from './product.controller';
 })
 export class ProductModule implements OnModuleInit, OnModuleDestroy, OnAppBootstrap {
   onModuleInit(): void {
-    console.log('[ProductModule] Initialized');
+    console.log('  [ProductModule] Initialized');
   }
 
   onAppBootstrap(): void {
-    console.log('[ProductModule] Application bootstrapped');
+    console.log('  [ProductModule] Bootstrapped');
   }
 
   onModuleDestroy(): void {
-    console.log('[ProductModule] Destroyed');
+    console.log('  [ProductModule] Destroyed');
   }
 }

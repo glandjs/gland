@@ -1,8 +1,8 @@
 {
-  "name": "@glandjs/sample-01-simple",
+  "name": "@glandjs/sample-02-modules",
   "version": "1.0.0",
   "private": true,
-  "description": "One controller, one channel, one typed event. The shape of every Gland application.",
+  "description": "Nested modules, transitive registration, lifecycle order, and namespaced events.",
   "license": "MIT",
   "scripts": {
     "dev": "ts-node src/main.ts",
