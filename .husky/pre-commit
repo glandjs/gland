@@ -1,2 +1,6 @@
 #!/usr/bin/env sh
+# Runs on every commit. `--ignore-path` is redundant here: lint-staged already
+# passes the staged file list, and shell-globbing the paths is what made an
+# untracked psx.yml fail the hook for unrelated reasons.
 npm run lint-staged
+node scripts/check-structure.mjs
