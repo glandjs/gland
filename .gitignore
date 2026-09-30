@@ -17,6 +17,9 @@ packages/**/**/*.js
 /packages/**/.npmignore
 /packages/**/LICENSE
 
+# psx machine-local cache (psx.yml is the committed source of truth)
+.psx-project.yml
+
 bin/*
 .nyc_output/*
 coverage.md
