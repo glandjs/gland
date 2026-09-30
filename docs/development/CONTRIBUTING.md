@@ -108,7 +108,10 @@ worse than no container, because the failure surfaces somewhere unrelated.
 New behaviour needs a test. Bug fixes need one that fails before the fix.
 
 ```bash
-pnpm test:unit -- --grep "channel"
+pnpm test:unit
+pnpm test:integration
+pnpm test:all
+pnpm coverage
 ```
 
 Two constraints:
@@ -119,6 +122,28 @@ Two constraints:
 2. **Do not assert on `toString()` output of a class.** It varies with the
    transform tool and with minifier settings. Assert on identity, on a
    constructor name, or on behaviour.
+
+### Coverage
+
+`pnpm coverage` runs the suite under `nyc` with `check-coverage`, so a
+regression below the threshold fails rather than accumulating quietly.
+
+The raw totals are depressed by the `index.ts` barrel files, which are almost
+entirely `export * from` and contribute no logic. `pnpm coverage:summary`
+separates the two:
+
+```
+  scope                 statements branches functions   lines
+  all files                 89.0%    68.5%     85.4%   91.4%
+  logic only                95.2%    77.7%     93.7%   95.6%
+  re-export barrels         73.1%    60.6%     63.3%   77.0%  (15 files)
+```
+
+Read the second line. Thresholds in `nyc.config.json` apply to the first, and
+are set just below where the logic-only figure sits.
+
+`scripts/coverage-summary.mjs` also lists the files with the lowest coverage
+among those containing logic, which is where the next test goes.
 
 See [Testing](guides/testing.md).
 

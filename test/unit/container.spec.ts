@@ -299,6 +299,29 @@ describe('core/injector/Container', () => {
       const scanner = new DependenciesScanner();
       expect(scanner['nameOf']({ module: Wrapped, channels: [] })).to.equal('Wrapped');
     });
+
+    it('reports progress when a logger is supplied', async () => {
+      @GlandModule({})
+      class NamedModule {}
+
+      const seen: string[] = [];
+      const logger = { child: () => logger, debug: (m: string) => void seen.push(m) } as never;
+
+      // With no logger the debug lines are skipped entirely, which is why the
+      // class needs both paths covered.
+      await new DependenciesScanner(logger).scan(NamedModule);
+
+      expect(seen.some((m) => m.includes('NamedModule'))).to.be.true;
+      expect(seen.some((m) => m.includes('module(s)'))).to.be.true;
+      expect(seen).to.contain('- Done.');
+    });
+
+    it('stays silent without a logger', async () => {
+      @GlandModule({})
+      class QuietModule {}
+      const root = await new DependenciesScanner().scan(QuietModule);
+      expect(root.token).to.equal('QuietModule');
+    });
   });
 
   describe('register', () => {

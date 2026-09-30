@@ -62,6 +62,7 @@
     "test:integration": "mocha --spec \"test/integration/**/*.spec.ts\"",
     "test:all": "pnpm test:unit && pnpm test:integration",
     "coverage": "nyc pnpm test:all",
+    "coverage:summary": "node scripts/coverage-summary.mjs",
     "version": "changeset version",
     "prepare": "husky",
     "release": "pnpm build && pnpm changeset publish",
