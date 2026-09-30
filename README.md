@@ -1,62 +1,168 @@
-<p align="center">
-  <a href="#" target="blank"><img src="https://github.com/glandjs/glandjs.github.io/blob/main/public/logo.png" width="200" alt="Gland Logo" /></a>
-</p>
+# Gland
 
-<p align="center">
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/v/@glandjs/core.svg" alt="NPM Version" /></a>
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/l/@glandjs/core.svg" alt="Package License" /></a>
-  <a href="https://npmjs.com/package/@glandjs/core" target="_blank"><img src="https://img.shields.io/npm/dm/@glandjs/core.svg" alt="NPM Downloads" /></a>
-</p>
+> What if every interaction was an event?
 
-<h1 align="center">Gland</h1>
+**Gland** is a progressive, event-driven framework for Node.js. It gives you
+module composition and dependency injection in the NestJS idiom, and routes all
+inter-component communication through a single message bus instead of a direct
+call graph.
 
-<p align="center">A progressive, event-driven Node.js framework for building efficient and scalable server-side applications.</p>
+```ts
+import { Module } from '@glandjs/common';
+import { GlandFactory } from '@glandjs/core';
+import { ExpressBroker } from '@glandjs/express';
 
-## Description
+@Module({ imports: [ProductModule] })
+export class AppModule {}
 
-> What if every interaction was an event? Welcome to Gland.
+const { app, shutdown } = await GlandFactory.create(AppModule);
+const express = app.connectTo(ExpressBroker);
 
-**Gland** is a lightweight, extensible web framework built for modern JavaScript and TypeScript applications. With its unique event-driven architecture (EDS), it offers unparalleled flexibility in creating modular, scalable server-side applications.
+express.get('/health', (ctx) => ctx.send('ok'));
+express.listen(3000);
 
-Inspired by frameworks like Angular and NestJS, Gland integrates an object-oriented design pattern, minimalistic dependency injection (DI), and powerful event-driven communication, allowing developers to efficiently build and maintain complex applications.
+process.on('SIGTERM', () => void shutdown('SIGTERM'));
+```
 
-## Philosophy
+---
 
-Rather than relying on predefined conventions or imposing rigid structures, Gland offers an approach where the developer can focus on the core problem domain without being hindered by unnecessary constraints. By using an event-driven approach, Gland ensures that communication between components remains straightforward and flexible, while also maintaining the ability to easily extend the system as requirements evolve.
+## Packages
 
-The simplicity of Gland lies not in the absence of features, but in how it allows developers to shape their applications with minimal friction and clear intentions. It strives to be a framework that adapts to the developer's needs, not the other way around. Through this approach, Gland provides the foundation for building applications that are both effective and maintainable, without forcing an unnatural design pattern upon the developer.
+| Package                                                | Description                                                                     |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| [`@glandjs/core`](packages/core)                       | Module registration, dependency injection, discovery, the broker, and lifecycle |
+| [`@glandjs/common`](packages/common)                   | Decorators, metadata keys, event-name helpers, shared types                     |
+| [`@glandjs/events`](https://github.com/glandjs/events) | The event broker: mesh, replication, request/response                           |
+| [`@glandjs/http`](https://github.com/glandjs/http)     | Protocol-neutral HTTP layer                                                     |
+| [`@glandjs/express`](https://github.com/glandjs/http)  | Express adapter                                                                 |
 
-## Why Gland?
+The transport packages live in separate repositories. This one holds the parts
+that have no opinion about transport.
 
-Gland is designed with flexibility and scalability in mind. Whether you're building small APIs or large-scale applications, Gland provides the tools to help you structure your codebase efficiently and maintainably. Its event-driven approach helps in decoupling components and improving testability, while its object-oriented philosophy ensures clear and consistent code organization.
+---
+
+## Installation
+
+```bash
+npm install @glandjs/core @glandjs/common
+# plus an adapter
+npm install @glandjs/express
+```
+
+Requires **Node.js 20+**, **TypeScript 5+**, and these compiler options:
+
+```jsonc
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+  },
+}
+```
+
+`emitDecoratorMetadata` is not optional. It is what lets the container discover
+a provider's constructor parameters, and without it every dependency arrives as
+`undefined`. See [Dependency injection](docs/guides/dependency-injection.md).
+
+---
+
+## Core concepts
+
+### Modules
+
+A module is a unit of composition. The tree is walked once at startup, and
+everything reachable from the root is registered.
+
+```ts
+@Module({
+  imports: [ProductModule],
+  controllers: [ProductController],
+  channels: [Database],
+})
+export class AppModule {}
+```
+
+### Controllers
+
+A controller exposes HTTP routes. `@Controller('products')` sets the prefix;
+`@Get()`, `@Post()` and friends (from `@glandjs/http`) declare the handlers.
+
+```ts
+@Controller('products')
+export class ProductController {
+  @Get(':id')
+  async find(ctx: Context) {
+    return ctx.call('db:product:find', ctx.params.id);
+  }
+}
+```
+
+### Channels
+
+A channel is a named group of event handlers. `@Channel('db')` namespaces them,
+`@On('product:find')` names one, and `ctx.call()` / `ctx.emit()` reach them.
+
+```ts
+@Channel('db')
+export class Database {
+  @On('product:find')
+  find(id: string) {
+    return this.products.get(id);
+  }
+}
+```
+
+### Channels instead of direct references
+
+This is the part that differs from NestJS. A controller does not import the
+service that holds the data; it _calls_ it by name.
+
+```ts
+// The controller knows nothing about Database's type or location.
+const product = await ctx.call('db:product:find', id);
+```
+
+The cost is one string lookup. What you get back is that the controller, the
+channel, and any future transport all reach each other through one bus, and
+that the call is observable and interceptable without patching the callee.
+
+### Adapters
+
+The core knows nothing about HTTP, WebSockets, or queues. A protocol adapter
+contributes its own broker, subscribes to the route broadcast, and returns an
+application handle.
+
+```ts
+const express = app.connectTo(ExpressBroker);
+const ws = app.connectTo(WebSocketBroker);
+```
+
+Both see the same channels. Neither is special.
+
+---
 
 ## Documentation
 
-For full documentation on how to use Gland, including guides, examples, and API references, check out the following resources:
+| Section                                                     | Contents                                   |
+| ----------------------------------------------------------- | ------------------------------------------ |
+| [Getting started](docs/guides/getting-started.md)           | A working application, start to finish     |
+| [Modules](docs/guides/modules.md)                           | Composition, dynamic modules, lazy imports |
+| [Dependency injection](docs/guides/dependency-injection.md) | Resolution order, `@Injectable`, cycles    |
+| [Channels](docs/guides/channels.md)                         | Addressing, naming rules, error handling   |
+| [Controllers](docs/guides/controllers.md)                   | Routing and the request context            |
+| [Lifecycle](docs/guides/lifecycle.md)                       | The five hooks and their order             |
+| [Testing](docs/guides/testing.md)                           | Unit and integration patterns              |
+| [Architecture](docs/architecture/README.md)                 | How the pieces fit together                |
+| [Bootstrap sequence](docs/architecture/bootstrap.md)        | Exactly what happens at startup            |
+| [API reference](docs/api/README.md)                         | Every public export                        |
+| [Contributing](docs/development/CONTRIBUTING.md)            | Local setup and conventions                |
 
-- [Official Documentation](#)
-- [API Reference](#/api)
-- [Contributing Guide](./docs/CONTRIBUTING.md)
+---
 
 ## Contributing
 
-We welcome contributions to help improve Gland and shape it into a robust, production-ready framework. Here's how you can get involved:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Write tests to cover your changes.
-4. Submit a pull request with a detailed description of your changes.
-
-Please review our [CONTRIBUTING.md](./docs/CONTRIBUTING.md) guidelines before starting.
-
-## Security
-
-For details on our security practices and how to report vulnerabilities, please visit [SECURITY.md](./docs/SECURITY).
+See [CONTRIBUTING.md](docs/development/CONTRIBUTING.md).
 
 ## License
 
-Gland is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
----
-
-Gland doesn’t tell you how to build.
-It asks: _what if everything was just a message?_
+[MIT](LICENSE)
