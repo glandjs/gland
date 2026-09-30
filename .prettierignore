@@ -3,3 +3,5 @@ packages/**/*.js
 packages/**/*.json
 pnpm-lock.yaml
 .github/*
+coverage/
+node_modules/

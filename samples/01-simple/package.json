@@ -1,18 +1,22 @@
 {
-  "name": "gland-samples-ts",
+  "name": "@glandjs/sample-01-simple",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "description": "One controller, one channel, one typed event. The shape of every Gland application.",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev": "ts-node src/main.ts",
+    "start": "ts-node src/main.ts",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
-    "@glandjs/events": "1.1.0",
-    "@glandjs/common": "^1.0.3-beta",
-    "@glandjs/core": "^1.0.3-beta",
-    "@glandjs/express": "^1.0.0-beta",
-    "@glandjs/http": "^1.0.0-beta"
+    "@glandjs/common": "workspace:*",
+    "@glandjs/core": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "22.14.1",
-    "typescript": "5.7.3"
+    "@types/node": "^22.0.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.5.4"
   }
 }

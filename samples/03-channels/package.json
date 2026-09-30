@@ -1,0 +1,22 @@
+{
+  "name": "@glandjs/sample-03-channels",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Channels as the only way to reach other code: call, emit, typed events, and the cost of names in strings.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "ts-node src/main.ts",
+    "start": "ts-node src/main.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@glandjs/common": "workspace:*",
+    "@glandjs/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.5.4"
+  }
+}

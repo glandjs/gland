@@ -1,26 +1,24 @@
 import { Module } from '@glandjs/common';
+import type { OnAppShutdown, OnModuleInit } from '@glandjs/core';
+import { DataModule } from './common/data.module';
 import { ProductModule } from './modules/product/product.module';
-import { Database } from './common/db.channel';
-import type { OnAppBootstrap, OnAppShutdown, OnModuleDestroy, OnModuleInit } from '@glandjs/core/hooks';
 
+/**
+ * The application's entry module.
+ *
+ * The only module named at the root; `ProductModule` and `DataModule` are
+ * registered transitively, and the controllers and channels beneath them are
+ * discovered from decorator metadata.
+ */
 @Module({
-  imports: [ProductModule],
-  channels: [Database],
+  imports: [DataModule, ProductModule],
 })
-export class AppModule implements OnModuleInit, OnModuleDestroy, OnAppBootstrap, OnAppShutdown {
+export class AppModule implements OnModuleInit, OnAppShutdown {
   onModuleInit(): void {
-    console.log('[AppModule] Module initialized');
-  }
-
-  onAppBootstrap(): void {
-    console.log('[AppModule] Application has bootstrapped');
+    console.log('  [AppModule] Initialized');
   }
 
   onAppShutdown(signal?: string): void {
-    console.log(`[AppModule] Application is shutting down due to signal: ${signal}`);
-  }
-
-  onModuleDestroy(): void {
-    console.log('[AppModule] Module is being destroyed');
+    console.log(`  [AppModule] Shutting down (${signal ?? 'no signal'})`);
   }
 }

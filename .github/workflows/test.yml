@@ -1,71 +1,127 @@
-name: CI Tests
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  quality:
+    name: Typecheck, lint, structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck packages and tests
+        run: pnpm typecheck
+
+      - name: Prettier
+        run: pnpm exec prettier --check .
+
+      - name: Declared structure
+        run: pnpm check:structure
+
   test:
-    name: Run Tests
+    name: Tests (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [20.x, 21.x, 22.x]
+        node-version: [20.x, 22.x]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
-          version: 9.0.6
+          version: 9.15.0
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install
+      - run: pnpm install --frozen-lockfile
 
-      - name: Run Unit Tests
-        run: pnpm test:unit
+      # Both suites run in one process per job. They share a module-level
+      # fixture on purpose, so running them separately would not reflect how the
+      # suite behaves in a full run.
+      - name: Unit and integration tests
+        run: pnpm test:all
 
-      - name: Upload test coverage
-        uses: actions/upload-artifact@v4
+      - name: Coverage
+        if: matrix.node-version == '22.x'
+        run: pnpm coverage
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.node-version == '22.x'
         with:
-          name: test-results-${{ matrix.node-version }}
-          path: |
-            coverage/
-            test-results/
+          name: coverage
+          path: coverage/
           retention-days: 5
 
-  lint:
-    name: Lint and Style Check
+  build:
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
-          version: 9.0.6
+          version: 9.15.0
 
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
-          cache: 'pnpm'
+          node-version: 22.x
+          cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install
+      - run: pnpm install --frozen-lockfile
 
-      - name: Run Prettier Check
-        run: pnpm exec prettier --check .
+      # `build` runs `prebuild`, which is `pnpm typecheck` — a build that
+      # typechecks is the real gate on publishable output.
+      - name: Build packages
+        run: pnpm build
+
+      - name: Confirm build output is clean
+        run: git status --porcelain --untracked-files=no
+
+  psx:
+    name: Project structure (psx)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: psx check
+        run: pnpm check:psx

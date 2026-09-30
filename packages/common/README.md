@@ -1,56 +1,146 @@
-<p align="center">
-  <a href="#" target="blank"><img src="https://github.com/glandjs/glandjs.github.io/blob/main/public/logo.png" width="200" alt="Gland Logo" /></a>
-</p>
+# @glandjs/common
 
-<p align="center">
-  <a href="https://npmjs.com/package/@glandjs/common" target="_blank"><img src="https://img.shields.io/npm/v/@glandjs/common.svg" alt="NPM Version" /></a>
-  <a href="https://npmjs.com/package/@glandjs/common" target="_blank"><img src="https://img.shields.io/npm/l/@glandjs/common.svg" alt="Package License" /></a>
-  <a href="https://npmjs.com/package/@glandjs/common" target="_blank"><img src="https://img.shields.io/npm/dm/@glandjs/common.svg" alt="NPM Downloads" /></a>
-</p>
+Framework-agnostic primitives: the decorators, metadata keys, event-name
+helpers and types that `@glandjs/core` and every protocol adapter share.
 
-<h1 align="center">Gland</h1>
+```bash
+npm install @glandjs/common
+```
 
-<p align="center">A progressive, event-driven Node.js framework for building efficient and scalable server-side applications.</p>
+This package has no dependency on `@glandjs/core` and knows nothing about any
+transport. That is what lets an application and an adapter speak one vocabulary.
 
-## Description
+## Decorators
 
-**Gland** is a lightweight, extensible web framework built for modern JavaScript and TypeScript applications. With its unique event-driven architecture (EDS), it offers unparalleled flexibility in creating modular, scalable server-side applications.
+### `@Module`
 
-Inspired by frameworks like Angular and NestJS, Gland integrates an object-oriented design pattern, minimalistic dependency injection (DI), and powerful event-driven communication, allowing developers to efficiently build and maintain complex applications.
+```ts
+@Module({
+  imports: [ProductModule],
+  controllers: [ProductController],
+  channels: [Database],
+})
+export class AppModule {}
+```
 
-## Philosophy
+All fields are optional. Imports are transitive and diamond-safe.
 
-Rather than relying on predefined conventions or imposing rigid structures, Gland offers an approach where the developer can focus on the core problem domain without being hindered by unnecessary constraints. By using an event-driven approach, Gland ensures that communication between components remains straightforward and flexible, while also maintaining the ability to easily extend the system as requirements evolve.
+### `@Controller`
 
-The simplicity of Gland lies not in the absence of features, but in how it allows developers to shape their applications with minimal friction and clear intentions. It strives to be a framework that adapts to the developer's needs, not the other way around. Through this approach, Gland provides the foundation for building applications that are both effective and maintainable, without forcing an unnatural design pattern upon the developer.
+```ts
+@Controller('products')
+export class ProductController {
+  @Get(':id')
+  find(ctx: Context) {}
+}
+```
 
-## Why Gland?
+The prefix is prepended to every handler path.
 
-Gland is designed with flexibility and scalability in mind. Whether you're building small APIs or large-scale applications, Gland provides the tools to help you structure your codebase efficiently and maintainably. Its event-driven approach helps in decoupling components and improving testability, while its object-oriented philosophy ensures clear and consistent code organization.
+### `@Channel` and `@On`
+
+```ts
+@Channel('db')
+export class Database {
+  @On('product:find')
+  find(id: string) {}
+}
+```
+
+`@Channel` namespaces the class, `@On` names a handler inside it. The pair is
+addressed as `'db:product:find'`.
+
+### `@Injectable`
+
+```ts
+@Injectable()
+export class UserService {
+  constructor(private users: UserRepository) {}
+}
+```
+
+**Required for any class the container should construct.**
+
+TypeScript only emits `design:paramtypes` for decorated classes, so an
+undecorated class reaches the container with no parameter information and its
+constructor receives `undefined` for every dependency. The decorator carries no
+logic — its presence is the declaration, and that declaration is what makes the
+compiler emit the metadata.
+
+Controllers, channels and modules are already decorated and need nothing extra.
+
+### `@Inject`
+
+For parameters whose type cannot be inferred — interfaces, primitives, config
+values:
+
+```ts
+@Injectable()
+export class UserService {
+  constructor(
+    @Inject('userRepository') private users: UserRepository,
+    @Inject(forwardRef(() => AuditLog)) private audit: AuditLog,
+  ) {}
+}
+```
+
+`@Inject` overrides reflected metadata when both are present.
+
+### `forwardRef`
+
+Defers _token lookup_, which solves a decorator-argument TDZ when a provider
+depends on one declared further down the file. It does **not** make mutual
+eager constructor injection work — see
+[Dependency injection](../../docs/guides/dependency-injection.md).
+
+## Event-name helpers
+
+```ts
+buildChannelEventName('db', 'product:create');
+// 'gland:define:channel:db:product:create'
+
+buildPublicEventName('db', 'product:create');
+// 'db:product:create'
+
+buildPublicEventName('', 'ping');
+// 'ping'   — not ':ping', and never 'undefined:ping'
+```
+
+`ChannelRegistryBuilder` accumulates bindings, rejects duplicate public names at
+build time, and freezes the result:
+
+```ts
+const builder = new ChannelRegistryBuilder();
+builder.add('db', 'product:create', 'Database');
+builder.freeze(); // frozen Record<'db:product:create', 'gland:define:channel:db:product:create'>
+```
+
+## Path helpers
+
+```ts
+normalizePath('api//v1//'); // '/api/v1'
+combineRoutePath('/products', ':id'); // '/products/:id'
+combineRoutePath('/', '/health'); // '/health'
+```
+
+Duplicate slashes are collapsed on both branches, and trailing slashes trimmed.
+
+## `loadPackage`
+
+```ts
+const cors = loadPackage('cors', 'CORS support');
+```
+
+Throws `MissingDependencyError` when the package is missing. It does not call
+`process.exit` — the caller decides whether a missing optional dependency is
+fatal.
 
 ## Documentation
 
-For full documentation on how to use Gland, including guides, examples, and API references, check out the following resources:
-
-- [Official Documentation](#)
-- [API Reference](#/api)
-- [Contributing Guide](https://github.com/glandjs/gland/blob/main/docs/CONTRIBUTING.md)
-
-## Contributing
-
-We welcome contributions to help improve Gland and shape it into a robust, production-ready framework. Here's how you can get involved:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Write tests to cover your changes.
-4. Submit a pull request with a detailed description of your changes.
-
-Please review our [CONTRIBUTING.md](https://github.com/glandjs/gland/blob/main/docs/CONTRIBUTING.md) guidelines before starting.
-
-## Security
-
-For details on our security practices and how to report vulnerabilities, please visit [SECURITY.md](https://github.com/glandjs/gland/blob/main/docs/SECURITY).
+- [API reference](../../docs/api/README.md)
+- [Channels](../../docs/guides/channels.md)
+- [Modules](../../docs/guides/modules.md)
 
 ## License
 
-Gland is licensed under the MIT License. See the [LICENSE](https://github.com/glandjs/gland/blob/main/LICENSE) file for details.
+MIT

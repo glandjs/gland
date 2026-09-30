@@ -1,0 +1,24 @@
+﻿{
+  "$comment": [
+    "Coverage is measured on the compiled JavaScript, since the suite runs through ts-node.",
+    "",
+    "Thresholds apply to the whole report. The per-package breakdown that separates",
+    "real logic from re-export barrels is produced by `pnpm coverage:summary`; the",
+    "barrel files drag the raw totals down for no useful signal, so the gate is set",
+    "just below where the logic-only figure sits.",
+    "",
+    "`check-coverage` fails the run when a threshold is missed, so a regression has",
+    "to be acknowledged rather than absorbed."
+  ],
+  "all": true,
+  "include": ["packages/**/*.ts"],
+  "exclude": ["**/*.d.ts", "test/**", "**/*.spec.ts", "**/node_modules/**", "samples/**", "scripts/**"],
+  "reporter": ["text", "json-summary", "text-summary"],
+  "report-dir": "./coverage",
+  "temp-dir": "./.nyc_output",
+  "check-coverage": true,
+  "statements": 88,
+  "branches": 68,
+  "functions": 84,
+  "lines": 90
+}

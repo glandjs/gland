@@ -12,7 +12,20 @@
   "bugs": {
     "url": "https://github.com/glandjs/gland/issues"
   },
-  "keywords": ["gland", "glandjs", "framework", "nodejs", "di", "dependency-injection", "event-bus", "event-driven", "typescript", "core", "architecture", "modular"],
+  "keywords": [
+    "gland",
+    "glandjs",
+    "framework",
+    "nodejs",
+    "di",
+    "dependency-injection",
+    "event-bus",
+    "event-driven",
+    "typescript",
+    "core",
+    "architecture",
+    "modular"
+  ],
   "engines": {
     "node": ">=20.0.0",
     "typescript": ">=5.0.0"
@@ -24,22 +37,32 @@
       "text": "Become a partner"
     }
   },
-  "workspaces": ["packages/*"],
-  "files": ["packages/common", "packages/core"],
+  "workspaces": [
+    "packages/*"
+  ],
+  "files": [
+    "packages/common",
+    "packages/core"
+  ],
   "scripts": {
     "dev": "pnpm -r dev",
     "watch": "tsc --watch",
     "build": "pnpm -r build",
     "prebuild": "pnpm typecheck",
     "clean": "pnpm -r clean",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
     "lint-staged": "lint-staged",
+    "check:structure": "node scripts/check-structure.mjs",
+    "check:psx": "pnpm dlx @m-mdy-m/psx check",
+    "check": "pnpm typecheck && pnpm lint && pnpm check:structure && pnpm test:all",
     "test": "pnpm test:unit",
-    "test:unit": "tsx ./node_modules/mocha/bin/mocha test/unit/**/*.spec.ts",
-    "test:integration": "tsx ./node_modules/mocha/bin/mocha test/integration/**/*.spec.ts",
-    "coverage": "nyc --reporter=text-summary pnpm test && nyc report --reporter=text-summary > coverage.md",
+    "test:unit": "mocha",
+    "test:integration": "mocha --spec \"test/integration/**/*.spec.ts\"",
+    "test:all": "pnpm test:unit && pnpm test:integration",
+    "coverage": "nyc pnpm test:all",
+    "coverage:summary": "node scripts/coverage-summary.mjs",
     "version": "changeset version",
     "prepare": "husky",
     "release": "pnpm build && pnpm changeset publish",
@@ -50,25 +73,34 @@
     "mode:prod": ""
   },
   "lint-staged": {
-    "**/*.ts": "prettier --ignore-path ./.prettierignore --write"
+    "**/*.ts": "prettier --write"
   },
   "devDependencies": {
     "@changesets/cli": "^2.28.1",
     "@commitlint/cli": "^19.8.0",
     "@commitlint/config-conventional": "^19.8.0",
     "@types/chai": "^4.3.19",
+    "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.7",
     "@types/node": "^22.0.0",
     "@types/sinon": "^17.0.3",
     "chai": "^4.3.7",
+    "chai-as-promised": "^7.1.2",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.0",
     "mocha": "^10.7.3",
     "nyc": "^17.1.0",
     "prettier": "^3.5.3",
     "sinon": "^19.0.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.4",
     "typescript": "^5.5.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "dependencies": {
     "@glandjs/events": "latest",
