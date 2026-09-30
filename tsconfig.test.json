@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": false,
+    "noEmit": true,
+    "rootDir": ".",
+    "types": ["node", "mocha"]
+  },
+  "include": ["packages/**/*", "test/**/*"],
+  "ts-node": {
+    "transpileOnly": false,
+    "compilerOptions": {
+      "module": "CommonJS",
+      "target": "ES2020",
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "esModuleInterop": true
+    }
+  }
+}
