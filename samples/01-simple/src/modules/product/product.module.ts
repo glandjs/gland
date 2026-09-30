@@ -1,16 +1,28 @@
 import { Module } from '@glandjs/common';
+import type { OnAppBootstrap, OnModuleDestroy, OnModuleInit } from '@glandjs/core';
+import { AnalyticsChannel } from './analytics.channel';
 import { ProductController } from './product.controller';
-import { ProductChannel } from './product.channel';
-import type { OnModuleDestroy, OnModuleInit } from '@glandjs/core';
+
+/**
+ * The product feature: its routes and its event handlers.
+ *
+ * Everything under `imports` is registered transitively, so the root module
+ * only needs to name this one.
+ */
 @Module({
   controllers: [ProductController],
-  channels: [ProductChannel],
+  channels: [AnalyticsChannel],
 })
-export class ProductModule implements OnModuleInit, OnModuleDestroy {
+export class ProductModule implements OnModuleInit, OnModuleDestroy, OnAppBootstrap {
   onModuleInit(): void {
-    console.log('[ProductModule] Module initialized');
+    console.log('[ProductModule] Initialized');
   }
+
+  onAppBootstrap(): void {
+    console.log('[ProductModule] Application bootstrapped');
+  }
+
   onModuleDestroy(): void {
-    console.log('[ProductModule] Module destroyed');
+    console.log('[ProductModule] Destroyed');
   }
 }

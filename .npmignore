@@ -1,20 +1,38 @@
-**/*.ts
+# Sources are compiled into the package; only the build output ships.
 *.ts
-
-!**/*.d.ts
 !*.d.ts
 
+# Project configuration
 tsconfig.json
+tsconfig.test.json
 tsconfig.tsbuildinfo
 .prettierrc
 .prettierignore
+.editorconfig
+.mocharc.json
 .gitignore
+.npmignore
 .env
+.env.example
+commitlint.config.cjs
+
+# Tooling
+node_modules
+.husky
+scripts
+test
+psx.yml
+package-lock.json
 pnpm-workspace.yaml
 pnpm-lock.yaml
-.husky
-bin
+
+# Repository-only files
 docs
 .changeset
 .github
-exmaples
+.git
+
+# Runtime noise
+coverage
+.nyc_output
+*.log

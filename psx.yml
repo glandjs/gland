@@ -1,0 +1,215 @@
+version: 1
+
+project:
+  type: 'nodejs'
+
+# PSX rule severities for the Gland monorepo.
+#
+#   error    - fails `psx check`
+#   warning  - reported, does not fail
+#   info     - reported at low priority
+#   false    - disabled
+#
+# `src_folder` is disabled on purpose: this is a two-package monorepo whose
+# source lives in `packages/<name>/`, not in a top-level `src/`.
+rules:
+  # ---- Documentation -------------------------------------------------------
+  readme: error
+  license: error
+  changelog: info
+  contributing: error
+  api_docs: error
+  security: info
+  code_of_conduct: info
+  docs_folder: error
+
+  # ---- Repository quality --------------------------------------------------
+  gitignore: error
+  pre_commit: error
+  editorconfig: error
+  package_manager: error
+  tests_folder: error
+
+  # ---- CI/CD ---------------------------------------------------------------
+  ci_config: error
+
+  # ---- Monorepo structure --------------------------------------------------
+  # Source and tests are nested per package; the generic top-level patterns do
+  # not apply.
+  src_folder: false
+  scripts_folder: info
+
+  # ---- Project-specific structure -----------------------------------------
+  # Rules below are declared in `custom.folders` / `custom.files`.
+  adr: false
+  code_owners: false
+  issue_templates: false
+  pull_request_template: false
+  dockerfile: false
+  dockerignore: false
+  docker_compose: false
+
+ignore:
+  - node_modules/
+  - dist/
+  - coverage/
+  - .nyc_output/
+  - packages/**/*.d.ts
+  - packages/**/*.js
+  - packages/**/node_modules/
+  - .psx-project.yml
+
+# ---------------------------------------------------------------------------
+# Expected structure
+#
+# NOTE: psx 0.x does not yet evaluate the `custom` block — the built-in rules
+# above are what `psx check` actually enforces. This section is the declared
+# contract for the repository, and `pnpm run check:structure` verifies it, so
+# the expectation is machine-checked either way.
+#
+# Keep it in step with the tree: adding a source file means adding it here.
+# ---------------------------------------------------------------------------
+custom:
+  folders:
+    # ---- packages/common (@glandjs/common) --------------------------------
+    - path: 'packages/common'
+      structure:
+        index.ts: {}
+        constant.ts: {}
+        decorators:
+          index.ts: {}
+          core:
+            index.ts: {}
+            controller.decorator.ts: {}
+            injectable.decorator.ts: {}
+            inject.decorator.ts: {}
+          events:
+            index.ts: {}
+            channel.decorator.ts: {}
+            on.decorator.ts: {}
+          modules:
+            index.ts: {}
+            module.decorator.ts: {}
+        interfaces:
+          index.ts: {}
+          modules.interfaces.ts: {}
+          gland-events.interfaces.ts: {}
+        types:
+          index.ts: {}
+          modules.type.ts: {}
+        utils:
+          index.ts: {}
+          shared.util.ts: {}
+          load-pkg.util.ts: {}
+
+    # ---- packages/core (@glandjs/core) ------------------------------------
+    - path: 'packages/core'
+      structure:
+        index.ts: {}
+        gland-broker.ts: {}
+        gland-factory.ts: {}
+        adapter:
+          index.ts: {}
+          adapter.abstract.ts: {}
+        application:
+          index.ts: {}
+          application-initial.ts: {}
+          application-binder.ts: {}
+          application-lifecycle.ts: {}
+        context:
+          index.ts: {}
+          context.ts: {}
+        hooks:
+          index.ts: {}
+          lifecycle.interface.ts: {}
+          lifecycle.scanner.ts: {}
+          process-hooks.ts: {}
+        injector:
+          index.ts: {}
+          explorer.ts: {}
+          discovery-service.ts: {}
+          instance-wrapper.ts: {}
+          module.ts: {}
+          container:
+            index.ts: {}
+            container.ts: {}
+            module-container.ts: {}
+          scanner:
+            index.ts: {}
+            dependencies-scanner.ts: {}
+            metadata-scanner.ts: {}
+        types:
+          index.ts: {}
+          gland-broker.type.ts: {}
+
+    # ---- Documentation -----------------------------------------------------
+    - path: 'docs'
+      structure:
+        README.md: {}
+        CHANGELOG.md: {}
+        CODE_OF_CONDUCT.md: {}
+        SECURITY.md: {}
+        architecture:
+          README.md: {}
+          bootstrap.md: {}
+        api:
+          README.md: {}
+        guides:
+          getting-started.md: {}
+          modules.md: {}
+          dependency-injection.md: {}
+          channels.md: {}
+          controllers.md: {}
+          lifecycle.md: {}
+          testing.md: {}
+        development:
+          CONTRIBUTING.md: {}
+
+    # ---- Tests -------------------------------------------------------------
+    - path: 'test'
+      structure:
+        setup.ts: {}
+        unit:
+          shared-util.spec.ts: {}
+          container.spec.ts: {}
+          explorer.spec.ts: {}
+          binder-context.spec.ts: {}
+          lifecycle.spec.ts: {}
+        integration:
+          bootstrap.spec.ts: {}
+
+    # ---- Git hooks ---------------------------------------------------------
+    - path: '.husky'
+      structure:
+        pre-commit: {}
+
+    # ---- Scripts -----------------------------------------------------------
+    - path: 'scripts'
+      structure:
+        check-structure.mjs: {}
+
+  files:
+    # ---- Root --------------------------------------------------------------
+    - path: '/README.md'
+    - path: '/LICENSE'
+    - path: '/package.json'
+    - path: '/pnpm-workspace.yaml'
+    - path: '/pnpm-lock.yaml'
+    - path: '/tsconfig.json'
+    - path: '/tsconfig.test.json'
+    - path: '/.gitignore'
+    - path: '/.npmignore'
+    - path: '/.prettierrc'
+    - path: '/.prettierignore'
+    - path: '/.editorconfig'
+    - path: '/.mocharc.json'
+    - path: '/.env.example'
+    - path: '/commitlint.config.cjs'
+    - path: '/psx.yml'
+    - path: '/.gix/config'
+
+    # ---- Packages ----------------------------------------------------------
+    - path: '/packages/common/package.json'
+    - path: '/packages/common/README.md'
+    - path: '/packages/core/package.json'
+    - path: '/packages/core/README.md'
