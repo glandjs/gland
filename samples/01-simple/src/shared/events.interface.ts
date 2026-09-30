@@ -1,8 +1,15 @@
 import type { IOEvent } from '@glandjs/events';
-import type { Product } from './product';
+
+/** A product in the sample catalogue. */
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+}
 
 /**
- * The event map for this sample application.
+ * The event map.
  *
  * Typing the context with it makes `ctx.call()` and `ctx.emit()` check both the
  * payload and the return value:

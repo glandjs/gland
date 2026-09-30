@@ -194,6 +194,30 @@ export class Container {
     return this.state.instances.has(token);
   }
 
+  /**
+   * Binds `token` to an existing value.
+   *
+   * The escape hatch for providers the container cannot build: a configuration
+   * object, a third-party client, a value that needs a conditional. The value
+   * is used verbatim, so the caller owns its lifetime.
+   *
+   * ```ts
+   * container.bind('featureFlags', { beta: true });
+   * ```
+   *
+   * @throws if a provider is already registered for `token` — rebinding an
+   *         existing provider would make resolution order-dependent, and a
+   *         silent override is far harder to notice than a refusal
+   */
+  public bind<T>(token: InjectionToken, value: T): T {
+    if (this.state.instances.has(token)) {
+      throw new Error(`Cannot bind "${this.getId(token)}": a provider is already registered for it. ` + 'Use a distinct token, or resolve the existing provider.');
+    }
+    this.state.instances.set(token, value);
+    this.logger?.debug(`Bound "${this.getId(token)}"`);
+    return value;
+  }
+
   /** Normalises a class or dynamic module into `{ moduleClass, metadata }`. */
   private normalizeModule<T>(module: Constructor<T> | ({ module: Constructor<T> } & Partial<ModuleMetadata<T>>)): {
     moduleClass: Constructor<T>;

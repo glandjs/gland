@@ -1,6 +1,6 @@
 import { Channel, On } from '@glandjs/common';
 import type { OnChannelInit } from '@glandjs/core';
-import type { Product } from '../shared/product';
+import type { Product } from '../shared/events.interface';
 
 const products = new Map<string, Product>();
 let nextId = 1;
@@ -14,7 +14,7 @@ let nextId = 1;
 @Channel('db')
 export class Database implements OnChannelInit {
   onChannelInit(): void {
-    console.log('[Database] Channel initialized');
+    console.log('[Database] onChannelInit');
   }
 
   @On('product:create')

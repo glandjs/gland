@@ -1,79 +1,96 @@
-# Sample 01 — simple
+# 01 — Simple
 
-A small Gland application: one controller, two channels, typed events, and a
-full lifecycle.
-
-```
-src/
-  main.ts                          bootstrap
-  app.module.ts                    entry module
-  common/
-    data.module.ts                 the data layer
-    db.channel.ts                  db:product:* handlers
-  modules/product/
-    product.module.ts              the feature
-    product.controller.ts          HTTP routes
-    analytics.channel.ts           analytics:viewed
-  shared/
-    product.ts                     the Product type
-    events.interface.ts            the event map
-```
-
-## What it shows
-
-**Controllers reach channels by name.** `product.controller.ts` does not import
-`Database`. It calls `ctx.call('db:product:find', id)`.
-
-**Events are typed.** `EventTypes` is the context's event map, so payloads and
-return values are checked at compile time:
-
-```ts
-const product = await ctx.call('db:product:find', id); // Product | null
-ctx.call('db:product:find', { wrong: true }); // compile error
-```
-
-**`emit` and `call` differ only in the result.** `ctx.emit('analytics:viewed', …)`
-invokes the handler and discards its return; `ctx.call(…)` hands it back.
-
-**Lifecycle hooks are visible.** Every module logs from `onModuleInit`,
-`onAppBootstrap` and `onAppShutdown`, so the ordering in the
-[architecture docs](../../docs/architecture/bootstrap.md) is observable in the
-output.
-
-## Try it
+One controller, one channel, one typed event. The shape of every Gland
+application.
 
 ```bash
 pnpm install
-pnpm start
+pnpm dev
 ```
 
-```bash
-curl localhost:3000/products -X POST \
-  -H 'content-type: application/json' \
-  -d '{"name":"Widget","price":9.99}'
-# {"product":{"id":"p1","name":"Widget","price":9.99,"stock":0}}
+```
+  [AppModule] Initialized
+  [ProductModule] Initialized
+[Database] onChannelInit
+[Analytics] onChannelInit
+  [ProductModule] Bootstrapped
 
-curl localhost:3000/products
-# {"products":[{"id":"p1",...}]}
+POST /products
+  created    -> {"product":{"id":"p1","name":"Widget","price":9.99,"stock":3},"status":201}
 
-curl localhost:3000/products/p1
-# {"product":{"id":"p1",...}}   and "Product p1 viewed" in the server log
+GET /products/:id
+[Analytics] Product p1 viewed
+  found      -> {"product":{"id":"p1",...}}
 
-curl localhost:3000/products/nope
-# 404 with a problem-details body
+Validation and 404
+  missing price -> {"error":"`name` (string) and `price` (number) are required","status":400}
+  unknown id    -> {"error":"No product with id \"nope\"","status":404}
 ```
 
-Set `GLAND_DEBUG=true` for verbose bootstrap logging.
+## The one thing to notice
 
-## A note on the adapter
+`product.controller.ts` does not import `Database`. It has the event names, and
+nothing else:
 
-This sample imports `@glandjs/express`, which lives in the separate
-[glandjs/http](https://github.com/glandjs/http) repository and is currently
-released against the previous core API. For that reason `samples/` is excluded
-from the root `pnpm typecheck` — the core and its own suites are typechecked
-there, and this sample typechecks once the adapter is updated to the new
-`BrokerAdapter` signature.
+```ts
+const product = await ctx.call('db:product:find', id);
+ctx.emit('analytics:viewed', { id });
+```
 
-The core-facing code here is current: it uses `GlandFactory.create()` returning
-`{ app, shutdown }`, and a `BrokerAdapter` whose `broker` is a declared abstract
-member.
+Both reach a channel. The first takes the value back; the second discards it,
+because a line in a log has no result for the caller to wait on.
+
+## Typed events
+
+```ts
+export interface EventTypes {
+  'db:product:find': IOEvent<string, Product | null>;
+  'db:product:create': IOEvent<Omit<Product, 'id'>, Product>;
+  'db:product:all': IOEvent<Record<string, never>, Product[]>;
+  'analytics:viewed': IOEvent<{ id: string }, void>;
+}
+```
+
+`ctx.call('db:product:find', id)` is typed as `Product | null`, and a wrong
+payload is a compile error. The event map is the whole contract between callers
+and channels.
+
+## Namespaces
+
+`@Channel('db')` + `@On('product:find')` is addressed as `db:product:find`. The
+namespace is part of the name, which is why a `db:product:find` and a future
+`cache:product:find` could both exist without either shadowing the other.
+
+## Modules
+
+```
+AppModule
+├── DataModule          channels: [Database]
+└── ProductModule       controllers: [ProductController]
+                        channels: [AnalyticsChannel]
+```
+
+`AppModule` names two modules. Everything below them is registered
+transitively, and every route and handler is discovered from decorator metadata.
+
+## The three decorators, and nothing else
+
+A method is a route because it carries `@Get()`. A method is a handler because
+it carries `@On()`. Nothing is inferred from a naming convention, so renaming
+cannot break a route and adding a method cannot accidentally create one.
+
+## Files
+
+| File                                        | Contents                                 |
+| ------------------------------------------- | ---------------------------------------- |
+| `src/main.ts`                               | Boot, then drive the controller          |
+| `src/app.module.ts`                         | The entry module and the product feature |
+| `src/common/data.module.ts`                 | The data layer                           |
+| `src/common/db.channel.ts`                  | `db:product:*` handlers                  |
+| `src/modules/product/product.controller.ts` | Routes that call channels by name        |
+| `src/modules/product/analytics.channel.ts`  | A side-effect-only channel               |
+| `src/shared/events.interface.ts`            | The event map                            |
+
+The controller writes its own `Get()`/`Post()` against the metadata keys rather
+than importing them from `@glandjs/http`, which lets this sample depend on
+`@glandjs/core` alone.

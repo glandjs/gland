@@ -2,18 +2,18 @@ import { Channel, On } from '@glandjs/common';
 import type { OnChannelInit } from '@glandjs/core';
 
 /**
- * A channel with no namespace, addressed as `analytics:viewed`.
+ * A channel that only records what happened.
  *
- * The namespace is optional: `@On('viewed')` under `@Channel('analytics')`
- * becomes `analytics:viewed`.
+ * Reached with `ctx.emit('analytics:viewed', …)`, so its return value is
+ * discarded — the caller has already been told what it needed. A channel that
+ * nobody waits on is a side effect, and this is what that looks like.
  */
 @Channel('analytics')
 export class AnalyticsChannel implements OnChannelInit {
   onChannelInit(): void {
-    console.log('[Analytics] Channel initialized');
+    console.log('[Analytics] onChannelInit');
   }
 
-  /** Fire-and-forget: reached with `ctx.emit()`, result discarded. */
   @On('viewed')
   trackView(payload: { id: string }): void {
     console.log(`[Analytics] Product ${payload.id} viewed`);

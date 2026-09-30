@@ -190,6 +190,86 @@ custom:
         check-structure.mjs: {}
         coverage-summary.mjs: {}
 
+    # ---- Samples -----------------------------------------------------------
+    # Every sample depends on @glandjs/core alone and defines its own
+    # protocol adapter, so all of them typecheck and run without an external
+    # transport package.
+    - path: 'samples'
+      structure:
+        README.md: {}
+
+    - path: 'samples/01-simple'
+      structure:
+        README.md: {}
+        package.json: {}
+        tsconfig.json: {}
+        src:
+          main.ts: {}
+          app.module.ts: {}
+          common:
+            data.module.ts: {}
+            db.channel.ts: {}
+          modules:
+            product:
+              product.module.ts: {}
+              product.controller.ts: {}
+              analytics.channel.ts: {}
+          shared:
+            events.interface.ts: {}
+
+    - path: 'samples/02-modules'
+      structure:
+        README.md: {}
+        package.json: {}
+        tsconfig.json: {}
+        src:
+          main.ts: {}
+          app.module.ts: {}
+          modules:
+            catalog:
+              catalog.channel.ts: {}
+              pricing.channel.ts: {}
+            users:
+              users.channel.ts: {}
+
+    - path: 'samples/03-channels'
+      structure:
+        README.md: {}
+        package.json: {}
+        tsconfig.json: {}
+        src:
+          main.ts: {}
+          app.module.ts: {}
+          modules:
+            audit:
+              audit.channel.ts: {}
+            orders:
+              order.controller.ts: {}
+              orders.channel.ts: {}
+              discount.policy.ts: {}
+
+    - path: 'samples/04-dependency-injection'
+      structure:
+        README.md: {}
+        package.json: {}
+        tsconfig.json: {}
+        src:
+          main.ts: {}
+          app.module.ts: {}
+          providers:
+            services.ts: {}
+
+    - path: 'samples/05-adapter'
+      structure:
+        README.md: {}
+        package.json: {}
+        tsconfig.json: {}
+        src:
+          main.ts: {}
+          app.module.ts: {}
+          console-broker.ts: {}
+          greeter.ts: {}
+
   files:
     # ---- Root --------------------------------------------------------------
     - path: '/README.md'
