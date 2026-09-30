@@ -173,6 +173,7 @@ custom:
           shared-util.spec.ts: {}
           container.spec.ts: {}
           explorer.spec.ts: {}
+          infra.spec.ts: {}
           binder-context.spec.ts: {}
           lifecycle.spec.ts: {}
         integration:
@@ -205,6 +206,7 @@ custom:
     - path: '/.mocharc.json'
     - path: '/.env.example'
     - path: '/commitlint.config.cjs'
+    - path: '/nyc.config.json'
     - path: '/psx.yml'
     - path: '/.gix/config'
 

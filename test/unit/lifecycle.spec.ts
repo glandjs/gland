@@ -224,6 +224,112 @@ describe('core/hooks/ProcessHooks', () => {
     hooks.dispose();
     expect(() => hooks.dispose()).not.to.throw();
   });
+
+  describe('signal handling', () => {
+    // Raising a real SIGTERM would kill the test runner, so the handler is
+    // invoked directly through the listener list instead.
+    it('runs the shutdown callback with the signal name', async () => {
+      const seen: string[] = [];
+      const hooks = new ProcessHooks(undefined, { signals: ['SIGUSR1'], exitOnSignal: false });
+      hooks.install((signal) => void seen.push(signal));
+
+      process.emit('SIGUSR1');
+      await new Promise((r) => setImmediate(r));
+
+      expect(seen).to.deep.equal(['SIGUSR1']);
+      hooks.dispose();
+    });
+
+    it('handles every configured signal', async () => {
+      const seen: string[] = [];
+      const hooks = new ProcessHooks(undefined, { signals: ['SIGUSR1', 'SIGUSR2'], exitOnSignal: false });
+      hooks.install((signal) => void seen.push(signal));
+
+      process.emit('SIGUSR1');
+      process.emit('SIGUSR2');
+      await new Promise((r) => setImmediate(r));
+
+      expect(seen).to.have.members(['SIGUSR1', 'SIGUSR2']);
+      hooks.dispose();
+    });
+
+    it('swallows a shutdown callback that throws', async () => {
+      const hooks = new ProcessHooks(undefined, { signals: ['SIGUSR1'], exitOnSignal: false });
+      hooks.install(() => {
+        throw new Error('shutdown exploded');
+      });
+
+      // An escaping error on a signal path would skip the remaining hooks.
+      expect(() => process.emit('SIGUSR1')).not.to.throw();
+      await new Promise((r) => setImmediate(r));
+
+      hooks.dispose();
+    });
+
+    it('handles an asynchronous shutdown callback', async () => {
+      const seen: string[] = [];
+      const hooks = new ProcessHooks(undefined, { signals: ['SIGUSR1'], exitOnSignal: false });
+      hooks.install(async (signal) => {
+        await new Promise((r) => setTimeout(r, 5));
+        seen.push(signal);
+      });
+
+      process.emit('SIGUSR1');
+      await new Promise((r) => setTimeout(r, 25));
+
+      expect(seen).to.deep.equal(['SIGUSR1']);
+      hooks.dispose();
+    });
+
+    it('installs nothing when no signals are configured', () => {
+      const before = process.listenerCount('SIGTERM');
+      const hooks = new ProcessHooks(undefined, { signals: [], reportErrors: false });
+      hooks.install(() => {});
+      expect(process.listenerCount('SIGTERM')).to.equal(before);
+      hooks.dispose();
+    });
+  });
+
+  describe('error reporting', () => {
+    it('does not exit the process on an unhandled rejection', async () => {
+      const before = process.exitCode;
+      const hooks = new ProcessHooks(undefined, { reportErrors: true });
+      hooks.install(() => {});
+
+      // A real rejection would print and could take the runner down; the
+      // handler is invoked directly so the assertion is about exit behaviour.
+      const onRejection = process.listeners('unhandledRejection').at(-1) as (reason: unknown) => void;
+      expect(() => onRejection(new Error('stray promise'))).not.to.throw();
+      expect(process.exitCode).to.equal(before);
+
+      hooks.dispose();
+    });
+
+    it('does not exit the process on an uncaught exception', () => {
+      const before = process.exitCode;
+      const hooks = new ProcessHooks(undefined, { reportErrors: true });
+      hooks.install(() => {});
+
+      const onException = process.listeners('uncaughtException').at(-1) as (error: Error) => void;
+      expect(() => onException(new Error('boom'))).not.to.throw();
+      expect(process.exitCode).to.equal(before);
+
+      hooks.dispose();
+    });
+
+    it('accepts a non-Error rejection reason', () => {
+      const hooks = new ProcessHooks(undefined, { reportErrors: true });
+      hooks.install(() => {});
+
+      const onRejection = process.listeners('unhandledRejection').at(-1) as (reason: unknown) => void;
+      // A string or object reason used to be interpolated as if it had a
+      // .message, producing "undefined".
+      expect(() => onRejection('just a string')).not.to.throw();
+      expect(() => onRejection({ code: 'E_NOPE' })).not.to.throw();
+
+      hooks.dispose();
+    });
+  });
 });
 
 describe('core/application/ApplicationLifecycle', () => {

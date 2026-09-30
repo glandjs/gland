@@ -21,6 +21,7 @@ packages/**/**/*.js
 .psx-project.yml
 
 bin/*
-.nyc_output/*
+.nyc_output/
+coverage/
 coverage.md
 tags*

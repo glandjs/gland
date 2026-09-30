@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { Channel, Inject, Injectable, Module as GlandModule, On, forwardRef } from '@glandjs/common';
-import { CircularDependencyError, Container, ModuleRef, UnresolvableDependencyError } from '@glandjs/core';
+import { CircularDependencyError, Container, DependenciesScanner, ModuleRef, UnresolvableDependencyError } from '@glandjs/core';
 
 describe('core/injector/Container', () => {
   describe('resolve', () => {
@@ -259,6 +259,45 @@ describe('core/injector/Container', () => {
       // Simulates a parameter whose metadata was stripped.
       Reflect.defineMetadata('design:paramtypes', [Object], Service);
       expect(() => new Container().resolve(Service)).to.throw(UnresolvableDependencyError);
+    });
+  });
+
+  describe('DependenciesScanner', () => {
+    it('registers the graph and exposes the root', async () => {
+      @GlandModule({})
+      class ChildModule {}
+      @GlandModule({ imports: [ChildModule] })
+      class RootModule {}
+
+      const scanner = new DependenciesScanner();
+      const root = await scanner.scan(RootModule);
+
+      expect(root).to.be.instanceOf(ModuleRef);
+      expect(root.token).to.equal('RootModule');
+      expect(scanner.modules.size).to.equal(2);
+      expect(scanner.container.moduleContainer.getByToken('ChildModule')).to.exist;
+    });
+
+    it('describes the root in its debug output', async () => {
+      @GlandModule({})
+      class NamedModule {}
+
+      // `nameOf` feeds a log line, so a wrong answer shows up as "anonymous"
+      // or a raw object in the bootstrap trace.
+      const scanner = new DependenciesScanner();
+      await scanner.scan(NamedModule);
+      expect(scanner['nameOf'](NamedModule)).to.equal('NamedModule');
+    });
+
+    it('describes a lazy import without touching the thunk', () => {
+      const scanner = new DependenciesScanner();
+      expect(scanner['nameOf'](Promise.resolve({ module: class Lazy {} }))).to.equal('<lazy import>');
+    });
+
+    it('describes a dynamic module by its wrapped class', () => {
+      class Wrapped {}
+      const scanner = new DependenciesScanner();
+      expect(scanner['nameOf']({ module: Wrapped, channels: [] })).to.equal('Wrapped');
     });
   });
 

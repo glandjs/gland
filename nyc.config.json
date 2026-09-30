@@ -1,0 +1,14 @@
+﻿{
+  "$comment": "Coverage is measured on the compiled JavaScript, since the suite runs through ts-node. Only the published packages are measured; test files and type declarations would otherwise dominate the numbers.",
+  "all": true,
+  "include": ["packages/**/*.ts"],
+  "exclude": ["**/*.d.ts", "test/**", "**/*.spec.ts", "**/node_modules/**", "samples/**", "scripts/**"],
+  "reporter": ["text", "text-summary"],
+  "report-dir": "./coverage",
+  "temp-dir": "./.nyc_output",
+  "check-coverage": true,
+  "statements": 80,
+  "branches": 65,
+  "functions": 75,
+  "lines": 80
+}
