@@ -1,0 +1,51 @@
+# gix flow config — see `gix config list` or docs/FLAGS.md
+gix:
+  version: "1"
+remote: origin
+branch:
+  bugfix:
+    type: topic
+    prefix: bugfix/
+    parent: develop
+    upstream_strategy: merge
+    downstream_strategy: merge
+    delete_on_finish: true
+  develop:
+    name: develop
+    type: base
+    parent: main
+    autosync: true
+    delete_on_finish: false
+  feature:
+    type: topic
+    prefix: feature/
+    parent: develop
+    upstream_strategy: merge
+    downstream_strategy: merge
+    delete_on_finish: true
+  hotfix:
+    type: topic
+    prefix: hotfix/
+    parent: main
+    merge_into:
+    - main
+    - develop
+    upstream_strategy: merge
+    downstream_strategy: merge
+    tag: true
+    delete_on_finish: true
+  main:
+    name: main
+    type: base
+    delete_on_finish: false
+  release:
+    type: topic
+    prefix: release/
+    parent: develop
+    merge_into:
+    - main
+    - develop
+    upstream_strategy: merge
+    downstream_strategy: merge
+    tag: true
+    delete_on_finish: true
