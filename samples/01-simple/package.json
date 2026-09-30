@@ -1,13 +1,18 @@
 {
-  "name": "gland-samples-ts",
+  "name": "@glandjs/sample-01-simple",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "description": "A small Gland application: one controller, two channels, typed events.",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start": "ts-node src/main.ts",
+    "dev": "ts-node src/main.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "//": "The adapter lives in the separate @glandjs/http repository. The sample is excluded from the root typecheck because that adapter is released against the previous core API; see samples/01-simple/README.md.",
   "dependencies": {
-    "@glandjs/events": "1.1.0",
-    "@glandjs/common": "^1.0.3-beta",
-    "@glandjs/core": "^1.0.3-beta",
+    "@glandjs/common": "workspace:*",
+    "@glandjs/core": "workspace:*",
     "@glandjs/express": "^1.0.0-beta",
     "@glandjs/http": "^1.0.0-beta"
   },

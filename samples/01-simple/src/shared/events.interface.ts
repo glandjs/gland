@@ -1,18 +1,23 @@
-import type { ExpressContext } from '@glandjs/express';
-import { IOEvent } from '@glandjs/events';
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  stock: number;
-}
+import type { IOEvent } from '@glandjs/events';
+import type { Product } from './product';
 
+/**
+ * The event map for this sample application.
+ *
+ * Typing the context with it makes `ctx.call()` and `ctx.emit()` check both the
+ * payload and the return value:
+ *
+ * ```ts
+ * const product = await ctx.call('db:product:find', id);  // Product | null
+ * ctx.call('db:product:find', { wrong: true });           // compile error
+ * ```
+ */
 export interface EventTypes {
-  // Product events
-  'product:viewed': { id: string; ctx: ExpressContext<EventTypes> };
+  // ---- db: events ---------------------------------------------------------
+  'db:product:create': IOEvent<Omit<Product, 'id'>, Product>;
+  'db:product:find': IOEvent<string, Product | null>;
+  'db:product:all': IOEvent<Record<string, never>, Product[]>;
 
-  /// database events \\
-
-  'db:product:create': IOEvent<Omit<Product, 'id'>, Promise<Product>>;
-  'db:product:all-products': IOEvent<{}, Promise<Product[]>>;
+  // ---- analytics: events --------------------------------------------------
+  'analytics:viewed': IOEvent<{ id: string }, void>;
 }

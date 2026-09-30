@@ -1,141 +1,55 @@
-import { Constructor, Logger } from '@medishn/toolkit';
-import { DynamicModule, ImportableModule, InjectionToken, isDynamicModule, MODULE_METADATA, ModuleMetadata } from '@glandjs/common';
-import { Container, ModulesContainer } from '../container';
-import type { Module } from '../module';
+import type { ImportableModule } from '@glandjs/common';
+import type { Constructor, Logger } from '@medishn/toolkit';
+import { Container } from '../container';
+import type { ModuleRef } from '../module';
 
+/**
+ * Entry point for turning a root module into a populated {@link Container}.
+ *
+ * A deliberately thin facade: {@link Container.register} already walks the
+ * import graph transitively, so a second scanning pass over the module tree
+ * could only ever repeat that work. This type exists to give callers a
+ * name that says "bootstrap the module graph" and to hold the logger.
+ */
 export class DependenciesScanner {
-  private readonly container: Container;
-  private logger?: Logger;
+  /** The container holding every registered module and provider. */
+  public readonly container: Container;
+
+  private readonly logger?: Logger;
+
   constructor(logger?: Logger) {
     this.container = new Container(logger);
     this.logger = logger?.child('Scanner');
   }
-  get modules(): ModulesContainer {
-    return this.container.modules;
-  }
-  public async scan(rootModule: Constructor | DynamicModule): Promise<void> {
-    this.logger?.debug('Starting full module scan');
 
-    await this.scanForModules(rootModule);
+  /**
+   * Registers `rootModule` and everything it transitively imports.
+   *
+   * @param rootModule - the application's entry module
+   * @returns the registered root, for callers that need its instance
+   *
+   * @throws {CircularDependencyError} if the import graph contains a cycle
+   */
+  public async scan<T>(rootModule: Constructor<T> | ImportableModule<T>): Promise<ModuleRef<T>> {
+    this.logger?.debug(`Scanning module graph from "${this.nameOf(rootModule)}"`);
 
-    this.logger?.debug('Completed scanning module structure, scanning dependencies');
+    const rootRef = await this.container.register(rootModule);
 
-    await this.scanModulesForDependencies();
-
+    this.logger?.debug(`Scanned ${this.container.moduleContainer.size} module(s)`);
     this.logger?.debug('- Done.');
+    return rootRef;
   }
 
-  private async scanForModules(rootModule: Constructor | DynamicModule): Promise<void> {
-    const moduleRef = await this.container.register(rootModule);
-    this.logger?.debug(`Registered module: ${moduleRef.token}`);
-    this.modules.set(moduleRef.token, moduleRef);
-
-    for (const importedModule of moduleRef.imports) {
-      if (!this.modules.has(importedModule.token)) {
-        this.modules.set(importedModule.token, importedModule);
-
-        const moduleType = this.getModuleByToken(importedModule.token);
-        if (moduleType) {
-          await this.scanForModules(moduleType);
-        }
-      }
-    }
+  /** Every module registered by the last {@link scan}. */
+  public get modules() {
+    return this.container.moduleContainer;
   }
 
-  private async scanModulesForDependencies(): Promise<void> {
-    for (const [_, moduleRef] of this.modules.entries()) {
-      await this.scanModuleDependencies(moduleRef);
-    }
-  }
-  private async scanModuleDependencies(moduleRef: Module): Promise<void> {
-    const token = moduleRef.token;
-    const moduleType = this.getModuleByToken(token);
-
-    if (!moduleType) {
-      throw new Error(`Could not find module type for token: ${token}`);
-    }
-
-    const metadata = this.extractModuleMetadata(moduleType);
-    this.logger?.debug(`Scanning dependencies for module: ${token}`);
-
-    // Process imports
-    if (metadata.imports && metadata.imports.length > 0) {
-      this.logger?.debug(` - Imports found: ${metadata.imports.length}`);
-      await this.scanModuleImports(metadata.imports, moduleRef);
-    }
-
-    // Process controllers
-    if (metadata.controllers && metadata.controllers.length > 0) {
-      this.logger?.debug(` - Controllers found: ${metadata.controllers.map((c) => c.name).join(', ')}`);
-      this.scanControllers(metadata.controllers, moduleRef);
-    }
-
-    // Process channels
-    if (metadata.channels && metadata.channels.length > 0) {
-      this.logger?.debug(` - Channels found: ${metadata.channels.map((c) => c.name).join(', ')}`);
-      this.scanChannels(metadata.channels, moduleRef);
-    }
-  }
-
-  private getModuleByToken(token: InjectionToken): Constructor | undefined {
-    const moduleRef = this.modules.getByToken(token as string);
-    return moduleRef ? moduleRef.metatype : undefined;
-  }
-
-  private extractModuleMetadata(moduleType: Constructor): ModuleMetadata {
-    return (
-      Reflect.getMetadata(MODULE_METADATA, moduleType) ?? {
-        imports: [],
-        controllers: [],
-        channels: [],
-      }
-    );
-  }
-
-  private async getModuleType(moduleDefinition: ImportableModule): Promise<Constructor> {
-    if (isDynamicModule(moduleDefinition)) {
-      return moduleDefinition.module;
-    }
-
-    if (moduleDefinition instanceof Promise) {
-      const resolvedModule = await moduleDefinition;
-      return isDynamicModule(resolvedModule) ? resolvedModule.module : resolvedModule;
-    }
-
-    return moduleDefinition;
-  }
-
-  private async getModuleToken(moduleDefinition: ImportableModule): Promise<string> {
-    const moduleType = await this.getModuleType(moduleDefinition);
-    return moduleType.name;
-  }
-
-  private async scanModuleImports(imports: ImportableModule[], moduleRef: Module): Promise<void> {
-    for (const importedModule of imports) {
-      const token = await this.getModuleToken(importedModule);
-      const importedRef = this.modules.getByToken(token);
-
-      if (importedRef) {
-        moduleRef.addImports([importedRef]);
-      } else {
-        this.logger?.warn(`Could not find imported module with token: ${token}`);
-      }
-    }
-  }
-
-  private scanControllers(controllers: Constructor[], moduleRef: Module): void {
-    controllers.forEach((controller) => {
-      const instance = this.container.resolve(controller);
-      moduleRef.addController(controller, instance);
-      this.logger?.debug(`Added controller: ${controller.name} to module: ${moduleRef.token}`);
-    });
-  }
-
-  private scanChannels(channels: Constructor[], moduleRef: Module): void {
-    channels.forEach((channel) => {
-      const instance = this.container.resolve(channel);
-      moduleRef.addChannel(channel, instance);
-      this.logger?.debug(`Added channel: ${channel.name} to module: ${moduleRef.token}`);
-    });
+  /** Best-effort name for logging, tolerating promise-shaped imports. */
+  private nameOf(module: Constructor | ImportableModule): string {
+    if (module instanceof Promise) return '<lazy import>';
+    if (typeof module === 'function') return module.name || 'anonymous';
+    const dynamic = module as { module?: Constructor };
+    return dynamic?.module?.name ?? 'dynamic';
   }
 }
