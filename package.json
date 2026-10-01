@@ -66,12 +66,10 @@
     "release": "pnpm build && pnpm changeset publish",
     "release:alpha": "pnpm build && pnpm changeset publish --tag alpha",
     "release:beta": "pnpm build && pnpm changeset publish --tag beta",
-    "release:next": "pnpm build && changeset publish --tag next",
-    "mode:dev": "",
-    "mode:prod": ""
+    "release:next": "pnpm build && changeset publish --tag next"
   },
   "lint-staged": {
-    "**/*.ts": "prettier --write"
+    "**/*.ts": "prettier --ignore-path ./.prettierignore --write"
   },
   "devDependencies": {
     "@changesets/cli": "^2.28.1",
