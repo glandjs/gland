@@ -27,7 +27,8 @@
     "modular"
   ],
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=22",
+    "pnpm": ">=11",
     "typescript": ">=5.0.0"
   },
   "collective": {
@@ -37,9 +38,6 @@
       "text": "Become a partner"
     }
   },
-  "workspaces": [
-    "packages/*"
-  ],
   "files": [
     "packages/common",
     "packages/core"
@@ -97,15 +95,11 @@
     "tsx": "^4.19.4",
     "typescript": "^5.5.4"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
-  },
   "dependencies": {
     "@glandjs/events": "latest",
     "@medishn/toolkit": "latest",
     "reflect-metadata": "^0.2.2",
     "tslib": "^2.8.1"
-  }
+  },
+  "packageManager": "pnpm@11.25.0"
 }
