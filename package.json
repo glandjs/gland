@@ -56,8 +56,8 @@
     "check:psx": "pnpm dlx @m-mdy-m/psx check",
     "check": "pnpm typecheck && pnpm lint && pnpm check:structure && pnpm test:all",
     "test": "pnpm test:unit",
-    "test:unit": "mocha",
-    "test:integration": "mocha --spec \"test/integration/**/*.spec.ts\"",
+    "test:unit": "node --no-experimental-strip-types ./node_modules/mocha/bin/mocha",
+    "test:integration": "node --no-experimental-strip-types ./node_modules/mocha/bin/mocha --spec \"test/integration/**/*.spec.ts\"",
     "test:all": "pnpm test:unit && pnpm test:integration",
     "coverage": "nyc pnpm test:all",
     "coverage:summary": "node scripts/coverage-summary.mjs",
@@ -90,7 +90,7 @@
     "sinon": "^19.0.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "tsx": "^4.19.4",
+    "tsx": "^4.23.15",
     "typescript": "^5.5.4"
   },
   "dependencies": {

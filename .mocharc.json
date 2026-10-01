@@ -1,10 +1,13 @@
 {
-  "require": ["ts-node/register", "tsconfig-paths/register", "test/setup.ts"],
+  "require": [
+    "ts-node/register",
+    "tsconfig-paths/register",
+    "./test/setup.ts"
+  ],
   "extension": ["ts"],
   "spec": ["test/unit/**/*.spec.ts"],
   "timeout": 15000,
   "recursive": true,
-  "node-option": ["require=ts-node/register"],
   "env": {
     "TS_NODE_PROJECT": "tsconfig.test.json"
   }
