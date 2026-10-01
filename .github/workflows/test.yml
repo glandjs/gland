@@ -43,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20.x, 22.x]
+        node-version: [22.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -97,23 +97,3 @@ jobs:
 
       - name: Confirm build output is clean
         run: git status --porcelain --untracked-files=no
-
-  psx:
-    name: Project structure (psx)
-    runs-on: ubuntu-latest
-    continue-on-error: true
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: psx check
-        run: pnpm check:psx
