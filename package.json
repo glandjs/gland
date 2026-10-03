@@ -1,13 +1,15 @@
 {
-  "name": "@glandjs/core",
-  "version": "1.0.3-beta",
-  "description": "Glands is a web framework for Node.js",
+  "name": "@glandjs/workspace",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Glands is a web framework for Node.js (monorepo root; publish @glandjs/core and @glandjs/common)",
   "author": "Mahdi",
   "license": "MIT",
   "homepage": "https://github.com/glandjs/gland#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/glandjs/gland.git"
+    "url": "git+https://github.com/glandjs/gland.git",
+    "directory": "packages"
   },
   "bugs": {
     "url": "https://github.com/glandjs/gland/issues"
@@ -38,10 +40,6 @@
       "text": "Become a partner"
     }
   },
-  "files": [
-    "packages/common",
-    "packages/core"
-  ],
   "scripts": {
     "dev": "pnpm -r dev",
     "watch": "tsc --watch",

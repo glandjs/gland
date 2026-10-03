@@ -288,12 +288,14 @@ custom:
     - path: '/.env.example'
     - path: '/commitlint.config.cjs'
     - path: '/nyc.config.json'
-    - path: '/.changeset/fix-core-diagnostics.md'
+    - path: '/.changeset/config.json'
     - path: '/psx.yml'
     - path: '/.gix/config'
 
     # ---- Packages ----------------------------------------------------------
     - path: '/packages/common/package.json'
     - path: '/packages/common/README.md'
+    - path: '/packages/common/CHANGELOG.md'
     - path: '/packages/core/package.json'
     - path: '/packages/core/README.md'
+    - path: '/packages/core/CHANGELOG.md'
